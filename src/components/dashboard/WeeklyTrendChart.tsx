@@ -72,8 +72,9 @@ export default function WeeklyTrendChart() {
                         }}
                     />
                     <Tooltip
-                        formatter={(value: number, name: string) => [
-                            formatRupiah(value),
+                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                        formatter={(value: any, name: any) => [
+                            formatRupiah(Number(value)),
                             name === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran',
                         ]}
                         contentStyle={{
