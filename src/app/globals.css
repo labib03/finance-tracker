@@ -1,26 +1,255 @@
 @import "tailwindcss";
 
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-serif:
+    var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  /* Scandi Minimal Color Palette */
+  --bg-main: #fafafa;
+  --bg-card: #ffffff;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+  --text-primary: #1c1c1e;
+  --text-secondary: #3a3a3c;
+  --text-muted: #8e8e93;
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+  --border-light: #e5e5ea;
+  --border-focus: #1c1c1e;
+
+  /* Accents */
+  --accent-green: #34c759;
+  --accent-green-bg: #e8f8ee;
+
+  --accent-red: #ff3b30;
+  --accent-red-bg: #ffebeb;
+
+  --accent-primary: #1c1c1e;
+  --accent-primary-hover: #2c2c2e;
+
+  /* Form & Inputs */
+  --input-bg: #f2f2f7;
+  --input-border: transparent;
+
+  /* Shadows */
+  --shadow-scandi:
+    0 4px 24px -6px rgba(0, 0, 0, 0.04), 0 2px 8px -4px rgba(0, 0, 0, 0.02);
+  --shadow-float: 0 12px 32px -8px rgba(0, 0, 0, 0.06);
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--bg-main);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===============================
+   CARDS & PANELS
+=============================== */
+.card {
+  @apply bg-white rounded-3xl p-6 md:p-8;
+  box-shadow: var(--shadow-scandi);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+  transition:
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+  box-shadow: var(--shadow-float);
+  transform: translateY(-2px);
+}
+
+.chart-grid {
+  @apply grid grid-cols-1 lg:grid-cols-2 gap-6;
+}
+
+/* ===============================
+   FORMS & INPUTS (Minimal)
+=============================== */
+.input-label {
+  @apply block text-[13px] font-semibold mb-2 tracking-wide;
+  color: var(--text-secondary);
+}
+
+.input-field {
+  @apply w-full rounded-2xl px-4 py-3.5 text-[15px] font-medium transition-all duration-200;
+  background-color: var(--input-bg);
+  border: 1px solid var(--input-border);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.input-field::placeholder {
+  color: var(--text-muted);
+}
+
+.input-field:focus {
+  background-color: #ffffff;
+  border-color: var(--border-focus);
+  box-shadow: 0 0 0 4px rgba(28, 28, 30, 0.05); /* Soft outer glow */
+}
+
+.input-field:disabled {
+  @apply opacity-60 cursor-not-allowed bg-gray-50;
+}
+
+.input-error {
+  border-color: var(--accent-red) !important;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 4px var(--accent-red-bg) !important;
+}
+
+.input-error-text {
+  @apply text-red-500 text-xs mt-1.5 font-medium ml-1 flex items-center gap-1;
+}
+
+/* Typographic Numbers (Amiri font) */
+.display-number {
+  font-family: var(--font-serif);
+  font-feature-settings: "tnum";
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+/* ===============================
+   BUTTONS
+=============================== */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm transition-all duration-300;
+  background-color: var(--accent-primary);
+  color: #ffffff;
+  border: border-transparent;
+}
+
+.btn-primary:hover {
+  background-color: var(--accent-primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px -4px rgba(0, 0, 0, 0.15);
+}
+
+.btn-primary:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.btn-primary:disabled {
+  @apply opacity-50 cursor-not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-full font-semibold text-sm transition-all duration-300;
+  background-color: #ffffff;
+  color: var(--text-primary);
+  border: 1px solid var(--border-light);
+}
+
+.btn-secondary:hover {
+  background-color: var(--bg-main);
+  border-color: var(--text-muted);
+}
+
+/* ===============================
+   BADGES & STATUS
+=============================== */
+.badge {
+  @apply inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[12px] font-bold tracking-wide uppercase;
+}
+
+.badge-expense {
+  background-color: var(--accent-red-bg);
+  color: var(--accent-red);
+}
+
+.badge-income {
+  background-color: var(--accent-green-bg);
+  color: var(--accent-green);
+}
+
+/* ===============================
+   MODALS
+=============================== */
+.modal-overlay {
+  @apply fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.modal-content {
+  @apply bg-white w-full max-w-md rounded-4xl shadow-2xl relative flex flex-col max-h-[90vh];
+  animation: slideUpFade 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 24px 48px -12px rgba(0, 0, 0, 0.18);
+}
+
+.modal-header {
+  @apply flex items-center justify-between p-6 sm:p-8 border-b border-gray-100;
+}
+
+.modal-header h2 {
+  @apply text-xl font-bold tracking-tight text-gray-900;
+}
+
+.modal-body {
+  @apply p-6 sm:p-8 overflow-y-auto;
+}
+
+.modal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #e5e5ea;
+  border-radius: 10px;
+}
+
+/* ===============================
+   MACAQUE / SIDEBAR & FAB
+=============================== */
+.sidebar {
+  @apply fixed top-0 left-0 h-dvh w-[260px] bg-white border-r border-[#F2F2F7] z-40 transition-transform duration-300 px-4 py-8 flex flex-col;
+  transform: translateX(-100%);
+}
+
+.sidebar.open {
+  transform: translateX(0);
+}
+
+@media (min-width: 1024px) {
+  .sidebar {
+    transform: translateX(0);
+    @apply shadow-none;
+  }
+}
+
+.fab {
+  @apply fixed bottom-6 right-6 lg:hidden z-40 w-14 h-14 rounded-full bg-[#1C1C1E] text-white flex items-center justify-center shadow-lg transition-transform hover:scale-105 active:scale-95;
+  box-shadow: 0 12px 24px -8px rgba(28, 28, 30, 0.4);
+}
+
+/* ===============================
+   ANIMATIONS
+=============================== */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUpFade {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }

@@ -1,0 +1,125 @@
+// ============================================================
+// Finance Tracker - Core Type Definitions
+// Maps to Google Sheets "database" structure
+// ============================================================
+
+// ---------- Master_Kategori Sheet ----------
+export interface Kategori {
+  id_kategori: string;
+  nama_kategori: string;
+  tipe: "Pengeluaran" | "Pemasukan";
+  icon_name: string;
+}
+
+// ---------- Master_Sumber_Dana Sheet ----------
+export interface SumberDana {
+  id_sumber_dana: string;
+  nama_sumber: string;
+  saldo_awal: number;
+}
+
+// ---------- Transaksi Sheet ----------
+export interface Transaksi {
+  id: string;
+  tanggal: string; // ISO date string YYYY-MM-DD
+  jenis: "Pengeluaran" | "Pemasukan" | "Transfer";
+  id_sumber_dana: string;
+  id_kategori: string;
+  nominal: number;
+  catatan: string;
+  // Transfer fields (optional)
+  id_sumber_dana_tujuan?: string;
+}
+
+// ---------- Recurring Transaction ----------
+export interface RecurringTransaction {
+  id: string;
+  id_kategori: string;
+  id_sumber_dana: string;
+  jenis: "Pengeluaran" | "Pemasukan";
+  nominal: number;
+  catatan: string;
+  frekuensi: "Harian" | "Mingguan" | "Bulanan" | "Tahunan";
+  tanggal_mulai: string;
+  tanggal_berikutnya: string;
+  aktif: boolean;
+}
+
+// ---------- Anggaran Sheet ----------
+export interface Budget {
+  id_anggaran: string;
+  id_kategori: string;
+  bulan: number; // 1-12
+  tahun: number; // e.g. 2026
+  nominal_limit: number;
+}
+
+// ---------- Computed/Derived Types ----------
+export interface SaldoAkun {
+  id_sumber_dana: string;
+  nama_sumber: string;
+  saldo: number;
+}
+
+export interface RingkasanBulanan {
+  total_pemasukan: number;
+  total_pengeluaran: number;
+  saldo_total: number;
+}
+
+export interface PengeluaranPerKategori {
+  nama_kategori: string;
+  icon_name: string;
+  total: number;
+  persentase: number;
+}
+
+export interface TrenMingguan {
+  minggu: string;
+  pemasukan: number;
+  pengeluaran: number;
+}
+
+export interface BudgetStatus {
+  id_kategori: string;
+  nama_kategori: string;
+  batas: number;
+  terpakai: number;
+  persentase: number;
+  status: "aman" | "peringatan" | "bahaya";
+}
+
+// ---------- Form Input Types ----------
+export interface TransaksiFormInput {
+  tanggal: string;
+  jenis: "Pengeluaran" | "Pemasukan";
+  id_sumber_dana: string;
+  id_kategori: string;
+  nominal: number;
+  catatan: string;
+}
+
+export interface TransferFormInput {
+  tanggal: string;
+  id_sumber_dana_asal: string;
+  id_sumber_dana_tujuan: string;
+  nominal: number;
+  catatan: string;
+}
+
+export interface RecurringFormInput {
+  id_kategori: string;
+  id_sumber_dana: string;
+  jenis: "Pengeluaran" | "Pemasukan";
+  nominal: number;
+  catatan: string;
+  frekuensi: "Harian" | "Mingguan" | "Bulanan" | "Tahunan";
+  tanggal_mulai: string;
+}
+
+export interface BudgetFormInput {
+  id_kategori: string;
+  bulan: number;
+  tahun: number;
+  nominal_limit: number;
+}
