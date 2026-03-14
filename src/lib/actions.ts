@@ -289,6 +289,48 @@ export async function tambahRecurring(
   }
 }
 
+export async function updateRecurring(
+  recurring: RecurringTransaction,
+): Promise<boolean> {
+  try {
+    const result = await findRowAndGetSheetId("Recurring", recurring.id);
+    if (!result) return false;
+
+    const { rowIndex } = result;
+    const sheets = getSheets();
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Recurring!A${rowIndex + 1}:J${rowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            recurring.id,
+            recurring.id_kategori,
+            recurring.id_sumber_dana,
+            recurring.jenis,
+            recurring.nominal,
+            recurring.catatan,
+            recurring.frekuensi,
+            recurring.tanggal_mulai,
+            recurring.tanggal_berikutnya,
+            recurring.aktif.toString(),
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating recurring:", error);
+    return false;
+  }
+}
+
+export async function hapusRecurring(id: string): Promise<boolean> {
+  return deleteRowByIdFromSheet("Recurring", id);
+}
+
 export async function tambahBudget(budget: Budget): Promise<boolean> {
   try {
     const sheets = getSheets();
@@ -317,6 +359,102 @@ export async function tambahBudget(budget: Budget): Promise<boolean> {
 
 export async function hapusTransaksi(id: string): Promise<boolean> {
   return deleteRowByIdFromSheet("Transaksi", id);
+}
+
+/**
+ * Process due recurring transactions and create real transactions
+ */
+export async function prosesRecurring(): Promise<boolean> {
+  try {
+    const [recurringList, transaksiList] = await Promise.all([
+      fetchRecurring(),
+      fetchTransaksi(),
+    ]);
+
+    const activeRecurring = recurringList.filter((r) => r.aktif);
+    const today = new Date().toISOString().split("T")[0];
+    const newTransactions: Transaksi[] = [];
+    const updatedRecurring: RecurringTransaction[] = [];
+
+    const { hitungTanggalBerikutnya, generateId } = await import("./utils");
+
+    for (const r of activeRecurring) {
+      let nextDate = r.tanggal_berikutnya;
+
+      // If next date is today or in the past, process it
+      while (nextDate <= today && nextDate !== "") {
+        // Create new transaction
+        const newTx: Transaksi = {
+          id: generateId(),
+          tanggal: nextDate,
+          jenis: r.jenis,
+          id_sumber_dana: r.id_sumber_dana,
+          id_kategori: r.id_kategori,
+          nominal: r.nominal,
+          catatan: r.catatan ? `[RECURRING] ${r.catatan}` : "[RECURRING]",
+        };
+
+        // Check if this transaction already exists to avoid duplicates
+        // (Simplified check: same date, same category, same nominal, same source)
+        const exists = transaksiList.some(
+          (t) =>
+            t.tanggal === newTx.tanggal &&
+            t.id_kategori === newTx.id_kategori &&
+            t.nominal === newTx.nominal &&
+            t.id_sumber_dana === newTx.id_sumber_dana &&
+            t.catatan.includes("[RECURRING]"),
+        );
+
+        if (!exists) {
+          newTransactions.push(newTx);
+        }
+
+        // Calculate next occurrence
+        nextDate = hitungTanggalBerikutnya(nextDate, r.frekuensi);
+      }
+
+      if (nextDate !== r.tanggal_berikutnya) {
+        updatedRecurring.push({ ...r, tanggal_berikutnya: nextDate });
+      }
+    }
+
+    if (newTransactions.length === 0 && updatedRecurring.length === 0) {
+      return true;
+    }
+
+    const sheets = getSheets();
+
+    // 1. Add all new transactions
+    if (newTransactions.length > 0) {
+      await sheets.spreadsheets.values.append({
+        spreadsheetId: SPREADSHEET_ID,
+        range: "Transaksi!A:H",
+        valueInputOption: "USER_ENTERED",
+        requestBody: {
+          values: newTransactions.map((t) => [
+            t.id,
+            t.tanggal,
+            t.jenis,
+            t.id_sumber_dana,
+            t.id_kategori,
+            t.nominal,
+            t.catatan,
+            t.id_sumber_dana_tujuan || "",
+          ]),
+        },
+      });
+    }
+
+    // 2. Update recurring dates (individually for now as Sheets batch update is complex with indices)
+    for (const r of updatedRecurring) {
+      await updateRecurring(r);
+    }
+
+    return true;
+  } catch (error) {
+    console.error("Error processing recurring:", error);
+    return false;
+  }
 }
 
 // ============================================================

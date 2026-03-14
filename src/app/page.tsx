@@ -8,7 +8,7 @@ import { getNamaBulan, getCurrentMonth } from '@/lib/utils';
 import Sidebar from '@/components/layout/Sidebar';
 import LiquidBackground from '@/components/ui/LiquidBackground';
 import LoadingScreen from '@/components/ui/LoadingScreen';
-import ToastContainer from '@/components/ui/ToastContainer';
+import { Toaster } from 'sonner';
 
 // Dashboard Components
 import SummaryCards from '@/components/dashboard/SummaryCards';
@@ -82,7 +82,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen w-full relative">
       <LiquidBackground />
-      <ToastContainer />
+      <Toaster richColors position="top-right" />
 
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
 

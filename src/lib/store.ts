@@ -1,9 +1,5 @@
-// ============================================================
-// Zustand Store - Global State Management
-// Handles caching, optimistic updates, and UI state
-// ============================================================
-
 import { create } from "zustand";
+import { toast } from "sonner";
 import type {
   Transaksi,
   Kategori,
@@ -28,6 +24,9 @@ import {
   tambahSumberDana,
   updateSumberDana as updateSumberDanaAction,
   hapusSumberDana,
+  updateRecurring as updateRecurringAction,
+  hapusRecurring as hapusRecurringAction,
+  prosesRecurring,
 } from "@/lib/actions";
 import { getCurrentMonth, generateId } from "@/lib/utils";
 
@@ -45,7 +44,6 @@ interface FinanceState {
   isInitialized: boolean;
   activeMonth: string;
   activeModal: string | null;
-  toasts: Toast[];
 
   // Actions - Data Fetching
   initialize: () => Promise<void>;
@@ -66,6 +64,9 @@ interface FinanceState {
 
   // Actions - Recurring
   addRecurring: (data: Omit<RecurringTransaction, "id">) => Promise<void>;
+  updateRecurring: (data: RecurringTransaction) => Promise<void>;
+  removeRecurring: (id: string) => Promise<void>;
+  processRecurring: () => Promise<void>;
 
   // Actions - Budget
   addBudget: (data: Omit<Budget, "id_anggaran">) => Promise<void>;
@@ -82,14 +83,6 @@ interface FinanceState {
 
   // Actions - UI
   setActiveModal: (modal: string | null) => void;
-  addToast: (toast: Omit<Toast, "id">) => void;
-  removeToast: (id: string) => void;
-}
-
-interface Toast {
-  id: string;
-  type: "success" | "error" | "info";
-  message: string;
 }
 
 // ---------- Create Store ----------
@@ -104,7 +97,6 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   isInitialized: false,
   activeMonth: getCurrentMonth(),
   activeModal: null,
-  toasts: [],
 
   // ======================== Data Fetching ========================
 
@@ -131,28 +123,33 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         isLoading: false,
         isInitialized: true,
       });
+
+      // Auto-process due recurring transactions
+      await get().processRecurring();
     } catch (error) {
       console.error("Failed to initialize:", error);
       set({ isLoading: false, isInitialized: true });
-      get().addToast({
-        type: "error",
-        message: "Gagal memuat data. Silakan refresh halaman.",
-      });
+      toast.error("Gagal memuat data. Silakan refresh halaman.");
     }
   },
 
   refreshData: async () => {
     try {
-      const [transaksi, recurring, budgets] = await Promise.all([
-        fetchTransaksi(),
-        fetchRecurring(),
-        fetchBudgets(),
-      ]);
+      const [transaksi, recurring, budgets, kategori, sumberDana] =
+        await Promise.all([
+          fetchTransaksi(),
+          fetchRecurring(),
+          fetchBudgets(),
+          fetchKategori(),
+          fetchSumberDana(),
+        ]);
 
       set({
         transaksiList: transaksi,
         recurringList: recurring,
         budgetList: budgets,
+        kategoriList: kategori,
+        sumberDanaList: sumberDana,
       });
     } catch (error) {
       console.error("Failed to refresh:", error);
@@ -183,20 +180,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       transaksiList: [newTransaksi, ...state.transaksiList],
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Transaksi berhasil ditambahkan!",
-    });
+    toast.success("Transaksi berhasil ditambahkan!");
 
     const success = await tambahTransaksi(newTransaksi);
     if (!success) {
       set((state) => ({
         transaksiList: state.transaksiList.filter((t) => t.id !== id),
       }));
-      get().addToast({
-        type: "error",
-        message: "Gagal menyimpan ke server. Transaksi dibatalkan.",
-      });
+      toast.error("Gagal menyimpan ke server. Transaksi dibatalkan.");
     }
   },
 
@@ -223,17 +214,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       transaksiList: [transferTx, ...state.transaksiList],
     }));
 
-    get().addToast({ type: "success", message: "Transfer berhasil!" });
+    toast.success("Transfer berhasil!");
 
     const success = await tambahTransfer(transferTx);
     if (!success) {
       set((state) => ({
         transaksiList: state.transaksiList.filter((t) => t.id !== id),
       }));
-      get().addToast({
-        type: "error",
-        message: "Gagal menyimpan transfer ke server.",
-      });
+      toast.error("Gagal menyimpan transfer ke server.");
     }
   },
 
@@ -243,15 +231,12 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       transaksiList: state.transaksiList.filter((t) => t.id !== id),
     }));
 
-    get().addToast({ type: "info", message: "Transaksi dihapus." });
+    toast.info("Transaksi dihapus.");
 
     const success = await hapusTransaksi(id);
     if (!success) {
       set({ transaksiList: prev });
-      get().addToast({
-        type: "error",
-        message: "Gagal menghapus dari server.",
-      });
+      toast.error("Gagal menghapus dari server.");
     }
   },
 
@@ -263,20 +248,60 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       recurringList: [newRecurring, ...state.recurringList],
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Transaksi berulang ditambahkan!",
-    });
+    toast.success("Transaksi berulang ditambahkan!");
 
     const success = await tambahRecurring(newRecurring);
     if (!success) {
       set((state) => ({
         recurringList: state.recurringList.filter((r) => r.id !== id),
       }));
-      get().addToast({
-        type: "error",
-        message: "Gagal menyimpan ke server.",
-      });
+      toast.error("Gagal menyimpan ke server.");
+    }
+  },
+
+  updateRecurring: async (data) => {
+    const prev = get().recurringList;
+    set((state) => ({
+      recurringList: state.recurringList.map((r) =>
+        r.id === data.id ? data : r,
+      ),
+    }));
+
+    const success = await updateRecurringAction(data);
+    if (!success) {
+      set({ recurringList: prev });
+      toast.error("Gagal memperbarui transaksi berulang.");
+    }
+  },
+
+  removeRecurring: async (id) => {
+    const prev = get().recurringList;
+    set((state) => ({
+      recurringList: state.recurringList.filter((r) => r.id !== id),
+    }));
+
+    toast.info("Transaksi berulang dihapus.");
+
+    const success = await hapusRecurringAction(id);
+    if (!success) {
+      set({ recurringList: prev });
+      toast.error("Gagal menghapus dari server.");
+    }
+  },
+
+  processRecurring: async () => {
+    try {
+      const success = await prosesRecurring();
+      if (success) {
+        // If something was processed, refresh only needed data
+        const [transaksi, recurring] = await Promise.all([
+          fetchTransaksi(),
+          fetchRecurring(),
+        ]);
+        set({ transaksiList: transaksi, recurringList: recurring });
+      }
+    } catch (error) {
+      console.error("Failed to process recurring:", error);
     }
   },
 
@@ -288,10 +313,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       budgetList: [newBudget, ...state.budgetList],
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Anggaran berhasil ditambahkan!",
-    });
+    toast.success("Anggaran berhasil ditambahkan!");
 
     const success = await tambahBudget(newBudget);
     if (!success) {
@@ -300,10 +322,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           (b) => b.id_anggaran !== id_anggaran,
         ),
       }));
-      get().addToast({
-        type: "error",
-        message: "Gagal menyimpan anggaran ke server.",
-      });
+      toast.error("Gagal menyimpan anggaran ke server.");
     }
   },
 
@@ -314,10 +333,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       kategoriList: [...state.kategoriList, data],
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Kategori berhasil ditambahkan!",
-    });
+    toast.success("Kategori berhasil ditambahkan!");
 
     const success = await tambahKategori(data);
     if (!success) {
@@ -326,7 +342,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           (k) => k.id_kategori !== data.id_kategori,
         ),
       }));
-      get().addToast({ type: "error", message: "Gagal menyimpan kategori." });
+      toast.error("Gagal menyimpan kategori.");
+    } else {
+      // Refresh to ensure sync with server
+      await get().refreshMasterData();
     }
   },
 
@@ -338,15 +357,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       ),
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Kategori berhasil diperbarui!",
-    });
+    toast.success("Kategori berhasil diperbarui!");
 
     const success = await updateKategoriAction(data);
     if (!success) {
       set({ kategoriList: prev });
-      get().addToast({ type: "error", message: "Gagal memperbarui kategori." });
+      toast.error("Gagal memperbarui kategori.");
+    } else {
+      await get().refreshMasterData();
     }
   },
 
@@ -356,12 +374,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       kategoriList: state.kategoriList.filter((k) => k.id_kategori !== id),
     }));
 
-    get().addToast({ type: "info", message: "Kategori dihapus." });
+    toast.info("Kategori dihapus.");
 
     const success = await hapusKategori(id);
     if (!success) {
       set({ kategoriList: prev });
-      get().addToast({ type: "error", message: "Gagal menghapus kategori." });
+      toast.error("Gagal menghapus kategori.");
+    } else {
+      await get().refreshMasterData();
     }
   },
 
@@ -372,10 +392,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       sumberDanaList: [...state.sumberDanaList, data],
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Sumber dana berhasil ditambahkan!",
-    });
+    toast.success("Sumber dana berhasil ditambahkan!");
 
     const success = await tambahSumberDana(data);
     if (!success) {
@@ -384,10 +401,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           (s) => s.id_sumber_dana !== data.id_sumber_dana,
         ),
       }));
-      get().addToast({
-        type: "error",
-        message: "Gagal menyimpan sumber dana.",
-      });
+      toast.error("Gagal menyimpan sumber dana.");
+    } else {
+      await get().refreshMasterData();
     }
   },
 
@@ -399,18 +415,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       ),
     }));
 
-    get().addToast({
-      type: "success",
-      message: "Sumber dana berhasil diperbarui!",
-    });
+    toast.success("Sumber dana berhasil diperbarui!");
 
     const success = await updateSumberDanaAction(data);
     if (!success) {
       set({ sumberDanaList: prev });
-      get().addToast({
-        type: "error",
-        message: "Gagal memperbarui sumber dana.",
-      });
+      toast.error("Gagal memperbarui sumber dana.");
+    } else {
+      await get().refreshMasterData();
     }
   },
 
@@ -422,35 +434,18 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       ),
     }));
 
-    get().addToast({ type: "info", message: "Sumber dana dihapus." });
+    toast.info("Sumber dana dihapus.");
 
     const success = await hapusSumberDana(id);
     if (!success) {
       set({ sumberDanaList: prev });
-      get().addToast({
-        type: "error",
-        message: "Gagal menghapus sumber dana.",
-      });
+      toast.error("Gagal menghapus sumber dana.");
+    } else {
+      await get().refreshMasterData();
     }
   },
 
   // ======================== UI State ========================
 
   setActiveModal: (modal) => set({ activeModal: modal }),
-
-  addToast: (toast) => {
-    const id = generateId();
-    set((state) => ({
-      toasts: [...state.toasts, { ...toast, id }],
-    }));
-    setTimeout(() => {
-      get().removeToast(id);
-    }, 4000);
-  },
-
-  removeToast: (id) => {
-    set((state) => ({
-      toasts: state.toasts.filter((t) => t.id !== id),
-    }));
-  },
 }));
