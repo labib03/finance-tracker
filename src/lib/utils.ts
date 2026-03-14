@@ -1,8 +1,8 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }
 
 import type {
@@ -63,7 +63,7 @@ export function getCurrentMonth(cycleStartDay: number = 25): string {
   let year = now.getFullYear();
   let month = now.getMonth() + 1;
   const day = now.getDate();
-  
+
   if (day >= cycleStartDay) {
     month += 1;
     if (month > 12) {
@@ -71,21 +71,33 @@ export function getCurrentMonth(cycleStartDay: number = 25): string {
       year += 1;
     }
   }
-  
+
   return `${year}-${String(month).padStart(2, "0")}`;
 }
 
 /**
  * Check if a date falls within the custom month cycle (cycleStartDay to cycleStartDay-1)
  */
-export function isInCustomMonth(dateStr: string, monthId: string, cycleStartDay: number = 25): boolean {
+export function isInCustomMonth(
+  dateStr: string,
+  monthId: string,
+  cycleStartDay: number = 25,
+): boolean {
   if (!dateStr || !monthId) return false;
-  const [targetYear, targetMonth] = monthId.split('-').map(Number);
-  
+  const [targetYear, targetMonth] = monthId.split("-").map(Number);
+
   // Custom month cycle starts on cycleStartDay of previous month and ends on cycleStartDay-1 of target month
   const startDate = new Date(targetYear, targetMonth - 2, cycleStartDay);
-  const endDate = new Date(targetYear, targetMonth - 1, cycleStartDay - 1, 23, 59, 59, 999);
-  
+  const endDate = new Date(
+    targetYear,
+    targetMonth - 1,
+    cycleStartDay - 1,
+    23,
+    59,
+    59,
+    999,
+  );
+
   const date = new Date(dateStr);
   return date >= startDate && date <= endDate;
 }
@@ -144,7 +156,9 @@ export function hitungRingkasanBulanan(
   bulan: string, // YYYY-MM
   cycleStartDay: number = 25,
 ): RingkasanBulanan {
-  const filtered = transaksiList.filter((t) => isInCustomMonth(t.tanggal, bulan, cycleStartDay));
+  const filtered = transaksiList.filter((t) =>
+    isInCustomMonth(t.tanggal, bulan, cycleStartDay),
+  );
 
   let total_pemasukan = 0;
   let total_pengeluaran = 0;
@@ -171,7 +185,9 @@ export function hitungPengeluaranPerKategori(
   cycleStartDay: number = 25,
 ): PengeluaranPerKategori[] {
   const filtered = transaksiList.filter(
-    (t) => t.jenis === "Pengeluaran" && isInCustomMonth(t.tanggal, bulan, cycleStartDay),
+    (t) =>
+      t.jenis === "Pengeluaran" &&
+      isInCustomMonth(t.tanggal, bulan, cycleStartDay),
   );
 
   const map = new Map<string, number>();
@@ -203,8 +219,10 @@ export function hitungTrenMingguan(
   bulan: string,
   cycleStartDay: number = 25,
 ): TrenMingguan[] {
-  const filtered = transaksiList.filter((t) => isInCustomMonth(t.tanggal, bulan, cycleStartDay));
-  const [targetYear, targetMonth] = bulan.split('-').map(Number);
+  const filtered = transaksiList.filter((t) =>
+    isInCustomMonth(t.tanggal, bulan, cycleStartDay),
+  );
+  const [targetYear, targetMonth] = bulan.split("-").map(Number);
   const startDate = new Date(targetYear, targetMonth - 2, cycleStartDay);
 
   // Group by 7-day chunks starting from the 25th
@@ -254,23 +272,30 @@ export function hitungTrenBulananKategori(
 ): any[] {
   const result = [];
   const [year, month] = bulanAkhir.split("-").map(Number);
-  
+
   for (let i = jumlahBulan - 1; i >= 0; i--) {
     const d = new Date(year, month - 1 - i, 1);
     const bulanKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-    const bulanNama = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(d);
-    
-    const pengeluaranBulan = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanKey, cycleStartDay);
+    const bulanNama = new Intl.DateTimeFormat("id-ID", {
+      month: "short",
+    }).format(d);
+
+    const pengeluaranBulan = hitungPengeluaranPerKategori(
+      transaksiList,
+      kategoriList,
+      bulanKey,
+      cycleStartDay,
+    );
     const entry: any = { name: bulanNama, total: 0 };
-    
-    pengeluaranBulan.forEach(p => {
+
+    pengeluaranBulan.forEach((p) => {
       entry[p.nama_kategori] = p.total;
       entry.total += p.total;
     });
-    
+
     result.push(entry);
   }
-  
+
   return result;
 }
 
@@ -294,37 +319,51 @@ export function hitungPerbandinganKategori(
   const dLalu = new Date(year, month - 2, 1);
   const bulanLalu = `${dLalu.getFullYear()}-${String(dLalu.getMonth() + 1).padStart(2, "0")}`;
 
-  const aktif = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanAktif, cycleStartDay);
-  const lalu = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanLalu, cycleStartDay);
+  const aktif = hitungPengeluaranPerKategori(
+    transaksiList,
+    kategoriList,
+    bulanAktif,
+    cycleStartDay,
+  );
+  const lalu = hitungPengeluaranPerKategori(
+    transaksiList,
+    kategoriList,
+    bulanLalu,
+    cycleStartDay,
+  );
 
-  const allKategori = Array.from(new Set([
-    ...aktif.map(a => a.nama_kategori),
-    ...lalu.map(l => l.nama_kategori)
-  ]));
+  const allKategori = Array.from(
+    new Set([
+      ...aktif.map((a) => a.nama_kategori),
+      ...lalu.map((l) => l.nama_kategori),
+    ]),
+  );
 
-  return allKategori.map(name => {
-    const dataAktif = aktif.find(a => a.nama_kategori === name);
-    const dataLalu = lalu.find(l => l.nama_kategori === name);
-    const totalAktif = dataAktif?.total || 0;
-    const totalLalu = dataLalu?.total || 0;
-    const selisih = totalAktif - totalLalu;
-    
-    let persentase = 0;
-    if (totalLalu > 0) {
-      persentase = Math.round((selisih / totalLalu) * 100);
-    } else if (totalAktif > 0) {
-      persentase = 100;
-    }
+  return allKategori
+    .map((name) => {
+      const dataAktif = aktif.find((a) => a.nama_kategori === name);
+      const dataLalu = lalu.find((l) => l.nama_kategori === name);
+      const totalAktif = dataAktif?.total || 0;
+      const totalLalu = dataLalu?.total || 0;
+      const selisih = totalAktif - totalLalu;
 
-    return {
-      nama_kategori: name,
-      totalAktif,
-      totalLalu,
-      selisih,
-      persentase,
-      icon_name: dataAktif?.icon_name || dataLalu?.icon_name || 'Circle'
-    };
-  }).sort((a, b) => b.totalAktif - a.totalAktif);
+      let persentase = 0;
+      if (totalLalu > 0) {
+        persentase = Math.round((selisih / totalLalu) * 100);
+      } else if (totalAktif > 0) {
+        persentase = 100;
+      }
+
+      return {
+        nama_kategori: name,
+        totalAktif,
+        totalLalu,
+        selisih,
+        persentase,
+        icon_name: dataAktif?.icon_name || dataLalu?.icon_name || "Circle",
+      };
+    })
+    .sort((a, b) => b.totalAktif - a.totalAktif);
 }
 
 /**
@@ -342,13 +381,15 @@ export function hitungBudgetStatus(
   const monthNum = parseInt(monthStr);
 
   const filtered = transaksiList.filter(
-    (t) => t.jenis === "Pengeluaran" && isInCustomMonth(t.tanggal, bulan, cycleStartDay),
+    (t) =>
+      t.jenis === "Pengeluaran" &&
+      isInCustomMonth(t.tanggal, bulan, cycleStartDay),
   );
 
   return budgetList
     .filter((b) => b.bulan === monthNum && b.tahun === yearNum)
     .map((b) => {
-      const kat = kategoriList.find((k) => k.id_kategori === b.id_kategori);
+      const kat = kategoriList.find((k) => k.nama_kategori === b.id_kategori);
       const terpakai = filtered
         .filter((t) => t.id_kategori === b.id_kategori)
         .reduce((sum, t) => sum + t.nominal, 0);
@@ -412,26 +453,26 @@ export function getNamaBulan(bulan: string): string {
 export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {
   const date = new Date(tanggal);
   if (isNaN(date.getTime())) return "";
-  
+
   switch (frekuensi) {
-    case 'Harian':
+    case "Harian":
       date.setDate(date.getDate() + 1);
       break;
-    case 'Mingguan':
+    case "Mingguan":
       date.setDate(date.getDate() + 7);
       break;
-    case 'Bulanan':
+    case "Bulanan":
       date.setMonth(date.getMonth() + 1);
       break;
-    case 'Tahunan':
+    case "Tahunan":
       date.setFullYear(date.getFullYear() + 1);
       break;
     default:
       return tanggal;
   }
-  return date.toISOString().split('T')[0];
+  return date.toISOString().split("T")[0];
 };
 
 export const formatNumber = (num: number) => {
-  return new Intl.NumberFormat('id-ID').format(num);
+  return new Intl.NumberFormat("id-ID").format(num);
 };

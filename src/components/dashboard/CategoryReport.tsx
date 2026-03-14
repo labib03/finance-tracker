@@ -79,36 +79,50 @@ export default function CategoryReport() {
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {/* Header Hero Analytics */}
-            <div className="flex flex-col md:flex-row gap-8 items-start">
-                <div className="flex-1 space-y-2">
-                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">Performa Keuangan</p>
-                    <h2 className="text-4xl font-black text-foreground tracking-tighter leading-none">
-                        Analisis Pengeluaran
-                    </h2>
-                    <p className="text-sm text-muted-foreground font-medium max-w-md italic">
-                        "Setiap rupiah yang tercatat adalah satu langkah menuju kebebasan finansial yang terukur."
-                    </p>
-                </div>
-                
-                <div className="flex gap-4">
-                     <div className="bg-white p-6 rounded-[2rem] shadow-scandi border border-border/50 min-w-[240px]">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Total Keluar</p>
-                        <div className="flex items-center justify-between gap-4">
-                            <h3 className="text-2xl font-black display-number text-foreground leading-tight">
-                                {formatRupiah(totalBulanIni)}
-                            </h3>
-                            <div className={cn(
-                                "flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black border",
-                                selisihTotal <= 0 
-                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                                    : "bg-red-50 text-red-600 border-red-100"
-                            )}>
-                                {selisihTotal <= 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
-                                {Math.abs(persentaseTotal)}%
-                            </div>
+            {/* Quick Stats Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="bg-slate-950 p-8 rounded-[2.5rem] shadow-2xl relative overflow-hidden group transition-all duration-700 hover:-translate-y-1 hover:shadow-indigo-500/10">
+                    <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl pointer-events-none group-hover:bg-indigo-500/20 transition-all duration-1000" />
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-indigo-300/40 mb-3 relative z-10">Total Belanja</p>
+                    <div className="flex items-end justify-between relative z-10">
+                        <h3 className="text-3xl font-black display-number text-white tracking-tighter">
+                            {formatRupiah(totalBulanIni)}
+                        </h3>
+                        <div className={cn(
+                            "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black border backdrop-blur-md",
+                            selisihTotal <= 0 
+                                ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" 
+                                : "bg-rose-500/10 text-rose-400 border-rose-500/20"
+                        )}>
+                            {selisihTotal <= 0 ? <ArrowDownRight size={14} strokeWidth={3} /> : <ArrowUpRight size={14} strokeWidth={3} />}
+                            {Math.abs(persentaseTotal)}%
                         </div>
-                     </div>
+                    </div>
+                    <div className="mt-4 pt-4 border-t border-white/5 flex items-center justify-between relative z-10">
+                        <span className="text-[9px] font-black uppercase text-white/20 tracking-widest">Bulan Lalu</span>
+                        <span className="text-[10px] font-black display-number text-white/40">{formatRupiah(totalBulanLalu)}</span>
+                    </div>
+                </div>
+
+                <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-3">Rata-rata Harian</p>
+                    <h3 className="text-3xl font-black display-number text-foreground tracking-tighter">
+                        {formatRupiah(totalBulanIni / 30)}
+                    </h3>
+                    <p className="text-[10px] font-black uppercase text-muted-foreground/40 mt-3 italic tracking-tighter">Berdasarkan siklus 30 hari</p>
+                </div>
+
+                <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-3">Item Transaksi</p>
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-3xl font-black display-number text-foreground tracking-tighter">
+                            {transaksiList.filter(t => t.tanggal.includes(activeMonth) && t.jenis === 'Pengeluaran').length}
+                        </h3>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 mt-2">Records</span>
+                    </div>
+                    <div className="w-full h-1.5 bg-muted rounded-full mt-4 overflow-hidden">
+                        <div className="h-full bg-indigo-500 w-[65%]" />
+                    </div>
                 </div>
             </div>
 

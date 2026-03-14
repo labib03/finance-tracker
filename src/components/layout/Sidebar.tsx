@@ -29,10 +29,10 @@ import {
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Ringkasan finansial' },
     { id: 'saldo', label: 'Dompet Kontrol', icon: Wallet, description: 'Manajemen akun' },
-    { id: 'transaksi', label: 'Input Cepat', icon: PlusCircle, description: 'Catat transaksi' },
+    { id: 'transaksi', label: 'Riwayat Input', icon: PlusCircle, description: 'Catat transaksi' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
     { id: 'anggaran', label: 'Target Budget', icon: PieChart, description: 'Batas hemat' },
-    { id: 'laporan', label: 'Laporan Analitik', icon: LayoutDashboard, description: 'Statistik kategori' },
+    { id: 'laporan', label: 'Analitik Pro', icon: PieChart, description: 'Statistik kategori' },
     { id: 'recurring', label: 'Jadwal Rutin', icon: CalendarClock, description: 'Biaya langganan' },
     { id: 'master', label: 'Master Data', icon: Database, description: 'Kategori & sumber' },
 ];
@@ -46,7 +46,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     const [open, setOpen] = useState(false);
 
     const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
-        <nav className="flex flex-col gap-2">
+        <nav className="flex flex-col gap-1.5">
             {navItems.map((item) => {
                 const isActive = activeView === item.id;
                 const Icon = item.icon;
@@ -58,32 +58,32 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                             if (mobile) setOpen(false);
                         }}
                         className={cn(
-                            "group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-300 text-left relative overflow-hidden",
+                            "group flex items-center gap-4 px-4 py-3.5 rounded-[1.5rem] transition-all duration-500 text-left relative overflow-hidden",
                             isActive 
-                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
-                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                ? "bg-foreground text-background shadow-xl shadow-foreground/10 translate-x-1" 
+                                : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
                         )}
                     >
                         <div className={cn(
-                            "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-colors",
-                            isActive ? "bg-white/20" : "bg-muted group-hover:bg-background"
+                            "flex items-center justify-center w-8 h-8 rounded-xl shrink-0 transition-all duration-500",
+                            isActive ? "bg-white/10" : "bg-muted group-hover:bg-background"
                         )}>
-                            <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                            <Icon size={18} strokeWidth={isActive ? 2.5 : 2} className={cn("transition-transform duration-500", isActive ? "scale-110" : "group-hover:scale-110")} />
                         </div>
                         <div className="flex flex-col min-w-0">
-                            <span className="text-[14px] font-bold tracking-tight leading-none mb-0.5">
+                            <span className="text-[11px] font-black uppercase tracking-[0.15em] leading-none mb-1">
                                 {item.label}
                             </span>
                             <span className={cn(
-                                "text-[10px] font-medium opacity-70 truncate",
-                                isActive ? "text-primary-foreground/80" : "text-muted-foreground"
+                                "text-[9px] font-black uppercase tracking-tighter opacity-40",
+                                isActive ? "text-background/60" : "text-muted-foreground"
                             )}>
                                 {item.description}
                             </span>
                         </div>
                         {isActive && (
-                            <div className="ml-auto animate-in fade-in slide-in-from-left-1 duration-300">
-                                <ChevronRight size={14} className="opacity-50" />
+                            <div className="ml-auto animate-in fade-in slide-in-from-left-2 duration-500">
+                                <div className="w-1.5 h-1.5 rounded-full bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]" />
                             </div>
                         )}
                     </button>
@@ -93,17 +93,17 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     );
 
     const Brand = () => (
-        <div className="flex items-center gap-3 mb-8 px-2 transition-all duration-300">
-            <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/10 relative overflow-hidden group">
+        <div className="flex items-center gap-4 mb-12 px-2 transition-all duration-500">
+            <div className="w-12 h-12 rounded-[1.5rem] bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-500/20 relative overflow-hidden group">
                 <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <DollarSign size={24} className="text-primary-foreground relative z-10" />
+                <DollarSign size={22} strokeWidth={3} className="text-white relative z-10" />
             </div>
             <div className="flex flex-col text-left">
-                <h1 className="text-lg font-black tracking-tighter leading-none bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
-                    FinanceTracker.
+                <h1 className="text-xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
+                    Financer<span className="text-indigo-600">.</span>
                 </h1>
-                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 mt-1">
-                    Elite Edition
+                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mt-1.5">
+                    Premium Interface
                 </p>
             </div>
         </div>
@@ -112,80 +112,84 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="fixed top-0 left-0 h-screen w-[280px] bg-background/50 backdrop-blur-xl border-r border-border/50 hidden lg:flex flex-col p-6 z-40 transition-all duration-300">
+            <aside className="fixed top-0 left-0 h-screen w-[280px] bg-white border-r border-border/40 hidden lg:flex flex-col p-8 z-40 transition-all duration-300">
                 <Brand />
                 <div className="flex-1 overflow-y-auto px-1 -mx-1 scrollbar-none">
-                    <NavLinks />
+                    <div className="mb-4">
+                        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mb-6 px-4">Menu Utama</p>
+                        <NavLinks />
+                    </div>
                 </div>
                 
                 <div className="mt-8 space-y-4">
-                    <Separator className="opacity-50" />
+                    <Separator className="bg-border/40" />
                     <button
                         onClick={() => {
                             useFinanceStore.getState().setActiveModal('cycle_settings');
                         }}
-                        className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300 text-left"
+                        className="group w-full flex items-center gap-4 px-4 py-3.5 rounded-[1.5rem] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-500 text-left"
                     >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0 group-hover:bg-background transition-colors">
+                        <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-muted shrink-0 group-hover:bg-white transition-all duration-500">
                             <CalendarClock size={18} />
                         </div>
                         <div className="flex flex-col">
-                            <span className="text-[13px] font-bold tracking-tight">Pengaturan Siklus</span>
-                            <span className="text-[9px] font-medium opacity-60">Ubah rentang bulan</span>
+                            <span className="text-[11px] font-black uppercase tracking-[0.15em]">Siklus</span>
+                            <span className="text-[9px] font-black uppercase tracking-tighter opacity-40">Ubah rentang bulan</span>
                         </div>
                     </button>
 
-                    <div className="px-4 py-4 rounded-3xl bg-muted/50 border border-border/50 flex flex-col items-center text-center">
-                        <p className="text-[11px] font-bold text-muted-foreground/80 mb-2 uppercase tracking-widest">
-                             Google Sheets Cloud
-                        </p>
-                        <div className="flex items-center gap-2">
-                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                            <span className="text-[10px] font-black tracking-widest uppercase">System Online</span>
+                    <div className="p-6 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex flex-col items-center text-center group transition-colors hover:bg-indigo-100">
+                        <div className="flex items-center gap-2 mb-2">
+                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
+                             <p className="text-[10px] font-black text-indigo-900 tracking-widest uppercase opacity-80">
+                                Cloud Active
+                            </p>
                         </div>
+                        <span className="text-[8px] font-black tracking-[0.2em] uppercase text-indigo-400">Google Sheets Sync</span>
                     </div>
                 </div>
             </aside>
 
             {/* Mobile Header/Menu */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b border-border/50 z-40 px-5 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-                        <DollarSign size={18} className="text-primary-foreground" />
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-border/40 z-40 px-6 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                        <DollarSign size={18} strokeWidth={3} className="text-white" />
                     </div>
-                    <span className="text-sm font-black tracking-tighter">FinanceTracker.</span>
+                    <span className="text-base font-black tracking-tighter">Financer.</span>
                 </div>
                 
                 <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger render={<Button variant="ghost" size="icon" className="rounded-xl" />}>
-                        <Menu size={22} />
+                    <SheetTrigger render={<Button variant="ghost" size="icon" className="rounded-xl hover:bg-muted/50" />}>
+                        <Menu size={20} strokeWidth={2.5} />
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-[300px] border-r-0 p-6 flex flex-col bg-background/95 backdrop-blur-md">
-                        <SheetHeader className="text-left mb-8">
+                    <SheetContent side="left" className="w-[300px] border-r-0 p-8 flex flex-col bg-white">
+                        <SheetHeader className="text-left mb-12">
                             <Brand />
                         </SheetHeader>
-                        <div className="flex-1">
+                        <div className="flex-1 overflow-y-auto scrollbar-none">
+                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mb-6 px-4">Menu Utama</p>
                             <NavLinks mobile />
                         </div>
-                        <div className="mt-auto pt-6 space-y-4">
+                        <div className="mt-auto pt-8 space-y-4">
                              <button
                                 onClick={() => {
                                     useFinanceStore.getState().setActiveModal('cycle_settings');
                                     setOpen(false);
                                 }}
-                                className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300 text-left"
+                                className="w-full flex items-center gap-4 px-4 py-4 rounded-[1.5rem] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-500 text-left"
                             >
-                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0 transition-colors">
-                                    <CalendarClock size={18} />
+                                <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted shrink-0 transition-colors">
+                                    <CalendarClock size={20} />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[13px] font-bold tracking-tight">Pengaturan Siklus</span>
-                                    <span className="text-[9px] font-medium opacity-60">Ubah rentang bulan</span>
+                                    <span className="text-[11px] font-black uppercase tracking-[0.15em]">Pengaturan Siklus</span>
+                                    <span className="text-[9px] font-black uppercase tracking-tighter opacity-40">Ubah rentang bulan</span>
                                 </div>
                             </button>
-                             <Separator className="opacity-50" />
-                             <p className="text-[10px] font-black text-center text-muted-foreground tracking-widest uppercase">
-                                v1.2.0 · Premium Dashboard
+                             <Separator className="bg-border/40" />
+                             <p className="text-[9px] font-black text-center text-muted-foreground/30 tracking-[0.3em] uppercase">
+                                v1.2.0 · Pro Interface
                              </p>
                         </div>
                     </SheetContent>

@@ -20,6 +20,10 @@ export default function BudgetStatusCard() {
         [transaksiList, kategoriList, budgetList, activeMonth, cycleStartDay]
     );
 
+    console.log("kategoriList", kategoriList);
+    console.log("budgetList", budgetList);
+
+
     if (budgetStatus.length === 0) {
         return (
             <Card className="h-full border-none shadow-sm bg-background/50 backdrop-blur-sm">
@@ -45,75 +49,89 @@ export default function BudgetStatusCard() {
     };
 
     return (
-        <Card className="h-full border-none shadow-sm bg-background/50 backdrop-blur-sm overflow-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-sm border border-indigo-100/30">
-                        <Sparkles size={16} />
+        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float lg:min-h-[400px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 pt-8 px-8">
+                <div className="flex items-center gap-3">
+                    <div className="p-2 bg-rose-50 text-rose-600 rounded-lg">
+                        <Sparkles size={18} />
                     </div>
                     <div>
-                        <CardTitle className="text-sm font-bold uppercase tracking-wider">
+                        <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
                             Status Anggaran
                         </CardTitle>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-widest">Live Monitoring</p>
+                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">Pemantauan Real-time</p>
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-6 pt-2 pb-6">
+            <CardContent className="space-y-8 pt-4 pb-8 px-8">
                 {budgetStatus.map((bs) => (
-                    <div key={bs.id_kategori} className="group space-y-3">
+                    <div key={bs.id_kategori} className="group space-y-4">
                         <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
-                                {statusIcon[bs.status]}
-                                <span className="text-sm font-black text-foreground">{bs.nama_kategori}</span>
+                            <div className="flex items-center gap-3">
+                                <div className={cn(
+                                    "w-8 h-8 rounded-lg flex items-center justify-center transition-all shadow-xs",
+                                    bs.status === 'aman' ? 'bg-emerald-50 text-emerald-600' :
+                                        bs.status === 'peringatan' ? 'bg-amber-50 text-amber-600' : 'bg-red-50 text-red-600'
+                                )}>
+                                    {statusIcon[bs.status]}
+                                </div>
+                                <span className="text-xs font-black text-foreground uppercase tracking-wider">{bs.nama_kategori}</span>
                             </div>
                             <div className="text-right">
-                                <p className="text-[11px] font-black display-number text-foreground leading-none">
+                                <p className="text-sm font-black display-number text-foreground leading-none">
                                     {formatRupiah(bs.terpakai)}
                                 </p>
-                                <p className="text-[9px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">
-                                    dari {formatRupiah(bs.batas)}
+                                <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter mt-1 opacity-60">
+                                    Batas: {formatRupiah(bs.batas)}
                                 </p>
                             </div>
                         </div>
 
-                        <div className="relative pt-1">
-                            <Progress value={Math.min(bs.persentase, 100)} className="h-2 rounded-full bg-muted/30">
-                                <ProgressTrack className="h-2 rounded-full">
-                                    <ProgressIndicator 
-                                        className={cn(
-                                            "h-full transition-all duration-1000 ease-out rounded-full",
-                                            bs.status === 'aman' ? 'bg-emerald-500' :
-                                            bs.status === 'peringatan' ? 'bg-amber-500' : 'bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'
-                                        )}
-                                    />
-                                </ProgressTrack>
-                            </Progress>
-                            
-                            {/* Percentage Badge */}
-                            <div 
-                                className={cn(
-                                    "absolute -top-4 right-0 px-1.5 py-0.5 rounded-lg text-[10px] font-black display-number transition-all",
-                                    bs.status === 'aman' ? 'text-emerald-600 bg-emerald-50' :
-                                    bs.status === 'peringatan' ? 'text-amber-600 bg-amber-50' : 'text-red-600 bg-red-50'
-                                )}
-                            >
-                                {bs.persentase}%
+                        <div className="space-y-3">
+                            <div className="h-2 w-full rounded-full bg-muted/30 overflow-hidden">
+                                <div
+                                    className={cn(
+                                        "h-full transition-all duration-1000 ease-out rounded-full",
+                                        bs.status === 'aman' ? 'bg-emerald-500' :
+                                            bs.status === 'peringatan' ? 'bg-amber-500' : 'bg-red-500 shadow-[0_0_12px_rgba(239,68,68,0.3)]'
+                                    )}
+                                    style={{ width: `${Math.min(bs.persentase, 100)}%` }}
+                                />
+                            </div>
+
+                            {/* Percentage Indicator */}
+                            <div className="flex items-center justify-between mt-2">
+                                <p className={cn(
+                                    "text-[10px] font-black italic",
+                                    bs.status === 'aman' ? 'text-emerald-600/60' :
+                                        bs.status === 'peringatan' ? 'text-amber-600/60' : 'text-red-600/60'
+                                )}>
+                                    {bs.status === 'aman' ? 'Terjaga' : bs.status === 'peringatan' ? 'Hampir Penuh' : 'Terlampaui!'}
+                                </p>
+                                <span className={cn(
+                                    "text-[11px] font-black display-number",
+                                    bs.status === 'aman' ? 'text-emerald-600' :
+                                        bs.status === 'peringatan' ? 'text-amber-600' : 'text-red-600'
+                                )}>
+                                    {bs.persentase}%
+                                </span>
                             </div>
                         </div>
 
                         {bs.status !== 'aman' && (
                             <div className={cn(
-                                "flex items-center gap-1.5 py-2 px-3 rounded-xl border animate-in fade-in slide-in-from-top-1 duration-300",
-                                bs.status === 'peringatan' 
-                                    ? "bg-amber-50/50 border-amber-100 text-amber-700" 
-                                    : "bg-red-50/50 border-red-100 text-red-700"
+                                "flex items-start gap-2.5 py-3 px-4 rounded-2xl border animate-in fade-in slide-in-from-top-2 duration-500",
+                                bs.status === 'peringatan'
+                                    ? "bg-amber-50/30 border-amber-100/50 text-amber-800"
+                                    : "bg-red-50/30 border-red-100/50 text-red-800"
                             )}>
-                                {bs.status === 'peringatan' ? <AlertTriangle size={12} /> : <XCircle size={12} />}
-                                <p className="text-[10px] font-bold leading-tight">
-                                    {bs.status === 'peringatan' 
-                                        ? `Awas! Penggunaan sudah mencapai ${bs.persentase}%. Simpan untuk sisa bulan ini.` 
-                                        : `Gawat! Anggaran Kategori ${bs.nama_kategori} telah terlampaui.`}
+                                <div className="mt-0.5">
+                                    {bs.status === 'peringatan' ? <AlertTriangle size={14} strokeWidth={2.5} /> : <XCircle size={14} strokeWidth={2.5} />}
+                                </div>
+                                <p className="text-[10px] font-bold leading-relaxed tracking-tight">
+                                    {bs.status === 'peringatan'
+                                        ? `Penggunaan telah mencapai ${bs.persentase}%. Pertimbangkan untuk membatasi pengeluaran kategori ini.`
+                                        : `Anggaran ${bs.nama_kategori} telah terlampaui. Disarankan untuk meninjau kembali prioritas pengeluaran Anda.`}
                                 </p>
                             </div>
                         )}

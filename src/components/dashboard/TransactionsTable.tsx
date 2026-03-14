@@ -7,6 +7,7 @@ import {
     ArrowUpRight,
     ArrowDownRight,
     ArrowLeftRight,
+    ArrowRight,
     Trash2,
     Pencil,
     Eye,
@@ -122,61 +123,60 @@ export default function TransactionsTable({
 
 
     return (
-        <Card className="border-none shadow-sm overflow-hidden">
-            <CardHeader className="px-6 py-5">
-                <div className="flex flex-col gap-4">
+        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float">
+            <CardHeader className="px-8 py-8">
+                <div className="flex flex-col gap-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg font-bold tracking-tight">{title}</CardTitle>
-                            {description && <CardDescription>{description}</CardDescription>}
+                            <CardTitle className="text-sm font-black uppercase tracking-[0.2em]">{title}</CardTitle>
+                            {description && <CardDescription className="text-[10px] font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
                         </div>
                     </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                        <div className="relative flex-1 min-w-[200px]">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+ 
+                    <div className="flex flex-wrap items-center gap-3">
+                        <div className="relative flex-1 min-w-[240px]">
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40" size={14} />
                             <Input
                                 placeholder="Cari catatan atau kategori..."
-                                className="pl-9 h-9 text-xs rounded-xl bg-muted/50 border-none"
+                                className="pl-10 h-11 text-xs font-medium rounded-2xl bg-muted/20 border-transparent transition-all focus:bg-white focus:border-border/40 focus:ring-0"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
                             {search && (
                                 <button 
                                     onClick={() => setSearch('')}
-                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                    className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     <X size={14} />
                                 </button>
                             )}
                         </div>
-
-                        <div className="flex items-center gap-2">
+ 
+                        <div className="flex items-center gap-3">
                             <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || 'all')}>
-                                <SelectTrigger className="h-9 min-w-[120px] text-xs rounded-xl bg-muted/50 border-none">
+                                <SelectTrigger className="h-11 min-w-[130px] text-[10px] font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all">
                                     <SelectValue placeholder="Semua Tipe" />
                                 </SelectTrigger>
-                                <SelectContent className="rounded-xl border-none shadow-xl">
-                                    <SelectItem value="all">Semua Tipe</SelectItem>
-                                    <SelectItem value="Pengeluaran">Pengeluaran</SelectItem>
-                                    <SelectItem value="Pemasukan">Pemasukan</SelectItem>
-                                    <SelectItem value="Transfer">Transfer</SelectItem>
+                                <SelectContent className="rounded-2xl border-border/40 shadow-float overflow-hidden">
+                                    <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Semua Tipe</SelectItem>
+                                    <SelectItem value="Pengeluaran" className="text-[10px] font-black uppercase tracking-widest text-orange-600">Pengeluaran</SelectItem>
+                                    <SelectItem value="Pemasukan" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Pemasukan</SelectItem>
+                                    <SelectItem value="Transfer" className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Transfer</SelectItem>
                                 </SelectContent>
                             </Select>
-
+ 
                             <SearchableSelect
                                 options={[
-                                    { value: 'all', label: 'Semua Kategori' },
+                                    { value: 'all', label: 'SEMUA KATEGORI' },
                                     ...kategoriList.map(k => ({
                                         value: k.id_kategori,
-                                        label: k.nama_kategori
+                                        label: k.nama_kategori.toUpperCase()
                                     }))
                                 ]}
                                 value={categoryFilter}
                                 onValueChange={(val) => setCategoryFilter(val || 'all')}
-                                placeholder="Semua Kategori"
-                                searchPlaceholder="Cari kategori..."
-                                className="h-9 min-w-[160px] text-xs rounded-xl bg-muted/50 border-none shadow-none"
+                                placeholder="PILIH KATEGORI"
+                                className="h-11 min-w-[180px] text-[10px] font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all"
                             />
                         </div>
                     </div>
@@ -184,30 +184,32 @@ export default function TransactionsTable({
             </CardHeader>
             <CardContent className="p-0">
                 <Table>
-                    <TableHeader className="bg-muted/30">
+                    <TableHeader className="bg-muted/10">
                         <TableRow className="hover:bg-transparent border-none">
-                            <TableHead className="w-[80px] px-6">Tipe</TableHead>
-                            <TableHead className="px-4">Kategori</TableHead>
-                            <TableHead className="px-4">Akun</TableHead>
-                            <TableHead className="px-4 hidden md:table-cell">Catatan</TableHead>
-                            <TableHead className="px-4 text-right">Nominal</TableHead>
-                            <TableHead className="px-4 text-right">Tanggal</TableHead>
-                            {(showDelete || showEdit) && <TableHead className="w-[80px] pr-6"></TableHead>}
+                            <TableHead className="w-[80px] px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Item</TableHead>
+                            <TableHead className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Kategori</TableHead>
+                            <TableHead className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Akun</TableHead>
+                            <TableHead className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hidden md:table-cell">Catatan</TableHead>
+                            <TableHead className="px-4 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Nominal</TableHead>
+                            <TableHead className="px-4 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Tanggal</TableHead>
+                            {(showDelete || showEdit) && <TableHead className="w-[80px] pr-8 py-4"></TableHead>}
                         </TableRow>
                     </TableHeader>
                     <TableBody>
                         {filteredTransaksi.length === 0 ? (
                             <TableRow>
-                                <TableCell colSpan={7} className="py-20 text-center">
-                                    <div className="flex flex-col items-center justify-center text-muted-foreground">
-                                        <Filter size={40} className="mb-4 opacity-20" />
-                                        <p className="text-sm font-medium">Tidak ada transaksi ditemukan</p>
-                                        <p className="text-xs opacity-60">Coba sesuaikan filter atau pencarian Anda</p>
+                                <TableCell colSpan={7} className="py-24 text-center">
+                                    <div className="flex flex-col items-center justify-center">
+                                        <div className="w-16 h-16 rounded-[2rem] bg-muted/20 flex items-center justify-center text-muted-foreground/20 mb-6">
+                                            <Filter size={32} />
+                                        </div>
+                                        <p className="text-sm font-black uppercase tracking-widest text-foreground">Tidak ada transaksi</p>
+                                        <p className="text-[10px] font-medium uppercase tracking-tighter text-muted-foreground mt-1">Coba sesuaikan filter pencarian Anda</p>
                                         {(search || typeFilter !== 'all' || categoryFilter !== 'all') && (
                                             <Button 
                                                 variant="link" 
                                                 size="sm" 
-                                                className="mt-2 text-primary"
+                                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-primary hover:no-underline"
                                                 onClick={() => {
                                                     setSearch('');
                                                     setTypeFilter('all');
@@ -224,53 +226,57 @@ export default function TransactionsTable({
                             filteredTransaksi.map((t) => {
                                 const isIncome = t.jenis === 'Pemasukan';
                                 const isTransfer = t.jenis === 'Transfer';
-
+ 
                                 return (
                                     <TableRow 
                                         key={t.id} 
-                                        className="group hover:bg-muted/30 transition-colors cursor-pointer"
+                                        className="group hover:bg-muted/10 border-b border-border/20 transition-all cursor-pointer"
                                         onClick={() => setSelectedDetail(t)}
                                     >
-                                        <TableCell className="px-6 py-4">
+                                        <TableCell className="px-8 py-5">
                                             <div className={cn(
-                                                "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
+                                                "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500 group-hover:scale-110",
                                                 isTransfer 
                                                     ? "bg-indigo-50 text-indigo-600 border-indigo-100" 
                                                     : isIncome 
                                                         ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                                                        : "bg-red-50 text-red-600 border-red-100"
+                                                        : "bg-rose-50 text-rose-600 border-rose-100"
                                             )}>
                                                 {isTransfer ? (
-                                                    <ArrowLeftRight size={18} />
+                                                    <ArrowLeftRight size={18} strokeWidth={2.5} />
                                                 ) : (
-                                                    <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={18} />
+                                                    <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={18} strokeWidth={2.5} />
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="px-4 font-bold text-foreground">
-                                            {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
+                                        <TableCell className="px-4 py-5">
+                                            <span className="text-xs font-black text-foreground uppercase tracking-wider">
+                                                {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
+                                            </span>
                                         </TableCell>
-                                        <TableCell className="px-4">
+                                        <TableCell className="px-4 py-5">
                                             <div className="flex flex-col">
-                                                <span className="text-xs font-semibold text-foreground/80">
+                                                <span className="text-[10px] font-black text-foreground/70 uppercase tracking-tighter">
                                                     {getSumberDanaName(t.id_sumber_dana)}
                                                 </span>
                                                 {isTransfer && t.id_sumber_dana_tujuan && (
-                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                                        <ArrowLeftRight size={10} className="rotate-90 md:rotate-0" />
-                                                        {getSumberDanaName(t.id_sumber_dana_tujuan)}
-                                                    </span>
+                                                    <div className="flex items-center gap-1.5 mt-1">
+                                                        <ArrowRight size={10} className="text-muted-foreground/40" />
+                                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase">
+                                                            {getSumberDanaName(t.id_sumber_dana_tujuan)}
+                                                        </span>
+                                                    </div>
                                                 )}
                                             </div>
                                         </TableCell>
-                                        <TableCell className="px-4 hidden md:table-cell max-w-[200px] truncate">
-                                            <span className="text-xs text-muted-foreground italic">
+                                        <TableCell className="px-4 py-5 hidden md:table-cell max-w-[200px] truncate">
+                                            <span className="text-xs font-medium text-muted-foreground italic opacity-60">
                                                 {t.catatan || '-'}
                                             </span>
                                         </TableCell>
-                                        <TableCell className="px-4 text-right">
+                                        <TableCell className="px-4 py-5 text-right">
                                             <span className={cn(
-                                                "display-number text-sm font-black",
+                                                "display-number text-sm font-black tracking-tighter",
                                                 isTransfer 
                                                     ? "text-indigo-600" 
                                                     : isIncome 
@@ -281,19 +287,19 @@ export default function TransactionsTable({
                                                 {formatRupiah(t.nominal)}
                                             </span>
                                         </TableCell>
-                                        <TableCell className="px-4 text-right">
-                                            <div className="flex flex-col items-end">
-                                                <span className="text-xs font-bold text-foreground">
+                                        <TableCell className="px-4 py-5 text-right">
+                                            <div className="flex flex-col items-end gap-1">
+                                                <span className="text-xs font-black text-foreground uppercase tracking-widest">
                                                     {formatTanggalPendek(t.tanggal)}
                                                 </span>
-                                                <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                                                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-tighter hidden sm:inline">
                                                     {formatTanggal(t.tanggal).split(' ').slice(2).join(' ')}
                                                 </span>
                                             </div>
                                         </TableCell>
                                         {(showDelete || showEdit) && (
-                                            <TableCell className="pr-6 text-right">
-                                                <div className="flex items-center justify-end gap-1">
+                                            <TableCell className="pr-8 py-5 text-right">
+                                                <div className="flex items-center justify-end gap-2">
                                                     {showEdit && (
                                                         <Button
                                                             variant="ghost"
@@ -302,10 +308,9 @@ export default function TransactionsTable({
                                                                 e.stopPropagation();
                                                                 onEdit?.(t);
                                                             }}
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:bg-blue-50 rounded-lg"
-                                                            title="Edit"
+                                                            className="opacity-0 group-hover:opacity-100 transition-all text-blue-600 hover:bg-blue-50 rounded-xl"
                                                         >
-                                                            <Pencil size={14} />
+                                                            <Pencil size={14} strokeWidth={2.5} />
                                                         </Button>
                                                     )}
                                                     <Button
@@ -315,10 +320,9 @@ export default function TransactionsTable({
                                                             e.stopPropagation();
                                                             setSelectedDetail(t);
                                                         }}
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:bg-muted rounded-lg"
-                                                        title="Detail"
+                                                        className="opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:bg-muted/50 rounded-xl"
                                                     >
-                                                        <Eye size={14} />
+                                                        <Eye size={14} strokeWidth={2.5} />
                                                     </Button>
                                                     {showDelete && (
                                                         <Button
@@ -328,10 +332,9 @@ export default function TransactionsTable({
                                                                 e.stopPropagation();
                                                                 handleDeleteClick(t.id);
                                                             }}
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 rounded-lg"
-                                                            title="Hapus"
+                                                            className="opacity-0 group-hover:opacity-100 transition-all text-rose-500 hover:bg-rose-50 rounded-xl"
                                                         >
-                                                            <Trash2 size={14} />
+                                                            <Trash2 size={14} strokeWidth={2.5} />
                                                         </Button>
                                                     )}
                                                 </div>

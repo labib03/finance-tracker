@@ -6,6 +6,7 @@ import {
     hitungRingkasanBulanan,
     hitungSaldoAkun,
     getNamaBulan,
+    cn
 } from '@/lib/utils';
 import {
     TrendingUp,
@@ -67,43 +68,54 @@ export default function SummaryCards() {
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {cards.map((card) => {
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {cards.map((card, idx) => {
                 const Icon = card.icon;
                 return (
-                    <Card key={card.label} className="group overflow-hidden border-none shadow-sm hover:shadow-md transition-all duration-300">
-                        <CardContent className="p-6">
-                            <div className="flex items-start justify-between mb-4">
-                                <div
-                                    className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center`}
-                                >
-                                    <Icon size={22} className={card.iconColor} />
+                    <div 
+                        key={card.label} 
+                        className={cn(
+                            "group relative overflow-hidden bg-white p-8 rounded-[2.5rem] border border-border/40 shadow-scandi transition-all duration-500 hover:shadow-float hover:-translate-y-1",
+                            idx === 0 ? "md:col-span-1" : ""
+                        )}
+                    >
+                        {/* Soft Accent Background Blur */}
+                        <div className={cn(
+                            "absolute -right-8 -top-8 w-32 h-32 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20",
+                            card.iconColor.replace('text-', 'bg-')
+                        )} />
+
+                        <div className="relative z-10">
+                            <div className="flex items-center justify-between mb-8">
+                                <div className={cn(
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 duration-500",
+                                    card.iconBg
+                                )}>
+                                    <Icon size={20} strokeWidth={2.5} className={card.iconColor} />
                                 </div>
                                 {card.trend && (
-                                    <div
-                                        className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${card.trend === 'up'
-                                            ? 'bg-emerald-50 text-emerald-700'
-                                            : 'bg-orange-50 text-orange-700'
-                                            }`}
-                                    >
-                                        {card.trend === 'up' ? (
-                                            <ArrowUpRight size={14} />
-                                        ) : (
-                                            <ArrowDownRight size={14} />
-                                        )}
-                                        <span>{card.subtitle}</span>
+                                    <div className={cn(
+                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border",
+                                        card.trend === 'up' 
+                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                            : 'bg-orange-50 text-orange-600 border-orange-100'
+                                    )}>
+                                        {card.trend === 'up' ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
+                                        {card.subtitle}
                                     </div>
                                 )}
                             </div>
 
-                            <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-muted-foreground">
-                                {card.label}
-                            </p>
-                            <p className="display-number text-2xl font-bold">
-                                {formatRupiah(card.value)}
-                            </p>
-                        </CardContent>
-                    </Card>
+                            <div className="space-y-1">
+                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                                    {card.label}
+                                </p>
+                                <h3 className="text-3xl font-black text-foreground display-number tracking-tighter">
+                                    {formatRupiah(card.value)}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
                 );
             })}
         </div>

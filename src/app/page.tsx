@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { getNamaBulan } from '@/lib/utils';
+import { getNamaBulan, cn } from '@/lib/utils';
 
 // Layout
 import Sidebar from '@/components/layout/Sidebar';
@@ -39,7 +39,8 @@ import {
   Plus, 
   ChevronLeft, 
   ChevronRight, 
-  RefreshCw 
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -97,66 +98,75 @@ export default function HomePage() {
       <div className="flex-1 lg:ml-[280px] w-full min-w-0 flex flex-col relative z-10 transition-all duration-300">
         <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10 pt-20 lg:pt-8">
           <div className="mx-auto w-full max-w-[2000px]">
-            {/* Header Bar */}
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-foreground">
-                  {activeView === 'dashboard' && 'Dashboard Keuangan'}
-                  {activeView === 'saldo' && 'Manajemen Saldo'}
-                  {activeView === 'transaksi' && 'Daftar Transaksi'}
-                  {activeView === 'transfer' && 'Transfer Antar Akun'}
-                  {activeView === 'anggaran' && 'Anggaran Bulanan'}
-                  {activeView === 'laporan' && 'Laporan Analitik'}
-                  {activeView === 'recurring' && 'Transaksi Berulang'}
-                  {activeView === 'master' && 'Master Data'}
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  {activeView === 'dashboard' && 'Ringkasan keuangan Anda'}
-                  {activeView === 'saldo' && 'Pantau saldo setiap akun secara real-time'}
-                  {activeView === 'transaksi' && 'Lihat dan kelola riwayat transaksi'}
-                  {activeView === 'transfer' && 'Pindahkan saldo antar akun'}
-                  {activeView === 'anggaran' && 'Atur dan pantau batas pengeluaran'}
-                  {activeView === 'laporan' && 'Analisis perbandingan pengeluaran per kategori'}
-                  {activeView === 'recurring' && 'Kelola transaksi terjadwal'}
-                  {activeView === 'master' && 'Kelola kategori dan sumber dana Anda'}
-                </p>
+            {/* Premium Header Bar */}
+            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
+              <div className="space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
+                  <Sparkles size={12} className="animate-pulse" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Premium Intelligence</span>
+                </div>
+                <div>
+                  <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground mb-2">
+                    {activeView === 'dashboard' && 'Beranda Keuangan'}
+                    {activeView === 'saldo' && 'Manajemen Saldo'}
+                    {activeView === 'transaksi' && 'Daftar Transaksi'}
+                    {activeView === 'transfer' && 'Transfer Akun'}
+                    {activeView === 'anggaran' && 'Plan Anggaran'}
+                    {activeView === 'laporan' && 'Laporan Analitik'}
+                    {activeView === 'recurring' && 'Tagihan Rutin'}
+                    {activeView === 'master' && 'Master Data'}
+                  </h1>
+                  <p className="text-sm font-medium text-muted-foreground/60 max-w-lg leading-relaxed italic">
+                    {activeView === 'dashboard' && '“Uang adalah hamba yang baik, tapi tuan yang buruk.” Kelola dengan bijak hari ini.'}
+                    {activeView === 'saldo' && 'Pantau pertumbuhan aset Anda dari waktu ke waktu.'}
+                    {activeView === 'transaksi' && 'Setiap rupiah memiliki cerita. Lihat jejak pengeluaran Anda.'}
+                    {activeView === 'transfer' && 'Optimalkan distribusi likuiditas antar instrumen keuangan.'}
+                    {activeView === 'anggaran' && 'Disiplin anggaran adalah kunci kebebasan finansial jangka panjang.'}
+                    {activeView === 'laporan' && 'Visualisasi data membantu Anda mengambil keputusan yang lebih cerdas.'}
+                    {activeView === 'recurring' && 'Otomatisasi kewajiban agar fokus Anda tetap pada pertumbuhan.'}
+                    {activeView === 'master' && 'Fondasi data yang rapi menghasilkan analisis yang akurat.'}
+                  </p>
+                </div>
               </div>
 
-              <div className="flex items-center gap-3">
-                {/* Month Navigator */}
-                <div className="flex items-center gap-1 bg-white border border-border rounded-xl px-1 py-1 shadow-sm">
+              <div className="flex items-center gap-4">
+                {/* Month Navigator - Scandi Style */}
+                <div className="flex items-center bg-white border border-border/40 rounded-[1.25rem] p-1.5 shadow-scandi transition-all hover:shadow-float">
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigateMonth(-1)}
-                    className="h-8 w-8 rounded-lg"
-                    aria-label="Bulan sebelumnya"
+                    className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors"
                   >
                     <ChevronLeft size={18} />
                   </Button>
-                  <span className="text-sm font-semibold px-3 min-w-[130px] text-center display-number">
-                    {getNamaBulan(activeMonth)}
-                  </span>
+                  
+                  <div className="px-6 flex flex-col items-center min-w-[160px]">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 leading-none mb-1">Periode</span>
+                    <span className="text-sm font-black text-foreground display-number tracking-tight">
+                      {getNamaBulan(activeMonth)}
+                    </span>
+                  </div>
+
                   <Button
                     variant="ghost"
                     size="icon"
                     onClick={() => navigateMonth(1)}
-                    className="h-8 w-8 rounded-lg"
-                    aria-label="Bulan berikutnya"
+                    className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors"
                   >
                     <ChevronRight size={18} />
                   </Button>
                 </div>
 
-                {/* Refresh */}
+                {/* Refresh with Tooltip-like style */}
                 <Button
                   variant="outline"
                   size="icon"
                   onClick={handleRefresh}
                   disabled={isRefreshing}
-                  className="rounded-xl shadow-sm bg-white"
+                  className="h-12 w-12 rounded-[1.25rem] shadow-scandi border-border/40 bg-white hover:bg-muted/10 transition-all active:scale-95 group"
                 >
-                  <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                  <RefreshCw size={18} className={cn("transition-all duration-700", isRefreshing ? 'animate-spin' : 'group-hover:rotate-180')} />
                 </Button>
               </div>
             </div>
@@ -170,27 +180,25 @@ export default function HomePage() {
                     <ExpensePieChart />
                     <WeeklyTrendChart />
                   </div>
-                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                      <div className="xl:col-span-2">
-                         <TransactionsTable 
-                           limit={6} 
-                           title="Transaksi Terakhir" 
-                           showEdit
-                           onEdit={(t) => {
-                             setTransaksiToEdit(t);
-                             if (t.jenis === 'Transfer') {
-                               setActiveModal('transfer');
-                             } else {
-                               setActiveModal('transaksi');
-                             }
-                           }}
-                         />
-                      </div>
-                      <div className="grid grid-cols-1 gap-8 content-start h-fit">
-                        <RecurringReminder onViewAll={() => setActiveView('recurring')} />
-                        <BudgetStatusCard />
-                      </div>
-                    </div>
+                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                    <BudgetStatusCard />
+                    <RecurringReminder onViewAll={() => setActiveView('recurring')} />
+                  </div>
+
+                  <TransactionsTable 
+                    limit={10} 
+                    title="Riwayat Transaksi Terkini" 
+                    description="X transaksi terakhir dalam periode ini"
+                    showEdit
+                    onEdit={(t) => {
+                      setTransaksiToEdit(t);
+                      if (t.jenis === 'Transfer') {
+                        setActiveModal('transfer');
+                      } else {
+                        setActiveModal('transaksi');
+                      }
+                    }}
+                  />
                 </div>
               )}
 
