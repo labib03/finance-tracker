@@ -149,7 +149,7 @@ export function TransactionDetailDialog({
                         {/* Catatan Area */}
                         <div className="pt-6 border-t border-muted/50">
                             <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest mb-3 block">Catatan</span>
-                            <p className="text-sm text-foreground/70 leading-relaxed italic font-medium">
+                            <p className="text-sm text-foreground/70 leading-relaxed italic font-medium whitespace-pre-wrap">
                                 {transaksi.catatan || 'Tidak ada catatan khusus...'}
                             </p>
                         </div>
