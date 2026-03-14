@@ -78,221 +78,211 @@ export default function CategoryReport() {
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-            {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <Card className="border-none shadow-sm overflow-hidden bg-background/50 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Total Pengeluaran Bulan Ini</p>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-3xl font-black display-number text-foreground leading-tight">
+        <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            {/* Header Hero Analytics */}
+            <div className="flex flex-col md:flex-row gap-8 items-start">
+                <div className="flex-1 space-y-2">
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-muted-foreground/60">Performa Keuangan</p>
+                    <h2 className="text-4xl font-black text-foreground tracking-tighter leading-none">
+                        Analisis Pengeluaran
+                    </h2>
+                    <p className="text-sm text-muted-foreground font-medium max-w-md italic">
+                        "Setiap rupiah yang tercatat adalah satu langkah menuju kebebasan finansial yang terukur."
+                    </p>
+                </div>
+                
+                <div className="flex gap-4">
+                     <div className="bg-white p-6 rounded-[2rem] shadow-scandi border border-border/50 min-w-[240px]">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-3">Total Keluar</p>
+                        <div className="flex items-center justify-between gap-4">
+                            <h3 className="text-2xl font-black display-number text-foreground leading-tight">
                                 {formatRupiah(totalBulanIni)}
                             </h3>
                             <div className={cn(
-                                "flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-black",
-                                selisihTotal <= 0 ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                "flex items-center gap-1 px-3 py-1 rounded-full text-[10px] font-black border",
+                                selisihTotal <= 0 
+                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                                    : "bg-red-50 text-red-600 border-red-100"
                             )}>
                                 {selisihTotal <= 0 ? <TrendingDown size={14} /> : <TrendingUp size={14} />}
                                 {Math.abs(persentaseTotal)}%
                             </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-[11px] text-muted-foreground font-medium">
-                            {selisihTotal <= 0 
-                                ? "Hemat " + formatRupiah(Math.abs(selisihTotal)) + " dibanding bulan lalu." 
-                                : "Naik " + formatRupiah(selisihTotal) + " dibanding bulan lalu."}
-                        </p>
-                    </CardContent>
-                </Card>
+                     </div>
+                </div>
+            </div>
 
-                <Card className="border-none shadow-sm overflow-hidden bg-background/50 backdrop-blur-sm">
-                    <CardHeader className="pb-2">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Kategori Terbesar</p>
-                        <div className="flex items-center justify-between">
-                            <h3 className="text-xl font-black text-foreground">
-                                {perbandinganData[0]?.nama_kategori}
-                            </h3>
-                            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
-                                <CategoryIcon name={perbandinganData[0]?.icon_name} size={20} />
+            {/* Main Insight Grid */}
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                 {/* Top Spending Categories List */}
+                 <div className="xl:col-span-1 space-y-6">
+                    <div className="px-2">
+                         <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Kategori Terbesar</h4>
+                    </div>
+                    <div className="space-y-3">
+                        {perbandinganData.slice(0, 4).map((item, idx) => (
+                            <div key={item.nama_kategori} className="group flex items-center gap-4 bg-white p-4 rounded-[1.75rem] border border-border/40 shadow-sm transition-all hover:shadow-md hover:scale-[1.02]">
+                                <div className={cn(
+                                    "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-xs",
+                                    idx === 0 ? "bg-foreground text-background" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
+                                )}>
+                                    <CategoryIcon name={item.icon_name} size={20} strokeWidth={2.5} />
+                                </div>
+                                <div className="flex-1">
+                                    <p className="text-xs font-black text-foreground uppercase tracking-wider">{item.nama_kategori}</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground/80 mt-0.5">
+                                        {Math.round((item.totalAktif / totalBulanIni) * 100)}% dari total
+                                    </p>
+                                </div>
+                                <div className="text-right">
+                                    <p className="text-sm font-black text-foreground display-number">{formatRupiah(item.totalAktif)}</p>
+                                    <div className={cn(
+                                        "text-[9px] font-black uppercase flex items-center justify-end gap-1 mt-0.5",
+                                        item.selisih <= 0 ? "text-emerald-500" : "text-red-400"
+                                    )}>
+                                        {item.selisih > 0 ? '+' : ''}{item.persentase}%
+                                    </div>
+                                </div>
                             </div>
+                        ))}
+                    </div>
+                 </div>
+
+                 {/* Trend Analytics Visualization */}
+                 <div className="xl:col-span-2 space-y-6">
+                    <div className="bg-white p-8 rounded-[2.5rem] border border-border/40 shadow-scandi h-full">
+                        <div className="flex items-center justify-between mb-8">
+                             <div className="flex items-center gap-3">
+                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                    <LineChartIcon size={18} />
+                                </div>
+                                <div>
+                                    <p className="text-xs font-black text-foreground uppercase tracking-widest">Visualisasi Tren</p>
+                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">6 Bulan Terakhir</p>
+                                </div>
+                             </div>
+                             <div className="flex items-center gap-2">
+                                <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
+                                    <div className="w-2 h-2 rounded-full bg-primary" />
+                                    <span className="text-[9px] font-black uppercase text-muted-foreground">Total Pengeluaran</span>
+                                </div>
+                             </div>
                         </div>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-[11px] text-muted-foreground font-medium">
-                            Menyumbang <span className="text-foreground font-bold">{Math.round((perbandinganData[0]?.totalAktif / totalBulanIni) * 100)}%</span> dari total pengeluaran Anda.
-                        </p>
-                    </CardContent>
-                </Card>
+                        
+                        <div className="h-[300px] w-full mt-4">
+                            <ResponsiveContainer width="100%" height="100%">
+                                <AreaChart data={trenData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                                    <defs>
+                                        <linearGradient id="premiumGradient" x1="0" y1="0" x2="0" y2="1">
+                                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
+                                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                        </linearGradient>
+                                    </defs>
+                                    <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--muted))" opacity={0.3} />
+                                    <XAxis 
+                                        dataKey="name" 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tick={{ fontSize: 10, fontWeight: 900, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+                                        dy={10}
+                                    />
+                                    <YAxis 
+                                        axisLine={false} 
+                                        tickLine={false} 
+                                        tick={{ fontSize: 10, fontWeight: 900, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+                                        tickFormatter={(val) => val >= 1000000 ? `${val / 1000000}jt` : val >= 1000 ? `${val / 1000}rb` : val}
+                                    />
+                                    <Tooltip 
+                                        content={({ active, payload }) => {
+                                            if (active && payload && payload.length) {
+                                                return (
+                                                    <div className="bg-foreground text-background px-4 py-3 rounded-2xl shadow-xl border-none animate-in zoom-in-95">
+                                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{payload[0].payload.name}</p>
+                                                        <p className="text-sm font-black display-number">{formatRupiah(payload[0].value as number)}</p>
+                                                    </div>
+                                                );
+                                            }
+                                            return null;
+                                        }}
+                                    />
+                                    <Area 
+                                        type="monotone" 
+                                        dataKey="total" 
+                                        stroke="hsl(var(--primary))" 
+                                        strokeWidth={4}
+                                        fillOpacity={1} 
+                                        fill="url(#premiumGradient)" 
+                                        animationDuration={2000}
+                                    />
+                                </AreaChart>
+                            </ResponsiveContainer>
+                        </div>
+                    </div>
+                 </div>
             </div>
 
-            {/* Charts Row */}
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                {/* Comparison Bar Chart */}
-                <Card className="border-none shadow-sm overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
-                                <BarChart3 size={16} className="text-primary" />
-                                Perbandingan Per Kategori
-                            </CardTitle>
-                            <CardDescription className="text-[10px]">Aktif ({activeMonth}) vs Bulan Lalu</CardDescription>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="h-[350px] pt-4">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <BarChart
-                                data={perbandinganData.slice(0, 8)}
-                                layout="vertical"
-                                margin={{ top: 5, right: 30, left: 40, bottom: 5 }}
-                            >
-                                <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="hsl(var(--muted))" opacity={0.4} />
-                                <XAxis type="number" hide />
-                                <YAxis 
-                                    dataKey="nama_kategori" 
-                                    type="category" 
-                                    axisLine={false} 
-                                    tickLine={false}
-                                    tick={{ fontSize: 10, fontWeight: 700, fill: 'hsl(var(--muted-foreground))' }}
-                                    width={90}
-                                />
-                                <Tooltip 
-                                    cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
-                                    formatter={(value: any) => formatRupiah(value)}
-                                    contentStyle={{
-                                        backgroundColor: 'hsl(var(--background))',
-                                        borderColor: 'hsl(var(--border))',
-                                        borderRadius: '16px',
-                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                        fontSize: '12px',
-                                        fontWeight: 'bold',
-                                        padding: '12px'
-                                    }}
-                                />
-                                <Legend 
-                                    verticalAlign="top" 
-                                    align="right" 
-                                    iconType="circle"
-                                    formatter={(value: any) => <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest ml-1">{value === 'totalAktif' ? 'Bulan Ini' : 'Bulan Lalu'}</span>}
-                                />
-                                <Bar dataKey="totalAktif" name="Bulan Ini" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} barSize={12} />
-                                <Bar dataKey="totalLalu" name="Bulan Lalu" fill="hsl(var(--muted-foreground))" opacity={0.3} radius={[0, 4, 4, 0]} barSize={12} />
-                            </BarChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-
-                {/* Spending Trend Chart */}
-                <Card className="border-none shadow-sm overflow-hidden">
-                    <CardHeader className="flex flex-row items-center justify-between">
-                        <div>
-                            <CardTitle className="text-sm font-bold uppercase tracking-wider flex items-center gap-2">
-                                <LineChartIcon size={16} className="text-primary" />
-                                Tren Pengeluaran Total
-                            </CardTitle>
-                            <CardDescription className="text-[10px]">Statistik harian selama 6 bulan terakhir</CardDescription>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="h-[350px] pt-4">
-                        <ResponsiveContainer width="100%" height="100%">
-                            <AreaChart data={trenData}>
-                                <defs>
-                                    <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                                        <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.15}/>
-                                        <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                                    </linearGradient>
-                                </defs>
-                                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" opacity={0.4} />
-                                <XAxis 
-                                    dataKey="name" 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                    tick={{ fontSize: 10, fontWeight: 700, fill: 'hsl(var(--muted-foreground))' }}
-                                />
-                                <YAxis 
-                                    axisLine={false} 
-                                    tickLine={false} 
-                                    tick={{ fontSize: 10, fontWeight: 700, fill: 'hsl(var(--muted-foreground))' }}
-                                    tickFormatter={(val) => {
-                                        if (val >= 1000000) return `Rp ${val / 1000000}jt`;
-                                        if (val >= 1000) return `Rp ${val / 1000}rb`;
-                                        return `Rp ${val}`;
-                                    }}
-                                />
-                                <Tooltip 
-                                    formatter={(value: any) => formatRupiah(value)}
-                                    contentStyle={{
-                                        backgroundColor: 'hsl(var(--background))',
-                                        borderColor: 'hsl(var(--border))',
-                                        borderRadius: '16px',
-                                        boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)',
-                                        fontSize: '12px',
-                                        fontWeight: 'bold',
-                                        padding: '12px'
-                                    }}
-                                />
-                                <Area 
-                                    type="monotone" 
-                                    dataKey="total" 
-                                    stroke="hsl(var(--primary))" 
-                                    strokeWidth={3}
-                                    fillOpacity={1} 
-                                    fill="url(#colorTotal)" 
-                                />
-                            </AreaChart>
-                        </ResponsiveContainer>
-                    </CardContent>
-                </Card>
-            </div>
-
-            {/* Detailed Table Comparison */}
-            <Card className="border-none shadow-sm">
-                <CardHeader>
-                    <CardTitle className="text-sm font-bold uppercase tracking-wider">Detail Perbandingan Kategori</CardTitle>
-                    <CardDescription className="text-xs">Analisis mendalam kenaikan/penurunan per kategori</CardDescription>
-                </CardHeader>
-                <CardContent className="p-0">
+            {/* Detailed Ledger Analysis */}
+            <div className="space-y-6">
+                <div className="flex items-center justify-between px-2">
+                     <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                        <BarChart3 size={14} strokeWidth={3} />
+                        Ledger Perbandingan Lengkap
+                     </h4>
+                </div>
+                
+                <div className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left border-collapse">
+                        <table className="w-full text-left">
                             <thead>
-                                <tr className="bg-muted/30 border-y border-border/50">
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground">Kategori</th>
-                                    <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Bulan Lalu</th>
-                                    <th className="px-4 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Bulan Ini</th>
-                                    <th className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground text-right">Selisih (%)</th>
+                                <tr className="border-b border-muted/30">
+                                    <th className="pl-8 pr-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 w-[40%]">Analisis Komponen</th>
+                                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 text-right">Periode Lalu</th>
+                                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 text-right">Periode Ini</th>
+                                    <th className="pl-4 pr-8 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 text-right">Variansi (%)</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody className="divide-y divide-muted/10">
                                 {perbandinganData.map((item, idx) => (
-                                    <tr key={item.nama_kategori} className="group hover:bg-muted/20 transition-colors border-b border-border/10 last:border-0">
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                    <CategoryIcon name={item.icon_name} size={16} />
+                                    <tr key={item.nama_kategori} className="group hover:bg-muted/5 transition-colors">
+                                        <td className="pl-8 pr-4 py-5">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-10 h-10 rounded-xl bg-muted/40 flex items-center justify-center text-muted-foreground group-hover:bg-foreground group-hover:text-background transition-all duration-300 transform group-hover:rotate-[-8deg] shadow-xs">
+                                                    <CategoryIcon name={item.icon_name} size={18} strokeWidth={2.5} />
                                                 </div>
-                                                <span className="text-sm font-bold text-foreground">{item.nama_kategori}</span>
+                                                <div className="flex flex-col">
+                                                    <span className="text-xs font-black text-foreground uppercase tracking-widest">{item.nama_kategori}</span>
+                                                    <div className="flex items-center gap-1.5 mt-0.5">
+                                                         <div className="w-16 h-1 bg-muted/40 rounded-full overflow-hidden">
+                                                            <div 
+                                                                className="h-full bg-primary" 
+                                                                style={{ width: `${Math.min(100, (item.totalAktif / totalBulanIni) * 100)}%` }} 
+                                                            />
+                                                         </div>
+                                                         <span className="text-[9px] font-black text-muted-foreground/50">{Math.round((item.totalAktif / totalBulanIni) * 100)}%</span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-4 py-4 text-right">
-                                            <span className="text-xs font-semibold text-muted-foreground display-number">
+                                        <td className="px-4 py-5 text-right">
+                                            <span className="text-xs font-bold text-muted-foreground/60 display-number">
                                                 {formatRupiah(item.totalLalu)}
                                             </span>
                                         </td>
-                                        <td className="px-4 py-4 text-right">
+                                        <td className="px-4 py-5 text-right">
                                             <span className="text-sm font-black text-foreground display-number">
                                                 {formatRupiah(item.totalAktif)}
                                             </span>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
+                                        <td className="pl-4 pr-8 py-5 text-right">
                                             <div className="flex flex-col items-end">
                                                 <div className={cn(
-                                                    "flex items-center gap-1 font-black text-sm",
-                                                    item.selisih <= 0 ? "text-emerald-600" : "text-red-500"
+                                                    "flex items-center gap-1 font-black text-sm transition-transform group-hover:scale-110 origin-right",
+                                                    item.selisih <= 0 ? "text-emerald-500" : "text-red-400"
                                                 )}>
                                                     {item.selisih > 0 ? (
-                                                        <ArrowUpRight size={14} />
+                                                        <TrendingUp size={14} strokeWidth={3} />
                                                     ) : item.selisih < 0 ? (
-                                                        <ArrowDownRight size={14} />
+                                                        <TrendingDown size={14} strokeWidth={3} />
                                                     ) : (
                                                         <Minus size={14} className="text-muted-foreground" />
                                                     )}
@@ -300,8 +290,8 @@ export default function CategoryReport() {
                                                         {item.selisih !== 0 ? Math.abs(item.persentase) + '%' : '0%'}
                                                     </span>
                                                 </div>
-                                                <span className="text-[10px] text-muted-foreground font-medium">
-                                                    {item.selisih === 0 ? "Stabil" : item.selisih > 0 ? "Kenaikan" : "Penurunan"}
+                                                <span className="text-[9px] font-black uppercase text-muted-foreground/40 mt-0.5 tracking-tighter italic">
+                                                    {item.selisih === 0 ? "STABIL" : item.selisih > 10 ? "NAIK TAJAM" : item.selisih > 0 ? "NAIK" : "HEMAT"}
                                                 </span>
                                             </div>
                                         </td>
@@ -310,8 +300,8 @@ export default function CategoryReport() {
                             </tbody>
                         </table>
                     </div>
-                </CardContent>
-            </Card>
+                </div>
+            </div>
         </div>
     );
 }
