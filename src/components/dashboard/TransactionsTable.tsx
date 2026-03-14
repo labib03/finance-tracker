@@ -11,6 +11,8 @@ import {
     Trash2,
     Pencil,
     Eye,
+    ChevronLeft,
+    ChevronRight,
 } from 'lucide-react';
 import type { Transaksi } from '@/lib/types';
 import { CategoryIcon } from '@/components/CategoryIcon';
@@ -48,6 +50,9 @@ interface TransactionsTableProps {
     title?: string;
     description?: string;
     filterType?: string;
+    showSearch?: boolean;
+    preselectedCategory?: string;
+    hideHeader?: boolean;
 }
 
 export default function TransactionsTable({
@@ -58,6 +63,9 @@ export default function TransactionsTable({
     title = "Riwayat Transaksi",
     description,
     filterType,
+    showSearch = true,
+    preselectedCategory,
+    hideHeader = false,
 }: TransactionsTableProps) {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
@@ -73,8 +81,11 @@ export default function TransactionsTable({
     const [isDeleting, setIsDeleting] = useState(false);
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState<string>('all');
-    const [categoryFilter, setCategoryFilter] = useState<string>('all');
+    const [categoryFilter, setCategoryFilter] = useState<string>(preselectedCategory || 'all');
     const [selectedDetail, setSelectedDetail] = useState<Transaksi | null>(null);
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
 
     const handleDeleteClick = (id: string) => {
         setConfirmDelete({ isOpen: true, id });
@@ -122,6 +133,17 @@ export default function TransactionsTable({
         return list;
     }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, kategoriList]);
 
+    // Reset pagination when filters change
+    useMemo(() => {
+        setCurrentPage(1);
+    }, [search, typeFilter, categoryFilter, activeMonth]);
+
+    const totalPages = Math.ceil(filteredTransaksi.length / itemsPerPage);
+    const paginatedTransaksi = useMemo(() => {
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        return filteredTransaksi.slice(startIndex, startIndex + itemsPerPage);
+    }, [filteredTransaksi, currentPage, itemsPerPage]);
+
     const getKategori = (id: string) =>
         kategoriList.find((k) => k.id_kategori === id);
 
@@ -130,18 +152,23 @@ export default function TransactionsTable({
 
 
     return (
-        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float">
-            <CardHeader className="px-8 py-8">
-                <div className="flex flex-col gap-6">
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle className="text-sm font-black uppercase tracking-widest">{title}</CardTitle>
-                            {description && <CardDescription className="text-xs font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
+        <Card className={cn(
+            "bg-white rounded-[2.5rem] border border-border/40 overflow-hidden transition-all duration-500",
+            !hideHeader && "shadow-scandi hover:shadow-float"
+        )}>
+            {!hideHeader && (
+                <CardHeader className="px-8 py-8">
+                    <div className="flex flex-col gap-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <CardTitle className="text-sm font-black uppercase tracking-widest">{title}</CardTitle>
+                                {description && <CardDescription className="text-xs font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
+                            </div>
                         </div>
-                    </div>
- 
-                    <div className="flex flex-wrap items-center gap-3">
-                        <div className="relative flex-1 min-w-[240px]">
+    
+                        {showSearch && (
+                            <div className="flex flex-wrap items-center gap-3">
+                                <div className="relative flex-1 min-w-[240px]">
                             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/80" size={14} />
                             <Input
                                 placeholder="Cari catatan atau kategori..."
@@ -187,8 +214,10 @@ export default function TransactionsTable({
                             />
                         </div>
                     </div>
-                </div>
-            </CardHeader>
+                        )}
+                    </div>
+                </CardHeader>
+            )}
             <CardContent className="p-0">
                 <Table>
                     <TableHeader className="bg-muted/10">
@@ -230,7 +259,7 @@ export default function TransactionsTable({
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            filteredTransaksi.map((t) => {
+                            paginatedTransaksi.map((t) => {
                                 const isIncome = t.jenis === 'Pemasukan';
                                 const isTransfer = t.jenis === 'Transfer';
  
@@ -353,6 +382,56 @@ export default function TransactionsTable({
                         )}
                     </TableBody>
                 </Table>
+
+                {filteredTransaksi.length > 0 && (
+                    <div className="flex items-center justify-between px-8 py-5 border-t border-border/20 bg-muted/5">
+                        <div className="flex items-center gap-3">
+                            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Baris per halaman:</span>
+                            <Select 
+                                value={itemsPerPage.toString()} 
+                                onValueChange={(val) => {
+                                    setItemsPerPage(Number(val));
+                                    setCurrentPage(1);
+                                }}
+                            >
+                                <SelectTrigger className="h-8 w-[70px] text-xs font-black tracking-widest rounded-xl bg-white border-border/40 text-foreground">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-border/40 shadow-float min-w-[70px]">
+                                    <SelectItem value="5" className="text-xs font-black tracking-widest text-foreground">5</SelectItem>
+                                    <SelectItem value="10" className="text-xs font-black tracking-widest text-foreground">10</SelectItem>
+                                    <SelectItem value="25" className="text-xs font-black tracking-widest text-foreground">25</SelectItem>
+                                    <SelectItem value="50" className="text-xs font-black tracking-widest text-foreground">50</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="flex items-center gap-6">
+                            <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                Halaman <span className="text-foreground">{currentPage}</span> dari <span className="text-foreground">{totalPages}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="icon-sm"
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    disabled={currentPage === 1}
+                                    className="rounded-xl border-border/40 w-8 h-8 p-0 disabled:opacity-30 flex items-center justify-center text-foreground hover:bg-muted/50"
+                                >
+                                    <ChevronLeft size={16} strokeWidth={2.5} />
+                                </Button>
+                                <Button
+                                    variant="outline"
+                                    size="icon-sm"
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={currentPage === totalPages}
+                                    className="rounded-xl border-border/40 w-8 h-8 p-0 disabled:opacity-30 flex items-center justify-center text-foreground hover:bg-muted/50"
+                                >
+                                    <ChevronRight size={16} strokeWidth={2.5} />
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </CardContent>
 
             <ConfirmDialog 

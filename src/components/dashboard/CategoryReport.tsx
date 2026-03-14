@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import {
     hitungPerbandinganKategori,
@@ -23,6 +23,8 @@ import {
     Area
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import TransactionsTable from '@/components/dashboard/TransactionsTable';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import {
     TrendingUp,
@@ -39,6 +41,8 @@ export default function CategoryReport() {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+
+    const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
     const perbandinganData = useMemo(
         () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
@@ -144,7 +148,11 @@ export default function CategoryReport() {
                     </div>
                     <div className="space-y-3">
                         {perbandinganData.slice(0, 4).map((item, idx) => (
-                            <div key={item.nama_kategori} className="group flex items-center gap-4 bg-white p-4 rounded-[1.75rem] border border-border/40 shadow-sm transition-all hover:shadow-md hover:scale-[1.02]">
+                            <div
+                                key={item.nama_kategori}
+                                onClick={() => setSelectedCategory(item.id_kategori)}
+                                className="group flex items-center gap-4 bg-white p-4 rounded-[1.75rem] border border-border/40 shadow-sm transition-all hover:shadow-md hover:scale-[1.02] cursor-pointer"
+                            >
                                 <div className={cn(
                                     "w-12 h-12 rounded-2xl flex items-center justify-center transition-colors shadow-xs",
                                     idx === 0 ? "bg-foreground text-background" : "bg-muted text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary"
@@ -325,6 +333,29 @@ export default function CategoryReport() {
                     </div>
                 </div>
             </div>
+
+            {/* Dialog detail transaksi berdasarkan kategori */}
+            <Dialog open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
+                <DialogContent className="sm:max-w-4xl md:max-w-5xl w-[95vw] p-0 overflow-hidden bg-background border-border/40 rounded-3xl">
+                    <DialogHeader className="p-8 pb-0">
+                        <DialogTitle className="text-xl font-black uppercase tracking-widest flex flex-col gap-1">
+                            Detail Kategori
+                            <span className="text-xs font-bold text-muted-foreground/80 italic tracking-normal normal-case">
+                                Menampilkan semua transaksi untuk kategori ini di bulan aktif
+                            </span>
+                        </DialogTitle>
+                    </DialogHeader>
+                    <div className="p-8 pt-4 overflow-y-auto max-h-[70vh] scrollbar-none">
+                        {selectedCategory && (
+                            <TransactionsTable
+                                showSearch={false}
+                                preselectedCategory={selectedCategory}
+                                hideHeader={true}
+                            />
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

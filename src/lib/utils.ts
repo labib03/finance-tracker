@@ -202,6 +202,7 @@ export function hitungPengeluaranPerKategori(
     .map(([id_kategori, totalKat]) => {
       const kat = kategoriList.find((k) => k.id_kategori === id_kategori);
       return {
+        id_kategori,
         nama_kategori: kat?.nama_kategori || "Lainnya",
         icon_name: kat?.icon_name || "circle",
         total: totalKat,
@@ -308,6 +309,7 @@ export function hitungPerbandinganKategori(
   bulanAktif: string,
   cycleStartDay: number = 25,
 ): {
+  id_kategori: string;
   nama_kategori: string;
   totalAktif: number;
   totalLalu: number;
@@ -332,37 +334,47 @@ export function hitungPerbandinganKategori(
     cycleStartDay,
   );
 
-  const allKategori = Array.from(
-    new Set([
-      ...aktif.map((a) => a.nama_kategori),
-      ...lalu.map((l) => l.nama_kategori),
-    ]),
+  const katAktifMap = new Map<string, PengeluaranPerKategori>();
+  aktif.forEach((item) => katAktifMap.set(item.nama_kategori, item));
+
+  const katLaluMap = new Map<string, PengeluaranPerKategori>();
+  lalu.forEach((item) => katLaluMap.set(item.nama_kategori, item));
+
+  const allKategoriNames = Array.from(
+    new Set([...katAktifMap.keys(), ...katLaluMap.keys()]),
   );
 
-  return allKategori
-    .map((name) => {
-      const dataAktif = aktif.find((a) => a.nama_kategori === name);
-      const dataLalu = lalu.find((l) => l.nama_kategori === name);
-      const totalAktif = dataAktif?.total || 0;
-      const totalLalu = dataLalu?.total || 0;
-      const selisih = totalAktif - totalLalu;
+  const perbandingan = allKategoriNames.map((name) => {
+    const dataAktif = katAktifMap.get(name);
+    const dataLalu = katLaluMap.get(name);
+    const totalAktif = dataAktif?.total || 0;
+    const totalLalu = dataLalu?.total || 0;
+    const selisih = totalAktif - totalLalu;
 
-      let persentase = 0;
-      if (totalLalu > 0) {
-        persentase = Math.round((selisih / totalLalu) * 100);
-      } else if (totalAktif > 0) {
-        persentase = 100;
-      }
+    // Find the id_kategori and icon_name from either active or previous month's data
+    const id_kategori = dataAktif?.id_kategori || dataLalu?.id_kategori || "";
+    const icon_name = dataAktif?.icon_name || dataLalu?.icon_name || "circle";
 
-      return {
-        nama_kategori: name,
-        totalAktif,
-        totalLalu,
-        selisih,
-        persentase,
-        icon_name: dataAktif?.icon_name || dataLalu?.icon_name || "Circle",
-      };
-    })
+    return {
+      id_kategori,
+      nama_kategori: name,
+      totalAktif,
+      totalLalu,
+      selisih,
+      icon_name,
+    };
+  });
+
+  return perbandingan
+    .map((item) => ({
+      ...item,
+      persentase:
+        item.totalLalu > 0
+          ? Math.round((item.selisih / item.totalLalu) * 100)
+          : item.totalAktif > 0
+            ? 100
+            : 0, // If previous month was 0 and current is >0, it's 100% increase. If both 0, 0%.
+    }))
     .sort((a, b) => b.totalAktif - a.totalAktif);
 }
 

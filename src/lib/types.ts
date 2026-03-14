@@ -68,6 +68,7 @@ export interface RingkasanBulanan {
 }
 
 export interface PengeluaranPerKategori {
+  id_kategori: string;
   nama_kategori: string;
   icon_name: string;
   total: number;
