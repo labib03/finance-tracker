@@ -93,18 +93,19 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     );
 
     const Brand = () => (
-        <div className="flex items-center gap-4 mb-12 px-2 transition-all duration-500">
-            <div className="w-12 h-12 rounded-[1.5rem] bg-indigo-600 flex items-center justify-center shadow-2xl shadow-indigo-500/20 relative overflow-hidden group">
-                <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                <DollarSign size={22} strokeWidth={3} className="text-white relative z-10" />
-            </div>
-            <div className="flex flex-col text-left">
-                <h1 className="text-xl font-black tracking-tighter leading-none bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
-                    Financer<span className="text-indigo-600">.</span>
-                </h1>
-                <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mt-1.5">
-                    Premium Interface
-                </p>
+        <div className="flex flex-col gap-4 mb-16 px-2 group cursor-default">
+            <div className="flex items-center gap-5">
+                <div className="w-14 h-14 rounded-2xl bg-foreground text-background flex items-center justify-center shadow-2xl relative overflow-hidden transition-all duration-500 group-hover:scale-105">
+                    <DollarSign size={26} strokeWidth={3} className="relative z-10" />
+                </div>
+                <div className="flex flex-col">
+                    <h1 className="text-2xl font-black tracking-tighter leading-none">
+                        Financer<span className="text-indigo-600">.</span>
+                    </h1>
+                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-2">
+                        Premium Pro
+                    </span>
+                </div>
             </div>
         </div>
     );
@@ -112,7 +113,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="fixed top-0 left-0 h-screen w-[280px] bg-white border-r border-border/40 hidden lg:flex flex-col p-8 z-40 transition-all duration-300">
+            <aside className="fixed top-0 left-0 h-screen w-[320px] bg-white border-r border-border/40 hidden lg:flex flex-col p-10 z-40 transition-all duration-300">
                 <Brand />
                 <div className="flex-1 overflow-y-auto px-1 -mx-1 scrollbar-none">
                     <div className="mb-4">
@@ -121,32 +122,29 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     </div>
                 </div>
                 
-                <div className="mt-8 space-y-4">
-                    <Separator className="bg-border/40" />
-                    <button
-                        onClick={() => {
-                            useFinanceStore.getState().setActiveModal('cycle_settings');
-                        }}
-                        className="group w-full flex items-center gap-4 px-4 py-3.5 rounded-[1.5rem] text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-500 text-left"
-                    >
-                        <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-muted shrink-0 group-hover:bg-white transition-all duration-500">
-                            <CalendarClock size={18} />
-                        </div>
-                        <div className="flex flex-col">
-                            <span className="text-[11px] font-black uppercase tracking-[0.15em]">Siklus</span>
-                            <span className="text-[9px] font-black uppercase tracking-tighter opacity-40">Ubah rentang bulan</span>
-                        </div>
-                    </button>
-
-                    <div className="p-6 rounded-[2rem] bg-indigo-50 border border-indigo-100 flex flex-col items-center text-center group transition-colors hover:bg-indigo-100">
-                        <div className="flex items-center gap-2 mb-2">
-                             <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
-                             <p className="text-[10px] font-black text-indigo-900 tracking-widest uppercase opacity-80">
-                                Cloud Active
-                            </p>
-                        </div>
-                        <span className="text-[8px] font-black tracking-[0.2em] uppercase text-indigo-400">Google Sheets Sync</span>
+                <div className="mt-auto pt-8 space-y-6">
+                    <Separator className="bg-border/20" />
+                    
+                    <div className="px-2">
+                         <button
+                            onClick={() => {
+                                useFinanceStore.getState().setActiveModal('cycle_settings');
+                            }}
+                            className="group w-full flex items-center justify-between p-4 rounded-2xl bg-muted/30 hover:bg-muted/50 border border-transparent hover:border-border/40 transition-all duration-500"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="p-2.5 rounded-xl bg-white text-muted-foreground group-hover:text-foreground transition-colors shadow-sm">
+                                    <CalendarClock size={16} />
+                                </div>
+                                <div className="flex flex-col text-left">
+                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Pengaturan Siklus</span>
+                                    <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Sesuaikan Timeline</span>
+                                </div>
+                            </div>
+                            <ChevronRight size={14} className="text-muted-foreground/30 group-hover:translate-x-0.5 transition-transform" />
+                        </button>
                     </div>
+
                 </div>
             </aside>
 

@@ -94,8 +94,7 @@ export default function HomePage() {
 
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
 
-      {/* Content Container fully independent from Sidebar mechanism */}
-      <div className="flex-1 lg:ml-[280px] w-full min-w-0 flex flex-col relative z-10 transition-all duration-300">
+      <div className="flex-1 lg:ml-[320px] w-full min-w-0 flex flex-col relative z-10 transition-all duration-300">
         <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10 pt-20 lg:pt-8">
           <div className="mx-auto w-full max-w-[2000px]">
             {/* Premium Header Bar */}
