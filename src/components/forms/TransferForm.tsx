@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 interface TransferFormProps {
@@ -189,10 +190,12 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                     {/* Catatan */}
                     <div className="space-y-2">
                         <Label htmlFor="catatan">Catatan (opsional)</Label>
-                        <Input
+                        <Textarea
                             id="catatan"
                             placeholder="Misal: Tarik tunai ATM"
                             {...register('catatan')}
+                            className="resize-none"
+                            rows={3}
                         />
                     </div>
 

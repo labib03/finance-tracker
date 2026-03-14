@@ -9,10 +9,12 @@ import {
     ArrowLeftRight,
     Trash2,
     Pencil,
+    Eye,
 } from 'lucide-react';
 import type { Transaksi } from '@/lib/types';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
+import { TransactionDetailDialog } from './TransactionDetailDialog';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Search, Filter, X } from 'lucide-react';
@@ -69,6 +71,7 @@ export default function TransactionsTable({
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string>('all');
+    const [selectedDetail, setSelectedDetail] = useState<Transaksi | null>(null);
 
     const handleDeleteClick = (id: string) => {
         setConfirmDelete({ isOpen: true, id });
@@ -223,7 +226,11 @@ export default function TransactionsTable({
                                 const isTransfer = t.jenis === 'Transfer';
 
                                 return (
-                                    <TableRow key={t.id} className="group hover:bg-muted/30 transition-colors">
+                                    <TableRow 
+                                        key={t.id} 
+                                        className="group hover:bg-muted/30 transition-colors cursor-pointer"
+                                        onClick={() => setSelectedDetail(t)}
+                                    >
                                         <TableCell className="px-6 py-4">
                                             <div className={cn(
                                                 "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
@@ -291,18 +298,36 @@ export default function TransactionsTable({
                                                         <Button
                                                             variant="ghost"
                                                             size="icon-xs"
-                                                            onClick={() => onEdit?.(t)}
-                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-primary hover:bg-primary/10 rounded-lg"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onEdit?.(t);
+                                                            }}
+                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-blue-600 hover:bg-blue-50 rounded-lg"
                                                             title="Edit"
                                                         >
                                                             <Pencil size={14} />
                                                         </Button>
                                                     )}
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon-xs"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setSelectedDetail(t);
+                                                        }}
+                                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-muted-foreground hover:bg-muted rounded-lg"
+                                                        title="Detail"
+                                                    >
+                                                        <Eye size={14} />
+                                                    </Button>
                                                     {showDelete && (
                                                         <Button
                                                             variant="ghost"
                                                             size="icon-xs"
-                                                            onClick={() => handleDeleteClick(t.id)}
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDeleteClick(t.id);
+                                                            }}
                                                             className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 rounded-lg"
                                                             title="Hapus"
                                                         >
@@ -327,6 +352,14 @@ export default function TransactionsTable({
                 isLoading={isDeleting}
                 title="Hapus Transaksi?"
                 description="Apakah Anda yakin ingin menghapus transaksi ini? Tindakan ini tidak dapat dibatalkan."
+            />
+
+            <TransactionDetailDialog 
+                transaksi={selectedDetail}
+                open={!!selectedDetail}
+                onOpenChange={(open) => !open && setSelectedDetail(null)}
+                onEdit={onEdit}
+                onDelete={removeTransaksi}
             />
         </Card>
     );

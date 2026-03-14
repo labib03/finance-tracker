@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -206,10 +207,12 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                     {/* Catatan */}
                     <div className="space-y-2">
                         <Label htmlFor="catatan">Catatan (opsional)</Label>
-                        <Input
+                        <Textarea
                             id="catatan"
                             placeholder="Tambah catatan..."
                             {...register('catatan')}
+                            className="resize-none"
+                            rows={3}
                         />
                     </div>
 
