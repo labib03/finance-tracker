@@ -157,13 +157,13 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                         <TabsList className="bg-transparent h-12 gap-6 p-0" variant="line">
                             <TabsTrigger value="pengeluaran" className="data-active:text-red-500 after:bg-red-500">
                                 Pengeluaran
-                                <Badge variant="destructive" className="ml-2 h-5 px-1.5 font-black text-[10px]">
+                                <Badge variant="destructive" className="ml-2 h-5 px-1.5 font-black text-xs">
                                     {pengeluaranKategori.length}
                                 </Badge>
                             </TabsTrigger>
                             <TabsTrigger value="pemasukan" className="data-active:text-emerald-500 after:bg-emerald-500">
                                 Pemasukan
-                                <Badge variant="success" className="ml-2 h-5 px-1.5 font-black text-[10px]">
+                                <Badge variant="success" className="ml-2 h-5 px-1.5 font-black text-xs">
                                     {pemasukanKategori.length}
                                 </Badge>
                             </TabsTrigger>

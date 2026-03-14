@@ -54,20 +54,20 @@ export default function WeeklyTrendChart() {
                         <TrendingUp size={18} />
                     </div>
                     <div>
-                        <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-foreground">
                             Tren Mingguan
                         </CardTitle>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">Arus Kas Berjalan</p>
+                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Arus Kas Berjalan</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-3">
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                        <span className="text-[9px] font-black uppercase text-muted-foreground/60">Masuk</span>
+                        <span className="text-xs font-black uppercase text-muted-foreground/80">Masuk</span>
                     </div>
                     <div className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                        <span className="text-[9px] font-black uppercase text-muted-foreground/60">Keluar</span>
+                        <span className="text-xs font-black uppercase text-muted-foreground/80">Keluar</span>
                     </div>
                 </div>
             </CardHeader>
@@ -100,14 +100,14 @@ export default function WeeklyTrendChart() {
                                     if (active && payload && payload.length) {
                                         return (
                                             <div className="bg-foreground text-background px-4 py-4 rounded-2xl shadow-xl border-none animate-in zoom-in-95 space-y-2">
-                                                <p className="text-[10px] font-black uppercase tracking-widest opacity-60 border-b border-background/10 pb-2 mb-2">
+                                                <p className="text-xs font-black uppercase tracking-widest opacity-60 border-b border-background/10 pb-2 mb-2">
                                                     {payload[0].payload.minggu}
                                                 </p>
                                                 {payload.map((p, idx) => (
                                                     <div key={idx} className="flex items-center justify-between gap-6">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.fill }} />
-                                                            <span className="text-[10px] font-black uppercase tracking-tighter opacity-80">{p.name === 'pemasukan' ? 'MASUK' : 'KELUAR'}</span>
+                                                            <span className="text-xs font-black uppercase tracking-widest opacity-80">{p.name === 'pemasukan' ? 'MASUK' : 'KELUAR'}</span>
                                                         </div>
                                                         <span className="text-xs font-black display-number">{formatRupiah(p.value as number)}</span>
                                                     </div>

@@ -50,7 +50,7 @@ export default function CycleSettingsForm({ onClose }: CycleSettingsFormProps) {
                             </div>
                             <div>
                                 <CardTitle className="text-xl font-bold tracking-tight">Pengaturan Siklus</CardTitle>
-                                <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mt-0.5">Custom Fiscal Month</p>
+                                <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mt-0.5">Custom Fiscal Month</p>
                             </div>
                         </div>
                         <Button 
@@ -96,7 +96,7 @@ export default function CycleSettingsForm({ onClose }: CycleSettingsFormProps) {
                                     required
                                 />
                             </div>
-                            <p className="text-[10px] text-muted-foreground italic ml-1">
+                            <p className="text-xs text-muted-foreground italic ml-1">
                                 Disarankan memilih tanggal gajian rutin Anda.
                             </p>
                         </div>

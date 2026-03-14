@@ -97,7 +97,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                     <button 
                         onClick={() => setStatusFilter('all')}
                         className={cn(
-                            "px-4 py-1 text-[10px] font-bold rounded-xl transition-all",
+                            "px-4 py-1 text-xs font-bold rounded-xl transition-all",
                             statusFilter === 'all' ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
                         )}
                     >
@@ -106,7 +106,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                     <button 
                         onClick={() => setStatusFilter('active')}
                         className={cn(
-                            "px-4 py-1 text-[10px] font-bold rounded-xl transition-all",
+                            "px-4 py-1 text-xs font-bold rounded-xl transition-all",
                             statusFilter === 'active' ? "bg-white shadow-sm text-emerald-600" : "text-muted-foreground hover:text-emerald-600"
                         )}
                     >
@@ -115,7 +115,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                     <button 
                         onClick={() => setStatusFilter('inactive')}
                         className={cn(
-                            "px-4 py-1 text-[10px] font-bold rounded-xl transition-all",
+                            "px-4 py-1 text-xs font-bold rounded-xl transition-all",
                             statusFilter === 'inactive' ? "bg-white shadow-sm text-orange-600" : "text-muted-foreground hover:text-orange-600"
                         )}
                     >
@@ -128,11 +128,11 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                 {recurringList.length === 0 ? (
                     <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center py-12">
-                            <CalendarClock size={48} className="text-muted-foreground/20 mb-4" />
+                            <CalendarClock size={48} className="text-muted-foreground/80 mb-4" />
                             <p className="text-sm font-medium text-muted-foreground">
                                 Belum ada transaksi berulang
                             </p>
-                            <p className="text-xs text-muted-foreground/60 mt-1">
+                            <p className="text-xs text-muted-foreground/80 mt-1">
                                 Buat jadwal untuk tagihan & pemasukan rutin
                             </p>
                         </CardContent>
@@ -177,7 +177,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                                     <p className="text-sm font-bold truncate">
                                         {getKategoriName(r.id_kategori)}
                                     </p>
-                                    <Badge variant={r.aktif ? "success" : "secondary"} className="text-[10px] h-4">
+                                    <Badge variant={r.aktif ? "success" : "secondary"} className="text-xs h-4">
                                         {r.aktif ? 'Aktif' : 'Off'}
                                     </Badge>
                                 </div>

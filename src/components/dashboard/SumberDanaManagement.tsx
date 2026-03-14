@@ -118,7 +118,7 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                                                     <span className="text-sm font-bold text-foreground leading-tight">
                                                         {s.nama_sumber}
                                                     </span>
-                                                    <span className="text-[10px] text-muted-foreground uppercase font-black tracking-widest mt-0.5">
+                                                    <span className="text-xs text-muted-foreground uppercase font-black tracking-widest mt-0.5">
                                                         Personal Account
                                                     </span>
                                                 </div>

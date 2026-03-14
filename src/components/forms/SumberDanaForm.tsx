@@ -116,7 +116,7 @@ export default function SumberDanaForm({ onClose, sumberDanaToEdit }: SumberDana
                             disabled={!!sumberDanaToEdit}
                         />
                         {sumberDanaToEdit && (
-                            <p className="text-[10px] text-muted-foreground italic">
+                            <p className="text-xs text-muted-foreground italic">
                                 * Saldo awal tidak dapat diubah setelah akun dibuat.
                             </p>
                         )}

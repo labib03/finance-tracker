@@ -101,10 +101,10 @@ export default function HomePage() {
               <div className="space-y-4">
                 <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
                   <Sparkles size={12} className="animate-pulse" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Premium Intelligence</span>
+                  <span className="text-xs font-black uppercase tracking-widest">Premium Intelligence</span>
                 </div>
                 <div>
-                  <h1 className="text-4xl lg:text-5xl font-black tracking-tighter text-foreground mb-2">
+                  <h1 className="text-4xl lg:text-5xl font-black tracking-widest text-foreground mb-2">
                     {activeView === 'dashboard' && 'Beranda Keuangan'}
                     {activeView === 'saldo' && 'Manajemen Saldo'}
                     {activeView === 'transaksi' && 'Daftar Transaksi'}
@@ -114,7 +114,7 @@ export default function HomePage() {
                     {activeView === 'recurring' && 'Tagihan Rutin'}
                     {activeView === 'master' && 'Master Data'}
                   </h1>
-                  <p className="text-sm font-medium text-muted-foreground/60 max-w-lg leading-relaxed italic">
+                  <p className="text-sm font-medium text-muted-foreground/80 max-w-lg leading-relaxed italic">
                     {activeView === 'dashboard' && '“Uang adalah hamba yang baik, tapi tuan yang buruk.” Kelola dengan bijak hari ini.'}
                     {activeView === 'saldo' && 'Pantau pertumbuhan aset Anda dari waktu ke waktu.'}
                     {activeView === 'transaksi' && 'Setiap rupiah memiliki cerita. Lihat jejak pengeluaran Anda.'}
@@ -140,7 +140,7 @@ export default function HomePage() {
                   </Button>
                   
                   <div className="px-6 flex flex-col items-center min-w-[160px]">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 leading-none mb-1">Periode</span>
+                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 leading-none mb-1">Periode</span>
                     <span className="text-sm font-black text-foreground display-number tracking-tight">
                       {getNamaBulan(activeMonth)}
                     </span>
@@ -263,8 +263,8 @@ export default function HomePage() {
                           <Sparkles size={24} strokeWidth={2.5} />
                         </div>
                         <div>
-                          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Transfer Antar Akun</h3>
-                          <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-tighter mt-1 max-w-md">
+                          <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Transfer Antar Akun</h3>
+                          <p className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest mt-1 max-w-md">
                             Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran
                           </p>
                         </div>
@@ -274,7 +274,7 @@ export default function HomePage() {
                           setTransaksiToEdit(null);
                           setActiveModal('transfer');
                         }}
-                        className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-[10px] font-black uppercase tracking-widest shrink-0"
+                        className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0"
                       >
                         <Plus size={16} className="mr-2" />
                         Buat Transfer

@@ -87,9 +87,9 @@ export default function CategoryReport() {
                 <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 relative overflow-hidden group transition-all duration-500 hover:shadow-float">
                     <div className="flex flex-col h-full justify-between">
                         <div>
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-3">Total Konsumsi</p>
+                            <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Total Konsumsi</p>
                             <div className="flex items-baseline gap-2">
-                                <h3 className="text-4xl font-black display-number text-foreground tracking-tighter">
+                                <h3 className="text-4xl font-black display-number text-foreground tracking-widest">
                                     {formatRupiah(totalBulanIni)}
                                 </h3>
                             </div>
@@ -97,11 +97,11 @@ export default function CategoryReport() {
 
                         <div className="mt-8 pt-6 border-t border-muted/20 flex items-center justify-between">
                             <div className="flex flex-col">
-                                <span className="text-[9px] font-black uppercase text-muted-foreground/30 tracking-widest leading-none mb-1">vs Bulan Lalu</span>
+                                <span className="text-xs font-black uppercase text-muted-foreground/80 tracking-widest leading-none mb-1">vs Bulan Lalu</span>
                                 <span className="text-xs font-black display-number text-foreground/40">{formatRupiah(totalBulanLalu)}</span>
                             </div>
                             <div className={cn(
-                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black border transition-all duration-500",
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black border transition-all duration-500",
                                 selisihTotal <= 0
                                     ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                     : "bg-rose-50 text-rose-600 border-rose-100"
@@ -114,20 +114,20 @@ export default function CategoryReport() {
                 </div>
 
                 <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-3">Rata-rata Harian</p>
-                    <h3 className="text-3xl font-black display-number text-foreground tracking-tighter">
+                    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Rata-rata Harian</p>
+                    <h3 className="text-3xl font-black display-number text-foreground tracking-widest">
                         {formatRupiah(totalBulanIni / 30)}
                     </h3>
-                    <p className="text-[10px] font-black uppercase text-muted-foreground/40 mt-3 italic tracking-tighter">Berdasarkan siklus 30 hari</p>
+                    <p className="text-xs font-black uppercase text-muted-foreground/80 mt-3 italic tracking-widest">Berdasarkan siklus 30 hari</p>
                 </div>
 
                 <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-3">Item Transaksi</p>
+                    <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Item Transaksi</p>
                     <div className="flex items-center gap-3">
-                        <h3 className="text-3xl font-black display-number text-foreground tracking-tighter">
+                        <h3 className="text-3xl font-black display-number text-foreground tracking-widest">
                             {transaksiList.filter(t => t.tanggal.includes(activeMonth) && t.jenis === 'Pengeluaran').length}
                         </h3>
-                        <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/40 mt-2">Records</span>
+                        <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/80 mt-2">Records</span>
                     </div>
                     <div className="w-full h-1.5 bg-muted rounded-full mt-4 overflow-hidden">
                         <div className="h-full bg-indigo-500 w-[65%]" />
@@ -140,7 +140,7 @@ export default function CategoryReport() {
                 {/* Top Spending Categories List */}
                 <div className="xl:col-span-1 space-y-6">
                     <div className="px-2">
-                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Kategori Terbesar</h4>
+                        <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground">Kategori Terbesar</h4>
                     </div>
                     <div className="space-y-3">
                         {perbandinganData.slice(0, 4).map((item, idx) => (
@@ -153,14 +153,14 @@ export default function CategoryReport() {
                                 </div>
                                 <div className="flex-1">
                                     <p className="text-xs font-black text-foreground uppercase tracking-wider">{item.nama_kategori}</p>
-                                    <p className="text-[10px] font-bold text-muted-foreground/80 mt-0.5">
+                                    <p className="text-xs font-bold text-muted-foreground/80 mt-0.5">
                                         {Math.round((item.totalAktif / totalBulanIni) * 100)}% dari total
                                     </p>
                                 </div>
                                 <div className="text-right">
                                     <p className="text-sm font-black text-foreground display-number">{formatRupiah(item.totalAktif)}</p>
                                     <div className={cn(
-                                        "text-[9px] font-black uppercase flex items-center justify-end gap-1 mt-0.5",
+                                        "text-xs font-black uppercase flex items-center justify-end gap-1 mt-0.5",
                                         item.selisih <= 0 ? "text-emerald-500" : "text-red-400"
                                     )}>
                                         {item.selisih > 0 ? '+' : ''}{item.persentase}%
@@ -181,13 +181,13 @@ export default function CategoryReport() {
                                 </div>
                                 <div>
                                     <p className="text-xs font-black text-foreground uppercase tracking-widest">Visualisasi Tren</p>
-                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">6 Bulan Terakhir</p>
+                                    <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest">6 Bulan Terakhir</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
                                     <div className="w-2 h-2 rounded-full bg-primary" />
-                                    <span className="text-[9px] font-black uppercase text-muted-foreground">Total Pengeluaran</span>
+                                    <span className="text-xs font-black uppercase text-muted-foreground">Total Pengeluaran</span>
                                 </div>
                             </div>
                         </div>
@@ -220,7 +220,7 @@ export default function CategoryReport() {
                                             if (active && payload && payload.length) {
                                                 return (
                                                     <div className="bg-foreground text-background px-4 py-3 rounded-2xl shadow-xl border-none animate-in zoom-in-95">
-                                                        <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{payload[0].payload.name}</p>
+                                                        <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">{payload[0].payload.name}</p>
                                                         <p className="text-sm font-black display-number">{formatRupiah(payload[0].value as number)}</p>
                                                     </div>
                                                 );
@@ -247,7 +247,7 @@ export default function CategoryReport() {
             {/* Detailed Ledger Analysis */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                    <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground flex items-center gap-2">
                         <BarChart3 size={14} strokeWidth={3} />
                         Ledger Perbandingan Lengkap
                     </h4>
@@ -258,10 +258,10 @@ export default function CategoryReport() {
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-muted/30">
-                                    <th className="pl-8 pr-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 w-[40%]">Analisis Komponen</th>
-                                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 text-right">Periode Lalu</th>
-                                    <th className="px-4 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 text-right">Periode Ini</th>
-                                    <th className="pl-4 pr-8 py-6 text-[10px] font-black uppercase tracking-widest text-muted-foreground/60 text-right">Variansi (%)</th>
+                                    <th className="pl-8 pr-4 py-6 text-xs font-black uppercase tracking-widest text-muted-foreground/80 w-[40%]">Analisis Komponen</th>
+                                    <th className="px-4 py-6 text-xs font-black uppercase tracking-widest text-muted-foreground/80 text-right">Periode Lalu</th>
+                                    <th className="px-4 py-6 text-xs font-black uppercase tracking-widest text-muted-foreground/80 text-right">Periode Ini</th>
+                                    <th className="pl-4 pr-8 py-6 text-xs font-black uppercase tracking-widest text-muted-foreground/80 text-right">Variansi (%)</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-muted/10">
@@ -281,13 +281,13 @@ export default function CategoryReport() {
                                                                 style={{ width: `${Math.min(100, (item.totalAktif / totalBulanIni) * 100)}%` }}
                                                             />
                                                         </div>
-                                                        <span className="text-[9px] font-black text-muted-foreground/50">{Math.round((item.totalAktif / totalBulanIni) * 100)}%</span>
+                                                        <span className="text-xs font-black text-muted-foreground/80">{Math.round((item.totalAktif / totalBulanIni) * 100)}%</span>
                                                     </div>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-4 py-5 text-right">
-                                            <span className="text-xs font-bold text-muted-foreground/60 display-number">
+                                            <span className="text-xs font-bold text-muted-foreground/80 display-number">
                                                 {formatRupiah(item.totalLalu)}
                                             </span>
                                         </td>
@@ -313,7 +313,7 @@ export default function CategoryReport() {
                                                         {item.selisih !== 0 ? Math.abs(item.persentase) + '%' : '0%'}
                                                     </span>
                                                 </div>
-                                                <span className="text-[9px] font-black uppercase text-muted-foreground/40 mt-0.5 tracking-tighter italic">
+                                                <span className="text-xs font-black uppercase text-muted-foreground/80 mt-0.5 tracking-widest italic">
                                                     {item.selisih === 0 ? "STABIL" : item.selisih > 10 ? "NAIK TAJAM" : item.selisih > 0 ? "NAIK" : "HEMAT"}
                                                 </span>
                                             </div>

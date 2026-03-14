@@ -1,34 +1,30 @@
+import { DollarSign } from 'lucide-react';
+
 export default function LoadingScreen() {
     return (
-        <div className="fixed inset-0 flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm z-50">
-            {/* SVG Gooey Filter */}
-            <svg className="absolute w-0 h-0" aria-hidden="true">
-                <defs>
-                    <filter id="gooey-loading">
-                        <feGaussianBlur in="SourceGraphic" stdDeviation="6" result="blur" />
-                        <feColorMatrix
-                            in="blur"
-                            mode="matrix"
-                            values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -9"
-                            result="gooey"
-                        />
-                        <feComposite in="SourceGraphic" in2="gooey" operator="atop" />
-                    </filter>
-                </defs>
-            </svg>
+        <div className="fixed inset-0 flex flex-col items-center justify-center bg-background/95 backdrop-blur-md z-50">
+            <div className="flex flex-col items-center justify-center gap-6 animate-in fade-in zoom-in duration-700">
+                {/* Logo wrapper */}
+                <div className="relative flex items-center justify-center">
+                    {/* Pulsing ring */}
+                    <div className="absolute inset-0 rounded-3xl bg-indigo-500/10 animate-ping duration-3000" />
+                    
+                    {/* Core icon */}
+                    <div className="w-16 h-16 rounded-3xl bg-foreground text-background flex items-center justify-center shadow-2xl relative overflow-hidden">
+                        <DollarSign size={32} strokeWidth={3} className="relative z-10 animate-pulse duration-1000" />
+                    </div>
+                </div>
 
-            <div className="loading-gooey" style={{ filter: 'url(#gooey-loading)' }}>
-                <div className="loading-gooey-dot" />
-                <div className="loading-gooey-dot" />
-                <div className="loading-gooey-dot" />
+                {/* Typography */}
+                <div className="flex flex-col items-center text-center space-y-2 mt-4">
+                    <h2 className="text-sm font-black uppercase tracking-widest text-foreground">
+                        Memuat Financer<span className="text-indigo-600">.</span>
+                    </h2>
+                    <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground/80 animate-pulse">
+                        Sinkronisasi Data...
+                    </p>
+                </div>
             </div>
-
-            <p
-                className="mt-6 text-sm font-medium tracking-wide"
-                style={{ color: 'var(--text-muted)' }}
-            >
-                Memuat data keuangan...
-            </p>
         </div>
     );
 }

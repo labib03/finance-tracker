@@ -55,10 +55,10 @@ export default function ExpensePieChart() {
                         <PieChartIcon size={18} />
                     </div>
                     <div>
-                        <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-foreground">
                             Porsi Pengeluaran
                         </CardTitle>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">Segmentasi Kategori</p>
+                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Segmentasi Kategori</p>
                     </div>
                 </div>
             </CardHeader>
@@ -94,7 +94,7 @@ export default function ExpensePieChart() {
                                         if (active && payload && payload.length) {
                                             return (
                                                 <div className="bg-foreground text-background px-4 py-3 rounded-2xl shadow-xl border-none animate-in zoom-in-95">
-                                                    <p className="text-[10px] font-black uppercase tracking-widest opacity-60 mb-1">{payload[0].name}</p>
+                                                    <p className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">{payload[0].name}</p>
                                                     <p className="text-sm font-black display-number">{formatRupiah(payload[0].value as number)}</p>
                                                 </div>
                                             );
@@ -108,7 +108,7 @@ export default function ExpensePieChart() {
 
                     <div className="w-full md:w-1/2 space-y-4">
                         <div className="px-2">
-                             <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 mb-4">Ranking Pengeluaran</h4>
+                             <h4 className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-4">Ranking Pengeluaran</h4>
                         </div>
                         <div className="space-y-3">
                             {data.slice(0, 4).map((item, index) => (
@@ -120,7 +120,7 @@ export default function ExpensePieChart() {
                                         }}
                                     />
                                     <div className="flex-1 flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-foreground/80 truncate">
+                                        <span className="text-xs font-black uppercase tracking-widest text-foreground/80 truncate">
                                             {item.nama_kategori}
                                         </span>
                                         <div className="w-full h-1 bg-muted/40 rounded-full mt-1.5 overflow-hidden">

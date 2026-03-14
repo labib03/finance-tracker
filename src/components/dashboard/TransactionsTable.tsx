@@ -135,14 +135,14 @@ export default function TransactionsTable({
                 <div className="flex flex-col gap-6">
                     <div className="flex items-center justify-between">
                         <div>
-                            <CardTitle className="text-sm font-black uppercase tracking-[0.2em]">{title}</CardTitle>
-                            {description && <CardDescription className="text-[10px] font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
+                            <CardTitle className="text-sm font-black uppercase tracking-widest">{title}</CardTitle>
+                            {description && <CardDescription className="text-xs font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
                         </div>
                     </div>
  
                     <div className="flex flex-wrap items-center gap-3">
                         <div className="relative flex-1 min-w-[240px]">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/40" size={14} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/80" size={14} />
                             <Input
                                 placeholder="Cari catatan atau kategori..."
                                 className="pl-10 h-11 text-xs font-medium rounded-2xl bg-muted/20 border-transparent transition-all focus:bg-white focus:border-border/40 focus:ring-0"
@@ -161,14 +161,14 @@ export default function TransactionsTable({
  
                         <div className="flex items-center gap-3">
                             <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || 'all')}>
-                                <SelectTrigger className="h-11 min-w-[130px] text-[10px] font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all">
+                                <SelectTrigger className="h-11 min-w-[130px] text-xs font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all">
                                     <SelectValue placeholder="Semua Tipe" />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-2xl border-border/40 shadow-float overflow-hidden">
-                                    <SelectItem value="all" className="text-[10px] font-black uppercase tracking-widest">Semua Tipe</SelectItem>
-                                    <SelectItem value="Pengeluaran" className="text-[10px] font-black uppercase tracking-widest text-orange-600">Pengeluaran</SelectItem>
-                                    <SelectItem value="Pemasukan" className="text-[10px] font-black uppercase tracking-widest text-emerald-600">Pemasukan</SelectItem>
-                                    <SelectItem value="Transfer" className="text-[10px] font-black uppercase tracking-widest text-indigo-600">Transfer</SelectItem>
+                                    <SelectItem value="all" className="text-xs font-black uppercase tracking-widest">Semua Tipe</SelectItem>
+                                    <SelectItem value="Pengeluaran" className="text-xs font-black uppercase tracking-widest text-orange-600">Pengeluaran</SelectItem>
+                                    <SelectItem value="Pemasukan" className="text-xs font-black uppercase tracking-widest text-emerald-600">Pemasukan</SelectItem>
+                                    <SelectItem value="Transfer" className="text-xs font-black uppercase tracking-widest text-indigo-600">Transfer</SelectItem>
                                 </SelectContent>
                             </Select>
  
@@ -183,7 +183,7 @@ export default function TransactionsTable({
                                 value={categoryFilter}
                                 onValueChange={(val) => setCategoryFilter(val || 'all')}
                                 placeholder="PILIH KATEGORI"
-                                className="h-11 min-w-[180px] text-[10px] font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all"
+                                className="h-11 min-w-[180px] text-xs font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all"
                             />
                         </div>
                     </div>
@@ -193,12 +193,12 @@ export default function TransactionsTable({
                 <Table>
                     <TableHeader className="bg-muted/10">
                         <TableRow className="hover:bg-transparent border-none">
-                            <TableHead className="w-[80px] px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Item</TableHead>
-                            <TableHead className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Kategori</TableHead>
-                            <TableHead className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Akun</TableHead>
-                            <TableHead className="px-4 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 hidden md:table-cell">Catatan</TableHead>
-                            <TableHead className="px-4 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Nominal</TableHead>
-                            <TableHead className="px-4 py-4 text-right text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Tanggal</TableHead>
+                            <TableHead className="w-[80px] px-8 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground/80">Item</TableHead>
+                            <TableHead className="px-4 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground/80">Kategori</TableHead>
+                            <TableHead className="px-4 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground/80">Akun</TableHead>
+                            <TableHead className="px-4 py-4 text-xs font-black uppercase tracking-widest text-muted-foreground/80 hidden md:table-cell">Catatan</TableHead>
+                            <TableHead className="px-4 py-4 text-right text-xs font-black uppercase tracking-widest text-muted-foreground/80">Nominal</TableHead>
+                            <TableHead className="px-4 py-4 text-right text-xs font-black uppercase tracking-widest text-muted-foreground/80">Tanggal</TableHead>
                             {(showDelete || showEdit) && <TableHead className="w-[80px] pr-8 py-4"></TableHead>}
                         </TableRow>
                     </TableHeader>
@@ -207,16 +207,16 @@ export default function TransactionsTable({
                             <TableRow>
                                 <TableCell colSpan={7} className="py-24 text-center">
                                     <div className="flex flex-col items-center justify-center">
-                                        <div className="w-16 h-16 rounded-[2rem] bg-muted/20 flex items-center justify-center text-muted-foreground/20 mb-6">
+                                        <div className="w-16 h-16 rounded-[2rem] bg-muted/20 flex items-center justify-center text-muted-foreground/80 mb-6">
                                             <Filter size={32} />
                                         </div>
                                         <p className="text-sm font-black uppercase tracking-widest text-foreground">Tidak ada transaksi</p>
-                                        <p className="text-[10px] font-medium uppercase tracking-tighter text-muted-foreground mt-1">Coba sesuaikan filter pencarian Anda</p>
+                                        <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mt-1">Coba sesuaikan filter pencarian Anda</p>
                                         {(search || typeFilter !== 'all' || categoryFilter !== 'all') && (
                                             <Button 
                                                 variant="link" 
                                                 size="sm" 
-                                                className="mt-4 text-[10px] font-black uppercase tracking-widest text-primary hover:no-underline"
+                                                className="mt-4 text-xs font-black uppercase tracking-widest text-primary hover:no-underline"
                                                 onClick={() => {
                                                     setSearch('');
                                                     setTypeFilter('all');
@@ -263,13 +263,13 @@ export default function TransactionsTable({
                                         </TableCell>
                                         <TableCell className="px-4 py-5">
                                             <div className="flex flex-col">
-                                                <span className="text-[10px] font-black text-foreground/70 uppercase tracking-tighter">
+                                                <span className="text-xs font-black text-foreground/70 uppercase tracking-widest">
                                                     {getSumberDanaName(t.id_sumber_dana)}
                                                 </span>
                                                 {isTransfer && t.id_sumber_dana_tujuan && (
                                                     <div className="flex items-center gap-1.5 mt-1">
-                                                        <ArrowRight size={10} className="text-muted-foreground/40" />
-                                                        <span className="text-[9px] font-semibold text-muted-foreground uppercase">
+                                                        <ArrowRight size={10} className="text-muted-foreground/80" />
+                                                        <span className="text-xs font-semibold text-muted-foreground uppercase">
                                                             {getSumberDanaName(t.id_sumber_dana_tujuan)}
                                                         </span>
                                                     </div>
@@ -283,7 +283,7 @@ export default function TransactionsTable({
                                         </TableCell>
                                         <TableCell className="px-4 py-5 text-right">
                                             <span className={cn(
-                                                "display-number text-sm font-black tracking-tighter",
+                                                "display-number text-sm font-black tracking-widest",
                                                 isTransfer 
                                                     ? "text-indigo-600" 
                                                     : isIncome 
@@ -299,7 +299,7 @@ export default function TransactionsTable({
                                                 <span className="text-xs font-black text-foreground uppercase tracking-widest">
                                                     {formatTanggalPendek(t.tanggal)}
                                                 </span>
-                                                <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-tighter hidden sm:inline">
+                                                <span className="text-xs font-bold text-muted-foreground/80 uppercase tracking-widest hidden sm:inline">
                                                     {formatTanggal(t.tanggal).split(' ').slice(2).join(' ')}
                                                 </span>
                                             </div>

@@ -183,7 +183,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 text-[10px] font-bold text-indigo-600 hover:bg-indigo-100 rounded-lg"
+                                className="h-7 text-xs font-bold text-indigo-600 hover:bg-indigo-100 rounded-lg"
                                 onClick={() => {
                                     setSearch('');
                                     setStatusFilter('all');
@@ -241,7 +241,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                                                 {status?.status === 'peringatan' && <AlertTriangle size={12} className="text-amber-500" />}
                                                                 {status?.status === 'bahaya' && <XCircle size={12} className="text-red-500" />}
                                                                 <span className={cn(
-                                                                    "text-[10px] font-bold uppercase tracking-wider",
+                                                                    "text-xs font-bold uppercase tracking-wider",
                                                                     status?.status === 'aman' ? 'text-emerald-600' :
                                                                         status?.status === 'peringatan' ? 'text-amber-600' : 'text-red-600'
                                                                 )}>
@@ -267,20 +267,20 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                                 <TableCell className="px-6 text-right">
                                                     <div className="flex flex-col items-end gap-1">
                                                         <div className="flex flex-col items-end">
-                                                            <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">Terpakai</span>
+                                                            <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Terpakai</span>
                                                             <span className="display-number text-sm font-bold text-foreground">
                                                                 {formatRupiah(status?.terpakai || 0)}
                                                             </span>
                                                         </div>
                                                         <div className="flex flex-col items-end pt-1 border-t border-border/50 w-24">
-                                                            <span className="text-[9px] text-muted-foreground font-bold uppercase tracking-tighter">Limit</span>
+                                                            <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Limit</span>
                                                             <span className="display-number text-xs font-medium text-indigo-600/80">
                                                                 {formatRupiah(b.nominal_limit)}
                                                             </span>
                                                         </div>
                                                         {status && (
                                                             <Badge variant="outline" className={cn(
-                                                                "mt-1 px-1.5 py-0 h-4 text-[9px] font-black border-none",
+                                                                "mt-1 px-1.5 py-0 h-4 text-xs font-black border-none",
                                                                 status.status === 'aman' ? 'bg-emerald-50 text-emerald-700' :
                                                                     status.status === 'peringatan' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
                                                             )}>

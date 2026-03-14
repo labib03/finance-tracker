@@ -40,10 +40,10 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                             <Bell size={18} strokeWidth={2.5} />
                         </div>
                         <div>
-                            <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
+                            <CardTitle className="text-xs font-black uppercase tracking-widest text-foreground">
                                 Jadwal Tagihan
                             </CardTitle>
-                            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">Pengingat Otomatis</p>
+                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Pengingat Otomatis</p>
                         </div>
                     </div>
                 </div>
@@ -57,7 +57,7 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                         const diffDays = Math.ceil((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
                         let statusText = `${diffDays} HARI LAGI`;
-                        let statusColor = "text-muted-foreground/40";
+                        let statusColor = "text-muted-foreground/80";
 
                         if (diffDays === 0) {
                             statusText = 'HARI INI';
@@ -81,16 +81,16 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                                             {r.catatan}
                                         </p>
                                         <div className="flex items-center gap-2 mt-1">
-                                            <span className="text-[10px] text-muted-foreground font-black display-number opacity-60">
+                                            <span className="text-xs text-muted-foreground font-black display-number opacity-60">
                                                 {formatTanggalPendek(r.tanggal_berikutnya)}
                                             </span>
-                                            <span className="text-[10px] text-muted-foreground font-black display-number opacity-60">
+                                            <span className="text-xs text-muted-foreground font-black display-number opacity-60">
                                                 {getKategoriName(r.id_kategori)}
                                             </span>
                                             {diffDays <= 3 && (
                                                 <>
                                                     <div className="w-1 h-1 rounded-full bg-border" />
-                                                    <span className={cn("text-[9px] font-black uppercase tracking-widest", statusColor)}>
+                                                    <span className={cn("text-xs font-black uppercase tracking-widest", statusColor)}>
                                                         {statusText}
                                                     </span>
                                                 </>
@@ -99,10 +99,10 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                                     </div>
                                 </div>
                                 <div className="text-right ml-4">
-                                    <p className="text-sm font-black display-number text-foreground tracking-tighter group-hover/item:scale-105 transition-transform origin-right duration-300">
+                                    <p className="text-sm font-black display-number text-foreground tracking-widest group-hover/item:scale-105 transition-transform origin-right duration-300">
                                         {formatRupiah(r.nominal)}
                                     </p>
-                                    <p className="text-[9px] text-muted-foreground/30 font-black uppercase tracking-[0.2em] mt-0.5">
+                                    <p className="text-xs text-muted-foreground/80 font-black uppercase tracking-widest mt-0.5">
                                         {r.frekuensi}
                                     </p>
                                 </div>
@@ -116,7 +116,7 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                         </div>
                         <div>
                             <p className="text-xs font-black uppercase tracking-widest">Tidak Ada Tagihan</p>
-                            <p className="text-[10px] font-bold mt-1">Semua kewajiban telah terpenuhi.</p>
+                            <p className="text-xs font-bold mt-1">Semua kewajiban telah terpenuhi.</p>
                         </div>
                     </div>
                 )}
@@ -124,7 +124,7 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                 <div className="pt-4">
                     <Button
                         variant="ghost"
-                        className="w-full text-muted-foreground/40 hover:text-foreground hover:bg-muted/50 h-11 text-[9px] font-black uppercase tracking-[0.3em] rounded-2xl border border-dashed border-border/60 transition-all duration-500"
+                        className="w-full text-muted-foreground/80 hover:text-foreground hover:bg-muted/50 h-11 text-xs font-black uppercase tracking-widest rounded-2xl border border-dashed border-border/60 transition-all duration-500"
                         onClick={onViewAll}
                     >
                         Kelola Jadwal <ArrowRight size={12} className="ml-2" />

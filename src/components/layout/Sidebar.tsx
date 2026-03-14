@@ -29,11 +29,11 @@ import {
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Ringkasan finansial' },
     { id: 'saldo', label: 'Dompet Kontrol', icon: Wallet, description: 'Manajemen akun' },
-    { id: 'transaksi', label: 'Riwayat Input', icon: PlusCircle, description: 'Catat transaksi' },
+    { id: 'transaksi', label: 'Riwayat Transaksi', icon: PlusCircle, description: 'Catat transaksi' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
     { id: 'anggaran', label: 'Target Budget', icon: PieChart, description: 'Batas hemat' },
     { id: 'laporan', label: 'Analitik Pro', icon: PieChart, description: 'Statistik kategori' },
-    { id: 'recurring', label: 'Jadwal Rutin', icon: CalendarClock, description: 'Biaya langganan' },
+    { id: 'recurring', label: 'Tagihan Rutin', icon: CalendarClock, description: 'Biaya langganan' },
     { id: 'master', label: 'Master Data', icon: Database, description: 'Kategori & sumber' },
 ];
 
@@ -59,8 +59,8 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                         }}
                         className={cn(
                             "group flex items-center gap-4 px-4 py-3.5 rounded-[1.5rem] transition-all duration-500 text-left relative overflow-hidden",
-                            isActive 
-                                ? "bg-foreground text-background shadow-xl shadow-foreground/10 translate-x-1" 
+                            isActive
+                                ? "bg-foreground text-background shadow-xl shadow-foreground/10 translate-x-1"
                                 : "hover:bg-muted/50 text-muted-foreground hover:text-foreground"
                         )}
                     >
@@ -71,15 +71,15 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                             <Icon size={18} strokeWidth={isActive ? 2.5 : 2} className={cn("transition-transform duration-500", isActive ? "scale-110" : "group-hover:scale-110")} />
                         </div>
                         <div className="flex flex-col min-w-0">
-                            <span className="text-[11px] font-black uppercase tracking-[0.15em] leading-none mb-1">
+                            <span className="text-[11px] font-black uppercase tracking-widest leading-none mb-1">
                                 {item.label}
                             </span>
-                            <span className={cn(
-                                "text-[9px] font-black uppercase tracking-tighter opacity-40",
-                                isActive ? "text-background/60" : "text-muted-foreground"
+                            {/* <span className={cn(
+                                "text-[10px] font-black tracking-widest",
+                                isActive ? "text-background/80" : "text-muted-foreground/70"
                             )}>
                                 {item.description}
-                            </span>
+                            </span> */}
                         </div>
                         {isActive && (
                             <div className="ml-auto animate-in fade-in slide-in-from-left-2 duration-500">
@@ -99,10 +99,10 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     <DollarSign size={26} strokeWidth={3} className="relative z-10" />
                 </div>
                 <div className="flex flex-col">
-                    <h1 className="text-2xl font-black tracking-tighter leading-none">
+                    <h1 className="text-2xl font-black tracking-widest leading-none">
                         Financer<span className="text-indigo-600">.</span>
                     </h1>
-                    <span className="text-[10px] font-black uppercase tracking-[0.4em] text-muted-foreground/30 mt-2">
+                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mt-2">
                         Premium Pro
                     </span>
                 </div>
@@ -117,16 +117,16 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 <Brand />
                 <div className="flex-1 overflow-y-auto px-1 -mx-1 scrollbar-none">
                     <div className="mb-4">
-                        <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mb-6 px-4">Menu Utama</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-6 px-4">Menu Utama</p>
                         <NavLinks />
                     </div>
                 </div>
-                
+
                 <div className="mt-auto pt-8 space-y-6">
                     <Separator className="bg-border/20" />
-                    
+
                     <div className="px-2">
-                         <button
+                        <button
                             onClick={() => {
                                 useFinanceStore.getState().setActiveModal('cycle_settings');
                             }}
@@ -137,8 +137,8 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                                     <CalendarClock size={16} />
                                 </div>
                                 <div className="flex flex-col text-left">
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-none mb-1">Pengaturan Siklus</span>
-                                    <span className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-tighter">Sesuaikan Timeline</span>
+                                    <span className="text-xs font-black uppercase tracking-widest leading-none mb-1">Pengaturan Siklus</span>
+                                    <span className="text-[10px] font-bold text-muted-foreground/80 tracking-widest">Sesuaikan Timeline</span>
                                 </div>
                             </div>
                             <ChevronRight size={14} className="text-muted-foreground/30 group-hover:translate-x-0.5 transition-transform" />
@@ -154,9 +154,9 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
                         <DollarSign size={18} strokeWidth={3} className="text-white" />
                     </div>
-                    <span className="text-base font-black tracking-tighter">Financer.</span>
+                    <span className="text-base font-black tracking-widest">Financer.</span>
                 </div>
-                
+
                 <Sheet open={open} onOpenChange={setOpen}>
                     <SheetTrigger render={<Button variant="ghost" size="icon" className="rounded-xl hover:bg-muted/50" />}>
                         <Menu size={20} strokeWidth={2.5} />
@@ -166,11 +166,11 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                             <Brand />
                         </SheetHeader>
                         <div className="flex-1 overflow-y-auto scrollbar-none">
-                             <p className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/30 mb-6 px-4">Menu Utama</p>
+                            <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mb-6 px-4">Menu Utama</p>
                             <NavLinks mobile />
                         </div>
                         <div className="mt-auto pt-8 space-y-4">
-                             <button
+                            <button
                                 onClick={() => {
                                     useFinanceStore.getState().setActiveModal('cycle_settings');
                                     setOpen(false);
@@ -181,14 +181,14 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                                     <CalendarClock size={20} />
                                 </div>
                                 <div className="flex flex-col">
-                                    <span className="text-[11px] font-black uppercase tracking-[0.15em]">Pengaturan Siklus</span>
-                                    <span className="text-[9px] font-black uppercase tracking-tighter opacity-40">Ubah rentang bulan</span>
+                                    <span className="text-[11px] font-black uppercase tracking-widest">Pengaturan Siklus</span>
+                                    <span className="text-xs font-black uppercase tracking-widest opacity-80">Ubah rentang bulan</span>
                                 </div>
                             </button>
-                             <Separator className="bg-border/40" />
-                             <p className="text-[9px] font-black text-center text-muted-foreground/30 tracking-[0.3em] uppercase">
+                            <Separator className="bg-border/40" />
+                            <p className="text-xs font-black text-center text-muted-foreground/80 tracking-widest uppercase">
                                 v1.2.0 · Pro Interface
-                             </p>
+                            </p>
                         </div>
                     </SheetContent>
                 </Sheet>

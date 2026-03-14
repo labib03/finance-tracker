@@ -160,7 +160,7 @@ export default function KategoriForm({ onClose, kategoriToEdit }: KategoriFormPr
                                 />
                             </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground italic">
+                        <p className="text-xs text-muted-foreground italic">
                             Masukkan nama komponen dari Lucide React (PascalCase).
                         </p>
                         {errors.icon_name && (

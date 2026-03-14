@@ -84,10 +84,10 @@ export function TransactionDetailDialog({
                     </div>
 
                     <div className="text-center space-y-1">
-                        <p className="text-[10px] font-black text-muted-foreground/50 uppercase tracking-[0.2em]">
+                        <p className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">
                             {isTransfer ? 'Transfer Antar Akun' : kategori?.nama_kategori}
                         </p>
-                        <h2 className="text-4xl font-black text-foreground tracking-tighter">
+                        <h2 className="text-4xl font-black text-foreground tracking-widest">
                             {isIncome ? '+' : isTransfer ? '' : '-'}
                             {formatRupiah(transaksi.nominal)}
                         </h2>
@@ -98,14 +98,14 @@ export function TransactionDetailDialog({
                     {/* Compact Info Grid */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-muted/30 p-4 rounded-3xl space-y-1">
-                            <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">Waktu</span>
+                            <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">Waktu</span>
                             <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
                                 <Calendar size={12} className="text-muted-foreground" />
                                 {formatTanggal(transaksi.tanggal)}
                             </div>
                         </div>
                         <div className="bg-muted/30 p-4 rounded-3xl space-y-1">
-                            <span className="text-[9px] font-black text-muted-foreground/60 uppercase tracking-widest">Status</span>
+                            <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">Status</span>
                             <div className={cn(
                                 "text-xs font-black uppercase tracking-wider",
                                 isTransfer ? "text-indigo-600" : isIncome ? "text-emerald-600" : "text-red-500"
@@ -124,12 +124,12 @@ export function TransactionDetailDialog({
                                         <Wallet size={18} strokeWidth={2} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-widest">{isTransfer ? 'DARI' : 'METODE'}</span>
+                                        <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">{isTransfer ? 'DARI' : 'METODE'}</span>
                                         <span className="text-sm font-bold">{sumberDana?.nama_sumber || '-'}</span>
                                     </div>
                                 </div>
                                 {isTransfer && (
-                                     <ArrowLeftRight size={14} className="text-muted-foreground/30 rotate-90" />
+                                     <ArrowLeftRight size={14} className="text-muted-foreground/80 rotate-90" />
                                 )}
                             </div>
 
@@ -139,7 +139,7 @@ export function TransactionDetailDialog({
                                         <Wallet size={18} strokeWidth={2} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">KE UNTUK</span>
+                                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">KE UNTUK</span>
                                         <span className="text-sm font-bold text-indigo-600">{sumberDanaTujuan?.nama_sumber || '-'}</span>
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@ export function TransactionDetailDialog({
 
                         {/* Catatan Area */}
                         <div className="pt-6 border-t border-muted/50">
-                            <span className="text-[9px] font-black text-muted-foreground/50 uppercase tracking-[0.2em] mb-3 block">Catatan</span>
+                            <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest mb-3 block">Catatan</span>
                             <p className="text-sm text-foreground/70 leading-relaxed italic font-medium">
                                 {transaksi.catatan || 'Tidak ada catatan khusus...'}
                             </p>
@@ -159,7 +159,7 @@ export function TransactionDetailDialog({
                     <div className="flex items-center gap-3 pt-4">
                         <Button
                             variant="secondary"
-                            className="flex-1 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest bg-muted/50 hover:bg-muted text-foreground transition-all"
+                            className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest bg-muted/50 hover:bg-muted text-foreground transition-all"
                             onClick={() => {
                                 onEdit?.(transaksi);
                                 onOpenChange(false);
@@ -170,7 +170,7 @@ export function TransactionDetailDialog({
                         </Button>
                         <Button
                             variant="ghost"
-                            className="flex-1 h-12 rounded-2xl font-black text-[10px] uppercase tracking-widest text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-100"
+                            className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-100"
                             onClick={() => setShowConfirmDelete(true)}
                         >
                             <Trash2 size={14} className="mr-2" />

@@ -27,7 +27,7 @@ export default function SaldoCards() {
             <div className="flex items-center justify-between px-2">
                 <div className="flex items-center gap-3">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-[11px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                    <h2 className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/80">
                         Status Saldo Likuid
                     </h2>
                 </div>
@@ -48,13 +48,13 @@ export default function SaldoCards() {
                                 <div className="w-12 h-12 rounded-2xl bg-muted/30 flex items-center justify-center border border-transparent group-hover:bg-white group-hover:border-border/40 group-hover:shadow-scandi transition-all duration-500">
                                     <Icon size={22} strokeWidth={2.5} className="text-foreground/40 group-hover:text-primary transition-colors duration-500" />
                                 </div>
-                                <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 group-hover:text-primary/60 transition-colors">
+                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 group-hover:text-primary/60 transition-colors">
                                     {akun.nama_sumber}
                                 </span>
                             </CardHeader>
                             <CardContent className="p-8 pt-0 relative z-10">
-                                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/30 mb-1 italic">Tersedia</p>
-                                <p className="text-2xl font-black tracking-tighter text-foreground display-number group-hover:scale-105 transition-transform origin-left duration-500">
+                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-1 italic">Tersedia</p>
+                                <p className="text-2xl font-black tracking-widest text-foreground display-number group-hover:scale-105 transition-transform origin-left duration-500">
                                     {formatRupiah(akun.saldo)}
                                 </p>
                             </CardContent>

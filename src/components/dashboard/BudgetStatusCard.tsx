@@ -56,10 +56,10 @@ export default function BudgetStatusCard() {
                         <Sparkles size={18} />
                     </div>
                     <div>
-                        <CardTitle className="text-xs font-black uppercase tracking-[0.2em] text-foreground">
+                        <CardTitle className="text-xs font-black uppercase tracking-widest text-foreground">
                             Status Anggaran
                         </CardTitle>
-                        <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter mt-0.5">Pemantauan Real-time</p>
+                        <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest mt-0.5">Pemantauan Real-time</p>
                     </div>
                 </div>
             </CardHeader>
@@ -81,7 +81,7 @@ export default function BudgetStatusCard() {
                                 <p className="text-sm font-black display-number text-foreground leading-none">
                                     {formatRupiah(bs.terpakai)}
                                 </p>
-                                <p className="text-[9px] text-muted-foreground font-black uppercase tracking-tighter mt-1 opacity-60">
+                                <p className="text-xs text-muted-foreground font-black uppercase tracking-widest mt-1 opacity-60">
                                     Batas: {formatRupiah(bs.batas)}
                                 </p>
                             </div>
@@ -102,7 +102,7 @@ export default function BudgetStatusCard() {
                             {/* Percentage Indicator */}
                             <div className="flex items-center justify-between mt-2">
                                 <p className={cn(
-                                    "text-[10px] font-black italic",
+                                    "text-xs font-black italic",
                                     bs.status === 'aman' ? 'text-emerald-600/60' :
                                         bs.status === 'peringatan' ? 'text-amber-600/60' : 'text-red-600/60'
                                 )}>
@@ -128,7 +128,7 @@ export default function BudgetStatusCard() {
                                 <div className="mt-0.5">
                                     {bs.status === 'peringatan' ? <AlertTriangle size={14} strokeWidth={2.5} /> : <XCircle size={14} strokeWidth={2.5} />}
                                 </div>
-                                <p className="text-[10px] font-bold leading-relaxed tracking-tight">
+                                <p className="text-xs font-bold leading-relaxed tracking-tight">
                                     {bs.status === 'peringatan'
                                         ? `Penggunaan telah mencapai ${bs.persentase}%. Pertimbangkan untuk membatasi pengeluaran kategori ini.`
                                         : `Anggaran ${bs.nama_kategori} telah terlampaui. Disarankan untuk meninjau kembali prioritas pengeluaran Anda.`}

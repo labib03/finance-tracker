@@ -103,14 +103,14 @@ export default function MasterDataManagement({
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 <div>
-                    <h2 className="text-lg font-black uppercase tracking-[0.15em] text-foreground">Master Data</h2>
-                    <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-tighter mt-1">
+                    <h2 className="text-lg font-black uppercase tracking-widest text-foreground">Master Data</h2>
+                    <p className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest mt-1">
                         Kelola kategori transaksi dan sumber dana Anda
                     </p>
                 </div>
                 <Button
                     onClick={activeTab === 'kategori' ? onAddKategori : onAddSumberDana}
-                    className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-[10px] font-black uppercase tracking-widest shrink-0"
+                    className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0"
                 >
                     <Plus size={16} className="mr-2" />
                     {activeTab === 'kategori' ? 'Tambah Kategori' : 'Tambah Akun'}
@@ -125,17 +125,17 @@ export default function MasterDataManagement({
                             key={tab.id}
                             onClick={() => { setActiveTab(tab.id); setSearch(''); }}
                             className={cn(
-                                "flex-1 flex items-center justify-center gap-3 px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] transition-all duration-500 relative",
+                                "flex-1 flex items-center justify-center gap-3 px-6 py-5 text-xs font-black uppercase tracking-widest transition-all duration-500 relative",
                                 activeTab === tab.id
                                     ? "text-foreground bg-muted/20"
-                                    : "text-muted-foreground/40 hover:text-muted-foreground/70 hover:bg-muted/10"
+                                    : "text-muted-foreground/80 hover:text-muted-foreground/70 hover:bg-muted/10"
                             )}
                         >
                             <tab.icon size={16} />
                             {tab.label}
                             <span className={cn(
-                                "px-2 py-0.5 rounded-full text-[9px] font-black transition-colors",
-                                activeTab === tab.id ? "bg-foreground text-background" : "bg-muted/40 text-muted-foreground/50"
+                                "px-2 py-0.5 rounded-full text-xs font-black transition-colors",
+                                activeTab === tab.id ? "bg-foreground text-background" : "bg-muted/40 text-muted-foreground/80"
                             )}>
                                 {tab.count}
                             </span>
@@ -150,7 +150,7 @@ export default function MasterDataManagement({
                 <div className="px-8 py-5 border-b border-border/10">
                     <div className="flex items-center gap-4">
                         <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/30" size={14} />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/80" size={14} />
                             <Input
                                 placeholder={activeTab === 'kategori' ? "Cari kategori..." : "Cari sumber dana..."}
                                 className="pl-10 h-11 text-xs font-medium rounded-2xl bg-muted/15 border-transparent focus:bg-white focus:border-border/40 focus:ring-0"
@@ -169,10 +169,10 @@ export default function MasterDataManagement({
                                         key={f.value}
                                         onClick={() => setKategoriTipe(f.value)}
                                         className={cn(
-                                            "px-3 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all duration-300",
+                                            "px-3 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300",
                                             kategoriTipe === f.value
                                                 ? "bg-white text-foreground shadow-sm"
-                                                : "text-muted-foreground/50 hover:text-muted-foreground"
+                                                : "text-muted-foreground/80 hover:text-muted-foreground"
                                         )}
                                     >
                                         {f.label}
@@ -189,11 +189,11 @@ export default function MasterDataManagement({
                         <div className="space-y-1.5">
                             {filteredKategori.length === 0 ? (
                                 <div className="text-center py-16">
-                                    <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center mx-auto mb-4 text-muted-foreground/20">
+                                    <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center mx-auto mb-4 text-muted-foreground/80">
                                         <Tags size={28} />
                                     </div>
                                     <p className="text-xs font-black uppercase tracking-widest text-foreground">Tidak ada kategori</p>
-                                    <p className="text-[10px] font-medium text-muted-foreground/50 mt-1 uppercase tracking-tighter">Tambahkan kategori baru untuk memulai</p>
+                                    <p className="text-xs font-medium text-muted-foreground/80 mt-1 uppercase tracking-widest">Tambahkan kategori baru untuk memulai</p>
                                 </div>
                             ) : (
                                 filteredKategori.map((k) => (
@@ -213,7 +213,7 @@ export default function MasterDataManagement({
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-black text-foreground leading-tight">{k.nama_kategori}</span>
                                                 <span className={cn(
-                                                    "text-[9px] font-black uppercase tracking-widest mt-0.5",
+                                                    "text-xs font-black uppercase tracking-widest mt-0.5",
                                                     k.tipe === 'Pemasukan' ? "text-emerald-500/60" : "text-rose-500/60"
                                                 )}>
                                                     {k.tipe}
@@ -248,11 +248,11 @@ export default function MasterDataManagement({
                         <div className="space-y-1.5">
                             {filteredSumberDana.length === 0 ? (
                                 <div className="text-center py-16">
-                                    <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center mx-auto mb-4 text-muted-foreground/20">
+                                    <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center mx-auto mb-4 text-muted-foreground/80">
                                         <Wallet size={28} />
                                     </div>
                                     <p className="text-xs font-black uppercase tracking-widest text-foreground">Belum ada akun</p>
-                                    <p className="text-[10px] font-medium text-muted-foreground/50 mt-1 uppercase tracking-tighter">Tambahkan sumber dana baru untuk memulai</p>
+                                    <p className="text-xs font-medium text-muted-foreground/80 mt-1 uppercase tracking-widest">Tambahkan sumber dana baru untuk memulai</p>
                                 </div>
                             ) : (
                                 filteredSumberDana.map((s) => (
@@ -266,14 +266,14 @@ export default function MasterDataManagement({
                                             </div>
                                             <div className="flex flex-col">
                                                 <span className="text-sm font-black text-foreground leading-tight">{s.nama_sumber}</span>
-                                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/40 mt-0.5">
+                                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mt-0.5">
                                                     Personal Account
                                                 </span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-4">
                                             <div className="text-right">
-                                                <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 leading-none mb-1">Saldo Awal</p>
+                                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 leading-none mb-1">Saldo Awal</p>
                                                 <span className="display-number text-sm font-black text-foreground/70">
                                                     {formatRupiah(s.saldo_awal)}
                                                 </span>

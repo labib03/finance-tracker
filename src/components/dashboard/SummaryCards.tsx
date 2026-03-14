@@ -95,7 +95,7 @@ export default function SummaryCards() {
                                 </div>
                                 {card.trend && (
                                     <div className={cn(
-                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black tracking-widest uppercase border",
+                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-widest uppercase border",
                                         card.trend === 'up' 
                                             ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
                                             : 'bg-orange-50 text-orange-600 border-orange-100'
@@ -107,10 +107,10 @@ export default function SummaryCards() {
                             </div>
 
                             <div className="space-y-1">
-                                <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">
+                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">
                                     {card.label}
                                 </p>
-                                <h3 className="text-3xl font-black text-foreground display-number tracking-tighter">
+                                <h3 className="text-3xl font-black text-foreground display-number tracking-widest">
                                     {formatRupiah(card.value)}
                                 </h3>
                             </div>
