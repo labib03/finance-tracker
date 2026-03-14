@@ -252,6 +252,40 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
   }
 }
 
+export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
+  try {
+    const result = await findRowAndGetSheetId("Transaksi", transaksi.id);
+    if (!result) return false;
+
+    const { rowIndex } = result;
+    const sheets = getSheets();
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Transaksi!A${rowIndex + 1}:H${rowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            transaksi.id,
+            transaksi.tanggal,
+            transaksi.jenis,
+            transaksi.id_sumber_dana,
+            transaksi.id_kategori,
+            transaksi.nominal,
+            transaksi.catatan,
+            transaksi.id_sumber_dana_tujuan || "",
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating transaksi:", error);
+    return false;
+  }
+}
+
 export async function tambahTransfer(transaksi: Transaksi): Promise<boolean> {
   return tambahTransaksi(transaksi);
 }
@@ -355,6 +389,41 @@ export async function tambahBudget(budget: Budget): Promise<boolean> {
     console.error("Error adding budget:", error);
     return false;
   }
+}
+
+export async function updateBudget(budget: Budget): Promise<boolean> {
+  try {
+    const result = await findRowAndGetSheetId("Anggaran", budget.id_anggaran);
+    if (!result) return false;
+
+    const { rowIndex } = result;
+    const sheets = getSheets();
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Anggaran!A${rowIndex + 1}:E${rowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            budget.id_anggaran,
+            budget.id_kategori,
+            budget.bulan,
+            budget.tahun,
+            budget.nominal_limit,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating budget:", error);
+    return false;
+  }
+}
+
+export async function hapusBudget(id: string): Promise<boolean> {
+  return deleteRowByIdFromSheet("Anggaran", id);
 }
 
 export async function hapusTransaksi(id: string): Promise<boolean> {

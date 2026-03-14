@@ -13,6 +13,8 @@ import {
     ResponsiveContainer,
     Legend,
 } from 'recharts';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { LineChart as TrendingUp } from 'lucide-react';
 
 export default function WeeklyTrendChart() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
@@ -27,85 +29,95 @@ export default function WeeklyTrendChart() {
 
     if (!hasData) {
         return (
-            <div className="card h-full">
-                <h3
-                    className="text-sm font-bold mb-4 uppercase tracking-wider"
-                    style={{ color: 'var(--text-muted)' }}
-                >
-                    Tren Mingguan
-                </h3>
-                <div className="flex items-center justify-center h-48">
-                    <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
+            <Card className="h-full border-dashed">
+                <CardHeader className="flex flex-row items-center gap-2 pb-2">
+                    <TrendingUp size={18} className="text-muted-foreground" />
+                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                        Tren Mingguan
+                    </CardTitle>
+                </CardHeader>
+                <CardContent className="flex items-center justify-center h-48">
+                    <p className="text-sm text-muted-foreground italic">
                         Belum ada data transaksi
                     </p>
-                </div>
-            </div>
+                </CardContent>
+            </Card>
         );
     }
 
     return (
-        <div className="card h-full">
-            <h3
-                className="text-sm font-bold mb-4 uppercase tracking-wider"
-                style={{ color: 'var(--text-muted)' }}
-            >
-                Tren Mingguan
-            </h3>
+        <Card className="h-full">
+            <CardHeader className="flex flex-row items-center gap-2 pb-4">
+                <TrendingUp size={18} className="text-primary" />
+                <CardTitle className="text-sm font-bold uppercase tracking-wider">
+                    Tren Mingguan
+                </CardTitle>
+            </CardHeader>
 
-            <ResponsiveContainer width="100%" height={280}>
-                <BarChart data={data} barCategoryGap="20%">
-                    <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                    <XAxis
-                        dataKey="minggu"
-                        tick={{ fontSize: 12, fill: '#94a3b8' }}
-                        axisLine={{ stroke: '#e2e8f0' }}
-                        tickLine={false}
-                    />
-                    <YAxis
-                        tick={{ fontSize: 11, fill: '#94a3b8' }}
-                        axisLine={false}
-                        tickLine={false}
-                        tickFormatter={(value) => {
-                            if (value >= 1000000) return `${(value / 1000000).toFixed(0)}jt`;
-                            if (value >= 1000) return `${(value / 1000).toFixed(0)}rb`;
-                            return value;
-                        }}
-                    />
-                    <Tooltip
-                        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                        formatter={(value: any, name: any) => [
-                            formatRupiah(Number(value)),
-                            name === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran',
-                        ]}
-                        contentStyle={{
-                            borderRadius: '12px',
-                            border: '1px solid #e2e8f0',
-                            boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.05)',
-                            fontFamily: 'Plus Jakarta Sans',
-                            fontSize: '13px',
-                        }}
-                    />
-                    <Legend
-                        formatter={(value: string) => (
-                            <span style={{ fontSize: '12px', color: '#475569', fontWeight: 500 }}>
-                                {value === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran'}
-                            </span>
-                        )}
-                    />
-                    <Bar
-                        dataKey="pemasukan"
-                        fill="#10b981"
-                        radius={[6, 6, 0, 0]}
-                        maxBarSize={40}
-                    />
-                    <Bar
-                        dataKey="pengeluaran"
-                        fill="#f97316"
-                        radius={[6, 6, 0, 0]}
-                        maxBarSize={40}
-                    />
-                </BarChart>
-            </ResponsiveContainer>
-        </div>
+            <CardContent>
+                <ResponsiveContainer width="100%" height={280}>
+                    <BarChart data={data} barCategoryGap="20%">
+                        <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="hsl(var(--muted))" opacity={0.4} />
+                        <XAxis
+                            dataKey="minggu"
+                            tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }}
+                            axisLine={false}
+                            tickLine={false}
+                        />
+                        <YAxis
+                            tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }}
+                            axisLine={false}
+                            tickLine={false}
+                            tickFormatter={(value) => {
+                                if (value >= 1000000) return `${(value / 1000000).toFixed(0)}Jt`;
+                                if (value >= 1000) return `${(value / 1000).toFixed(0)}Rb`;
+                                return value;
+                            }}
+                        />
+                        <Tooltip
+                            cursor={{ fill: 'hsl(var(--muted))', opacity: 0.2 }}
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                            formatter={(value: any, name: any) => [
+                                formatRupiah(Number(value)),
+                                name === 'pemasukan' ? 'Pemasukan' : 'Pengeluaran',
+                            ]}
+                            contentStyle={{
+                                backgroundColor: 'hsl(var(--background))',
+                                borderColor: 'hsl(var(--border))',
+                                borderRadius: '12px',
+                                boxShadow: '0 4px 12px -2px rgb(0 0 0 / 0.1)',
+                                fontSize: '12px',
+                                fontWeight: 'semibold',
+                            }}
+                            itemStyle={{ padding: '2px 0' }}
+                        />
+                        <Legend
+                            verticalAlign="top"
+                            align="right"
+                            wrapperStyle={{ paddingBottom: '20px', fontSize: '11px' }}
+                            formatter={(value: string) => (
+                                <span className="font-semibold text-muted-foreground capitalize">
+                                    {value}
+                                </span>
+                            )}
+                        />
+                        <Bar
+                            dataKey="pemasukan"
+                            fill="#10b981"
+                            radius={[4, 4, 0, 0]}
+                            maxBarSize={32}
+                            animationDuration={1500}
+                        />
+                        <Bar
+                            dataKey="pengeluaran"
+                            fill="#f97316"
+                            radius={[4, 4, 0, 0]}
+                            maxBarSize={32}
+                            animationDuration={1500}
+                        />
+                    </BarChart>
+                </ResponsiveContainer>
+            </CardContent>
+        </Card>
     );
 }

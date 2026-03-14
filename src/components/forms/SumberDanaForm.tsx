@@ -6,9 +6,19 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { sumberDanaSchema, type SumberDanaFormData } from '@/lib/schemas';
 import type { SumberDana } from '@/lib/types';
-import { X, Save, Wallet } from 'lucide-react';
+import { Save, Wallet } from 'lucide-react';
 import { generateId } from '@/lib/utils';
 import NumericInput from '@/components/forms/NumericInput';
+import { Button } from '@/components/ui/button';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 interface SumberDanaFormProps {
     onClose: () => void;
@@ -61,75 +71,75 @@ export default function SumberDanaForm({ onClose, sumberDanaToEdit }: SumberDana
     };
 
     return (
-        <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-                <div className="modal-header">
-                    <h2 className="text-lg font-bold">
-                        {sumberDanaToEdit ? 'Edit Sumber Dana' : 'Tambah Sumber Dana'}
-                    </h2>
-                    <button
-                        onClick={onClose}
-                        className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
-                        aria-label="Tutup"
-                    >
-                        <X size={20} />
-                    </button>
+        <Dialog open={true} onOpenChange={onClose}>
+            <DialogContent className="sm:max-w-[425px]">
+                <DialogHeader>
+                    <DialogTitle>
+                        {sumberDanaToEdit ? 'Edit Akun Keuangan' : 'Tambah Akun Keuangan'}
+                    </DialogTitle>
+                </DialogHeader>
+
+                <div className="bg-indigo-50/50 p-4 rounded-xl flex items-center gap-3 mb-2 border border-indigo-100/50">
+                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
+                        <Wallet size={20} className="text-indigo-600" />
+                    </div>
+                    <p className="text-xs font-medium text-indigo-700 leading-tight">
+                        Masukkan detail akun, dompet digital, atau rekening bank Anda untuk melacak saldo secara terpusat.
+                    </p>
                 </div>
 
-                <div className="modal-body">
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-                        {/* ID Sumber Dana (Hidden) */}
-                        <input type="hidden" {...register('id_sumber_dana')} />
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 py-2">
+                    {/* ID Sumber Dana (Hidden) */}
+                    <input type="hidden" {...register('id_sumber_dana')} />
 
-                        {/* Nama Sumber Dana */}
-                        <div>
-                            <label className="input-label">Nama Akun/Sumber Dana</label>
-                            <input
-                                type="text"
-                                placeholder="Contoh: BCA, OVO, Cash..."
-                                {...register('nama_sumber')}
-                                className={`input-field ${errors.nama_sumber ? 'input-error' : ''}`}
-                            />
-                            {errors.nama_sumber && (
-                                <p className="input-error-text">{errors.nama_sumber.message}</p>
-                            )}
-                        </div>
+                    {/* Nama Sumber Dana */}
+                    <div className="space-y-2">
+                        <Label htmlFor="nama_sumber">Nama Akun/Sumber Dana</Label>
+                        <Input
+                            id="nama_sumber"
+                            placeholder="Contoh: BCA, OVO, Cash..."
+                            {...register('nama_sumber')}
+                            className={errors.nama_sumber ? 'border-destructive' : ''}
+                        />
+                        {errors.nama_sumber && (
+                            <p className="text-xs font-medium text-destructive">{errors.nama_sumber.message}</p>
+                        )}
+                    </div>
 
-                        {/* Saldo Awal */}
-                        <div>
-                            <NumericInput
-                                label="Saldo Awal"
-                                name="saldo_awal"
-                                control={control}
-                                error={errors.saldo_awal?.message}
-                                disabled={!!sumberDanaToEdit}
-                                placeholder="0"
-                            />
-                            {sumberDanaToEdit && (
-                                <p className="text-xs text-gray-500 mt-1">
-                                    Saldo awal tidak dapat diubah setelah dibuat.
-                                </p>
-                            )}
-                        </div>
+                    {/* Saldo Awal */}
+                    <div className="space-y-2">
+                        <NumericInput
+                            label="Saldo Awal"
+                            name="saldo_awal"
+                            control={control}
+                            error={errors.saldo_awal?.message}
+                            disabled={!!sumberDanaToEdit}
+                        />
+                        {sumberDanaToEdit && (
+                            <p className="text-[10px] text-muted-foreground italic">
+                                * Saldo awal tidak dapat diubah setelah akun dibuat.
+                            </p>
+                        )}
+                    </div>
 
-                        {/* Submit */}
-                        <button
+                    <DialogFooter>
+                        <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="btn-primary w-full justify-center mt-2"
+                            className="w-full rounded-xl"
                         >
                             {isSubmitting ? (
                                 'Menyimpan...'
                             ) : (
                                 <>
-                                    <Save size={16} />
-                                    Simpan Sumber Dana
+                                    <Save size={16} className="mr-2" />
+                                    Simpan Akun
                                 </>
                             )}
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
+                        </Button>
+                    </DialogFooter>
+                </form>
+            </DialogContent>
+        </Dialog>
     );
 }

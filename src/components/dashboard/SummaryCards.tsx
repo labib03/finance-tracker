@@ -1,5 +1,4 @@
-'use client';
-
+import { Card, CardContent } from '@/components/ui/card';
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import {
@@ -32,7 +31,7 @@ export default function SummaryCards() {
     );
 
     const totalSaldo = useMemo(
-        () => saldoAkun.reduce((sum, s) => sum + s.saldo, 0),
+        () => saldoAkun.reduce((sum: number, s) => sum + s.saldo, 0),
         [saldoAkun]
     );
 
@@ -71,40 +70,39 @@ export default function SummaryCards() {
             {cards.map((card) => {
                 const Icon = card.icon;
                 return (
-                    <div key={card.label} className="card group">
-                        <div className="flex items-start justify-between mb-4">
-                            <div
-                                className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center`}
-                            >
-                                <Icon size={22} className={card.iconColor} />
-                            </div>
-                            {card.trend && (
+                    <Card key={card.label} className="group overflow-hidden border-none shadow-sm hover:shadow-md transition-all duration-300">
+                        <CardContent className="p-6">
+                            <div className="flex items-start justify-between mb-4">
                                 <div
-                                    className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${card.trend === 'up'
-                                        ? 'bg-emerald-50 text-emerald-700'
-                                        : 'bg-orange-50 text-orange-700'
-                                        }`}
+                                    className={`w-11 h-11 rounded-xl ${card.iconBg} flex items-center justify-center`}
                                 >
-                                    {card.trend === 'up' ? (
-                                        <ArrowUpRight size={14} />
-                                    ) : (
-                                        <ArrowDownRight size={14} />
-                                    )}
-                                    <span>{card.subtitle}</span>
+                                    <Icon size={22} className={card.iconColor} />
                                 </div>
-                            )}
-                        </div>
+                                {card.trend && (
+                                    <div
+                                        className={`flex items-center gap-1 text-xs font-semibold px-2 py-1 rounded-full ${card.trend === 'up'
+                                            ? 'bg-emerald-50 text-emerald-700'
+                                            : 'bg-orange-50 text-orange-700'
+                                            }`}
+                                    >
+                                        {card.trend === 'up' ? (
+                                            <ArrowUpRight size={14} />
+                                        ) : (
+                                            <ArrowDownRight size={14} />
+                                        )}
+                                        <span>{card.subtitle}</span>
+                                    </div>
+                                )}
+                            </div>
 
-                        <p
-                            className="text-xs font-semibold mb-1 uppercase tracking-wider"
-                            style={{ color: 'var(--text-muted)' }}
-                        >
-                            {card.label}
-                        </p>
-                        <p className="display-number text-2xl">
-                            {formatRupiah(card.value)}
-                        </p>
-                    </div>
+                            <p className="text-xs font-semibold mb-1 uppercase tracking-wider text-muted-foreground">
+                                {card.label}
+                            </p>
+                            <p className="display-number text-2xl font-bold">
+                                {formatRupiah(card.value)}
+                            </p>
+                        </CardContent>
+                    </Card>
                 );
             })}
         </div>

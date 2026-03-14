@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import { useFinanceStore } from '@/lib/store';
 import {
     LayoutDashboard,
     Wallet,
@@ -13,16 +12,27 @@ import {
     X,
     DollarSign,
     Database,
+    ChevronRight,
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
+import { Separator } from '@/components/ui/separator';
+import {
+    Sheet,
+    SheetContent,
+    SheetTrigger,
+    SheetHeader,
+    SheetTitle,
+} from '@/components/ui/sheet';
 
 const navItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-    { id: 'saldo', label: 'Manajemen Saldo', icon: Wallet },
-    { id: 'transaksi', label: 'Input Transaksi', icon: PlusCircle },
-    { id: 'transfer', label: 'Transfer', icon: ArrowLeftRight },
-    { id: 'anggaran', label: 'Anggaran', icon: PieChart },
-    { id: 'recurring', label: 'Berulang', icon: CalendarClock },
-    { id: 'master', label: 'Master Data', icon: Database },
+    { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Ringkasan finansial' },
+    { id: 'saldo', label: 'Dompet Kontrol', icon: Wallet, description: 'Manajemen akun' },
+    { id: 'transaksi', label: 'Input Cepat', icon: PlusCircle, description: 'Catat transaksi' },
+    { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
+    { id: 'anggaran', label: 'Target Budget', icon: PieChart, description: 'Batas hemat' },
+    { id: 'recurring', label: 'Jadwal Rutin', icon: CalendarClock, description: 'Biaya langganan' },
+    { id: 'master', label: 'Master Data', icon: Database, description: 'Kategori & sumber' },
 ];
 
 interface SidebarProps {
@@ -31,75 +41,123 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
-    const [isMobileOpen, setIsMobileOpen] = useState(false);
+    const [open, setOpen] = useState(false);
+
+    const NavLinks = ({ mobile = false }: { mobile?: boolean }) => (
+        <nav className="flex flex-col gap-2">
+            {navItems.map((item) => {
+                const isActive = activeView === item.id;
+                const Icon = item.icon;
+                return (
+                    <button
+                        key={item.id}
+                        onClick={() => {
+                            onViewChange(item.id);
+                            if (mobile) setOpen(false);
+                        }}
+                        className={cn(
+                            "group flex items-center gap-3 px-3 py-3 rounded-2xl transition-all duration-300 text-left relative overflow-hidden",
+                            isActive 
+                                ? "bg-primary text-primary-foreground shadow-lg shadow-primary/20" 
+                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                        )}
+                    >
+                        <div className={cn(
+                            "flex items-center justify-center w-8 h-8 rounded-lg shrink-0 transition-colors",
+                            isActive ? "bg-white/20" : "bg-muted group-hover:bg-background"
+                        )}>
+                            <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                            <span className="text-[14px] font-bold tracking-tight leading-none mb-0.5">
+                                {item.label}
+                            </span>
+                            <span className={cn(
+                                "text-[10px] font-medium opacity-70 truncate",
+                                isActive ? "text-primary-foreground/80" : "text-muted-foreground"
+                            )}>
+                                {item.description}
+                            </span>
+                        </div>
+                        {isActive && (
+                            <div className="ml-auto animate-in fade-in slide-in-from-left-1 duration-300">
+                                <ChevronRight size={14} className="opacity-50" />
+                            </div>
+                        )}
+                    </button>
+                );
+            })}
+        </nav>
+    );
+
+    const Brand = () => (
+        <div className="flex items-center gap-3 mb-8 px-2 transition-all duration-300">
+            <div className="w-11 h-11 rounded-2xl bg-primary flex items-center justify-center shadow-xl shadow-primary/10 relative overflow-hidden group">
+                <div className="absolute inset-0 bg-linear-to-br from-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                <DollarSign size={24} className="text-primary-foreground relative z-10" />
+            </div>
+            <div className="flex flex-col text-left">
+                <h1 className="text-lg font-black tracking-tighter leading-none bg-clip-text text-transparent bg-linear-to-r from-foreground to-foreground/70">
+                    FinanceTracker.
+                </h1>
+                <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-muted-foreground/60 mt-1">
+                    Elite Edition
+                </p>
+            </div>
+        </div>
+    );
 
     return (
         <>
-            {/* Mobile Toggle */}
-            <button
-                className="fixed top-4 left-4 z-50 p-2 rounded-xl bg-white border border-gray-200 shadow-sm lg:hidden"
-                onClick={() => setIsMobileOpen(!isMobileOpen)}
-                aria-label="Toggle menu"
-            >
-                {isMobileOpen ? <X size={22} /> : <Menu size={22} />}
-            </button>
-
-            {/* Mobile Overlay */}
-            {isMobileOpen && (
-                <div
-                    className="fixed inset-0 bg-black/20 backdrop-blur-sm z-30 lg:hidden"
-                    onClick={() => setIsMobileOpen(false)}
-                />
-            )}
-
-            {/* Sidebar */}
-            <aside className={`sidebar ${isMobileOpen ? 'open' : ''}`}>
-                {/* Logo / Brand */}
-                <div className="flex items-center gap-3 px-3 mb-8">
-                    <div className="w-10 h-10 rounded-2xl bg-gray-900 flex items-center justify-center shadow-sm">
-                        <DollarSign size={22} className="text-white" />
-                    </div>
-                    <div>
-                        <h1 className="text-base font-bold tracking-tight" style={{ color: 'var(--text-primary)' }}>
-                            FinanceTracker
-                        </h1>
-                        <p className="text-[11px] font-medium" style={{ color: 'var(--text-muted)' }}>
-                            Pemantau Keuangan
-                        </p>
-                    </div>
+            {/* Desktop Sidebar */}
+            <aside className="fixed top-0 left-0 h-screen w-[280px] bg-background/50 backdrop-blur-xl border-r border-border/50 hidden lg:flex flex-col p-6 z-40 transition-all duration-300">
+                <Brand />
+                <div className="flex-1 overflow-y-auto px-1 -mx-1 scrollbar-none">
+                    <NavLinks />
                 </div>
-
-                {/* Navigation */}
-                <nav className="flex flex-col gap-1 flex-1">
-                    {navItems.map((item) => {
-                        const isActive = activeView === item.id;
-                        const Icon = item.icon;
-                        return (
-                            <button
-                                key={item.id}
-                                onClick={() => {
-                                    onViewChange(item.id);
-                                    setIsMobileOpen(false);
-                                }}
-                                className={`flex items-center gap-3 px-3 py-2.5 rounded-2xl text-[14px] font-semibold transition-all duration-200 border-none cursor-pointer ${isActive
-                                    ? 'bg-gray-100/80 text-gray-900 shadow-sm'
-                                    : 'text-gray-500 hover:bg-gray-50/50 hover:text-gray-700'
-                                    }`}
-                            >
-                                <Icon size={20} strokeWidth={isActive ? 2.2 : 1.8} />
-                                {item.label}
-                            </button>
-                        );
-                    })}
-                </nav>
-
-                {/* Footer */}
-                <div className="pt-4 border-t" style={{ borderColor: 'var(--border-light)' }}>
-                    <p className="text-[11px] text-center" style={{ color: 'var(--text-muted)' }}>
-                        v1.0.0 · Powered by Google Sheets
-                    </p>
+                
+                <div className="mt-8">
+                    <Separator className="mb-6 opacity-50" />
+                    <div className="px-4 py-4 rounded-3xl bg-muted/50 border border-border/50 flex flex-col items-center text-center">
+                        <p className="text-[11px] font-bold text-muted-foreground/80 mb-2">
+                             GOOGLE SHEETS CLOUD
+                        </p>
+                        <div className="flex items-center gap-2">
+                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                            <span className="text-[10px] font-black tracking-widest uppercase">System Online</span>
+                        </div>
+                    </div>
                 </div>
             </aside>
+
+            {/* Mobile Header/Menu */}
+            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-background/80 backdrop-blur-md border-b border-border/50 z-40 px-5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
+                        <DollarSign size={18} className="text-primary-foreground" />
+                    </div>
+                    <span className="text-sm font-black tracking-tighter">FinanceTracker.</span>
+                </div>
+                
+                <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger render={<Button variant="ghost" size="icon" className="rounded-xl" />}>
+                        <Menu size={22} />
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-[300px] border-r-0 p-6 flex flex-col bg-background/95 backdrop-blur-md">
+                        <SheetHeader className="text-left mb-8">
+                            <Brand />
+                        </SheetHeader>
+                        <div className="flex-1">
+                            <NavLinks mobile />
+                        </div>
+                        <div className="mt-auto pt-6 border-t border-border/50">
+                             <p className="text-[10px] font-black text-center text-muted-foreground tracking-widest uppercase">
+                                v1.2.0 · Premium Dashboard
+                             </p>
+                        </div>
+                    </SheetContent>
+                </Sheet>
+            </div>
         </>
     );
 }

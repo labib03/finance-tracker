@@ -2,12 +2,14 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { getNamaBulan, getCurrentMonth } from '@/lib/utils';
+import { getNamaBulan } from '@/lib/utils';
 
 // Layout
 import Sidebar from '@/components/layout/Sidebar';
 import LiquidBackground from '@/components/ui/LiquidBackground';
 import LoadingScreen from '@/components/ui/LoadingScreen';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Toaster } from 'sonner';
 
 // Dashboard Components
@@ -16,7 +18,7 @@ import SaldoCards from '@/components/dashboard/SaldoCards';
 import ExpensePieChart from '@/components/dashboard/ExpensePieChart';
 import WeeklyTrendChart from '@/components/dashboard/WeeklyTrendChart';
 import BudgetStatusCard from '@/components/dashboard/BudgetStatusCard';
-import RecentTransactions from '@/components/dashboard/RecentTransactions';
+import TransactionsTable from '@/components/dashboard/TransactionsTable';
 import RecurringList from '@/components/dashboard/RecurringList';
 
 // Forms
@@ -24,16 +26,17 @@ import TransaksiForm from '@/components/forms/TransaksiForm';
 import TransferForm from '@/components/forms/TransferForm';
 import RecurringForm from '@/components/forms/RecurringForm';
 import BudgetForm from '@/components/forms/BudgetForm';
+import BudgetManagement from '@/components/dashboard/BudgetManagement';
 import KategoriForm from '@/components/forms/KategoriForm';
 import SumberDanaForm from '@/components/forms/SumberDanaForm';
 import KategoriManagement from '@/components/dashboard/KategoriManagement';
 import SumberDanaManagement from '@/components/dashboard/SumberDanaManagement';
 
-import {
-  Plus,
-  ChevronLeft,
-  ChevronRight,
-  RefreshCw,
+import { 
+  Plus, 
+  ChevronLeft, 
+  ChevronRight, 
+  RefreshCw 
 } from 'lucide-react';
 
 export default function HomePage() {
@@ -49,11 +52,12 @@ export default function HomePage() {
   const [activeView, setActiveView] = useState('dashboard');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // State for editing master data
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // State for editing data
   const [kategoriToEdit, setKategoriToEdit] = useState<any>(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [sumberDanaToEdit, setSumberDanaToEdit] = useState<any>(null);
+  const [transaksiToEdit, setTransaksiToEdit] = useState<any>(null);
+  const [recurringToEdit, setRecurringToEdit] = useState<any>(null);
+  const [budgetToEdit, setBudgetToEdit] = useState<any>(null);
 
   useEffect(() => {
     initialize();
@@ -80,32 +84,32 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full relative">
+    <div className="flex min-h-screen w-full relative bg-background">
       <LiquidBackground />
       <Toaster richColors position="top-right" />
 
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
 
       {/* Content Container fully independent from Sidebar mechanism */}
-      <div className="flex-1 lg:ml-[260px] w-full min-w-0 flex flex-col relative z-10 transition-all duration-300">
-        <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10">
+      <div className="flex-1 lg:ml-[280px] w-full min-w-0 flex flex-col relative z-10 transition-all duration-300">
+        <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10 pt-20 lg:pt-8">
           <div className="mx-auto w-full max-w-[2000px]">
             {/* Header Bar */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
               <div>
-                <h1 className="text-xl font-bold tracking-tight">
+                <h1 className="text-2xl font-bold tracking-tight text-foreground">
                   {activeView === 'dashboard' && 'Dashboard Keuangan'}
                   {activeView === 'saldo' && 'Manajemen Saldo'}
-                  {activeView === 'transaksi' && 'Input Transaksi'}
+                  {activeView === 'transaksi' && 'Daftar Transaksi'}
                   {activeView === 'transfer' && 'Transfer Antar Akun'}
                   {activeView === 'anggaran' && 'Anggaran Bulanan'}
                   {activeView === 'recurring' && 'Transaksi Berulang'}
                   {activeView === 'master' && 'Master Data'}
                 </h1>
-                <p className="text-sm mt-0.5" style={{ color: 'var(--text-muted)' }}>
+                <p className="text-sm text-muted-foreground mt-1">
                   {activeView === 'dashboard' && 'Ringkasan keuangan Anda'}
                   {activeView === 'saldo' && 'Pantau saldo setiap akun secara real-time'}
-                  {activeView === 'transaksi' && 'Catat pemasukan dan pengeluaran baru'}
+                  {activeView === 'transaksi' && 'Lihat dan kelola riwayat transaksi'}
                   {activeView === 'transfer' && 'Pindahkan saldo antar akun'}
                   {activeView === 'anggaran' && 'Atur dan pantau batas pengeluaran'}
                   {activeView === 'recurring' && 'Kelola transaksi terjadwal'}
@@ -115,226 +119,266 @@ export default function HomePage() {
 
               <div className="flex items-center gap-3">
                 {/* Month Navigator */}
-                <div className="flex items-center gap-1 bg-white border border-gray-200 rounded-xl px-1 py-1 shadow-sm">
-                  <button
+                <div className="flex items-center gap-1 bg-white border border-border rounded-xl px-1 py-1 shadow-sm">
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => navigateMonth(-1)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="h-8 w-8 rounded-lg"
                     aria-label="Bulan sebelumnya"
                   >
                     <ChevronLeft size={18} />
-                  </button>
+                  </Button>
                   <span className="text-sm font-semibold px-3 min-w-[130px] text-center display-number">
                     {getNamaBulan(activeMonth)}
                   </span>
-                  <button
+                  <Button
+                    variant="ghost"
+                    size="icon"
                     onClick={() => navigateMonth(1)}
-                    className="p-1.5 rounded-lg hover:bg-gray-100 transition-colors"
+                    className="h-8 w-8 rounded-lg"
                     aria-label="Bulan berikutnya"
                   >
                     <ChevronRight size={18} />
-                  </button>
+                  </Button>
                 </div>
 
                 {/* Refresh */}
-                <button
+                <Button
+                  variant="outline"
+                  size="icon"
                   onClick={handleRefresh}
-                  className="btn-secondary p-2.5! rounded-xl!"
-                  aria-label="Refresh data"
+                  disabled={isRefreshing}
+                  className="rounded-xl shadow-sm bg-white"
                 >
-                  <RefreshCw
-                    size={18}
-                    className={isRefreshing ? 'animate-spin' : ''}
-                  />
-                </button>
+                  <RefreshCw size={18} className={isRefreshing ? 'animate-spin' : ''} />
+                </Button>
               </div>
             </div>
 
-            {/* ======================== VIEWS ======================== */}
-
-            {/* Dashboard View */}
-            {activeView === 'dashboard' && (
-              <div className="space-y-6">
-                <SummaryCards />
-                <SaldoCards />
-                <div className="chart-grid">
-                  <ExpensePieChart />
-                  <WeeklyTrendChart />
-                </div>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  <RecentTransactions limit={6} />
-                  <BudgetStatusCard />
-                </div>
-              </div>
-            )}
-
-            {/* Saldo View */}
-            {activeView === 'saldo' && (
-              <div className="space-y-6">
-                <SaldoCards />
-                <RecentTransactions limit={20} showDelete />
-              </div>
-            )}
-
-            {/* Transaksi View */}
-            {activeView === 'transaksi' && (
-              <div className="space-y-6">
-                <div className="card">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-sm font-bold uppercase tracking-wider" style={{ color: 'var(--text-muted)' }}>
-                      Tambah Transaksi Baru
-                    </h3>
+            {/* Content Views */}
+            <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
+              {activeView === 'dashboard' && (
+                <div className="space-y-8">
+                  <SummaryCards />
+                  <div className="chart-grid">
+                    <ExpensePieChart />
+                    <WeeklyTrendChart />
                   </div>
-                  <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    Klik tombol di bawah untuk mencatat transaksi baru. Pilihan sumber dana dan kategori
-                    otomatis terisi dari data master.
-                  </p>
-                  <button
-                    onClick={() => setActiveModal('transaksi')}
-                    className="btn-primary"
-                  >
-                    <Plus size={18} />
-                    Input Transaksi
-                  </button>
-                </div>
-                <RecentTransactions limit={30} showDelete />
-              </div>
-            )}
-
-            {/* Transfer View */}
-            {activeView === 'transfer' && (
-              <div className="space-y-6">
-                <SaldoCards />
-                <div className="card">
-                  <h3
-                    className="text-sm font-bold uppercase tracking-wider mb-4"
-                    style={{ color: 'var(--text-muted)' }}
-                  >
-                    Transfer Antar Akun
-                  </h3>
-                  <p className="text-sm mb-4" style={{ color: 'var(--text-secondary)' }}>
-                    Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran.
-                    Contoh: Tarik tunai dari ATM ke Cash, atau isi saldo E-Wallet.
-                  </p>
-                  <button
-                    onClick={() => setActiveModal('transfer')}
-                    className="btn-primary"
-                    style={{ background: 'linear-gradient(135deg, #7c3aed, #8b5cf6)' }}
-                  >
-                    <Plus size={18} />
-                    Buat Transfer
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Anggaran View */}
-            {activeView === 'anggaran' && (
-              <div className="space-y-6">
-                <div className="card">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3
-                        className="text-sm font-bold uppercase tracking-wider mb-1"
-                        style={{ color: 'var(--text-muted)' }}
-                      >
-                        Pengaturan Anggaran
-                      </h3>
-                      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        Tetapkan batas pengeluaran per kategori untuk bulan ini.
-                      </p>
+                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                    <div className="xl:col-span-2">
+                       <TransactionsTable 
+                         limit={6} 
+                         title="Transaksi Terakhir" 
+                         showEdit
+                         onEdit={(t) => {
+                           setTransaksiToEdit(t);
+                           if (t.jenis === 'Transfer') {
+                             setActiveModal('transfer');
+                           } else {
+                             setActiveModal('transaksi');
+                           }
+                         }}
+                       />
                     </div>
-                    <button
-                      onClick={() => setActiveModal('budget')}
-                      className="btn-primary"
-                    >
-                      <Plus size={18} />
-                      Tambah Anggaran
-                    </button>
+                    <BudgetStatusCard />
                   </div>
                 </div>
-                <BudgetStatusCard />
-              </div>
-            )}
+              )}
 
-            {/* Recurring View */}
-            {activeView === 'recurring' && (
-              <div className="space-y-6">
-                <div className="card">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <h3
-                        className="text-sm font-bold uppercase tracking-wider mb-1"
-                        style={{ color: 'var(--text-muted)' }}
+              {activeView === 'saldo' && (
+                <div className="space-y-6">
+                  <SaldoCards />
+                   <TransactionsTable 
+                     limit={20} 
+                     showDelete 
+                     showEdit
+                     onEdit={(t) => {
+                       setTransaksiToEdit(t);
+                       if (t.jenis === 'Transfer') {
+                         setActiveModal('transfer');
+                       } else {
+                         setActiveModal('transaksi');
+                       }
+                     }}
+                     title="Log Transaksi Akun" 
+                   />
+                </div>
+              )}
+
+              {activeView === 'transaksi' && (
+                <div className="space-y-6">
+                  <div className="flex justify-end">
+                    <Button 
+                      onClick={() => {
+                        setTransaksiToEdit(null);
+                        setActiveModal('transaksi');
+                      }} 
+                      className="rounded-full px-6"
+                    >
+                      <Plus size={18} className="mr-2" />
+                      Tambah Transaksi
+                    </Button>
+                  </div>
+                  <TransactionsTable 
+                    limit={50} 
+                    showDelete 
+                    showEdit
+                    onEdit={(t: any) => {
+                      setTransaksiToEdit(t);
+                      if (t.jenis === 'Transfer') {
+                        setActiveModal('transfer');
+                      } else {
+                        setActiveModal('transaksi');
+                      }
+                    }}
+                    title="Semua Transaksi" 
+                  />
+                </div>
+              )}
+
+              {activeView === 'transfer' && (
+                <div className="space-y-6">
+                  <SaldoCards />
+                  <Card className="max-w-3xl border-none shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">Transfer Antar Akun</CardTitle>
+                      <CardDescription>
+                        Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran.
+                        Contoh: Tarik tunai dari ATM ke Cash, atau isi saldo E-Wallet.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        onClick={() => setActiveModal('transfer')}
+                        className="rounded-full px-6"
                       >
-                        Jadwal Transaksi
-                      </h3>
-                      <p className="text-sm" style={{ color: 'var(--text-secondary)' }}>
-                        Kelola tagihan bulanan dan pemasukan rutin otomatis.
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => setActiveModal('recurring')}
-                      className="btn-primary"
-                    >
-                      <Plus size={18} />
-                      Buat Jadwal
-                    </button>
-                  </div>
+                        <Plus size={18} className="mr-2" />
+                        Buat Transfer
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
-                <RecurringList />
-              </div>
-            )}
+              )}
 
-            {/* Master Data View */}
-            {activeView === 'master' && (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-                <KategoriManagement
-                  onAdd={() => {
-                    setKategoriToEdit(null);
-                    setActiveModal('kategori');
-                  }}
-                  onEdit={(k) => {
-                    setKategoriToEdit(k);
-                    setActiveModal('kategori');
-                  }}
-                />
-                <SumberDanaManagement
-                  onAdd={() => {
-                    setSumberDanaToEdit(null);
-                    setActiveModal('sumber_dana');
-                  }}
-                  onEdit={(s) => {
-                    setSumberDanaToEdit(s);
-                    setActiveModal('sumber_dana');
-                  }}
-                />
-              </div>
-            )}
+              {activeView === 'anggaran' && (
+                <div className="space-y-6">
+                  <BudgetManagement 
+                    onAdd={() => {
+                        setBudgetToEdit(null);
+                        setActiveModal('budget');
+                    }}
+                    onEdit={(b: any) => {
+                        setBudgetToEdit(b);
+                        setActiveModal('budget');
+                    }}
+                  />
+                </div>
+              )}
+
+              {activeView === 'recurring' && (
+                <div className="space-y-6">
+                  <Card className="border-none shadow-sm">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
+                      <div>
+                        <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">Jadwal Transaksi</CardTitle>
+                        <CardDescription>Kelola tagihan bulanan dan pemasukan rutin otomatis.</CardDescription>
+                      </div>
+                      <Button 
+                        onClick={() => {
+                          setRecurringToEdit(null);
+                          setActiveModal('recurring');
+                        }} 
+                        className="rounded-full px-6"
+                      >
+                        <Plus size={18} className="mr-2" />
+                        Buat Jadwal
+                      </Button>
+                    </CardHeader>
+                  </Card>
+                  <RecurringList 
+                    onEdit={(r: any) => {
+                      setRecurringToEdit(r);
+                      setActiveModal('recurring');
+                    }}
+                  />
+                </div>
+              )}
+
+              {activeView === 'master' && (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
+                  <KategoriManagement
+                    onAdd={() => {
+                      setKategoriToEdit(null);
+                      setActiveModal('kategori');
+                    }}
+                    onEdit={(k) => {
+                      setKategoriToEdit(k);
+                      setActiveModal('kategori');
+                    }}
+                  />
+                  <SumberDanaManagement
+                    onAdd={() => {
+                      setSumberDanaToEdit(null);
+                      setActiveModal('sumber_dana');
+                    }}
+                    onEdit={(s) => {
+                      setSumberDanaToEdit(s);
+                      setActiveModal('sumber_dana');
+                    }}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </main>
       </div>
 
       {/* ======================== FAB (Mobile) ======================== */}
-      <button
-        className="fab"
+      <Button
+        className="fixed bottom-6 right-6 lg:hidden z-40 w-14 h-14 rounded-full shadow-lg"
         onClick={() => setActiveModal('transaksi')}
         aria-label="Tambah transaksi"
       >
         <Plus size={26} />
-      </button>
+      </Button>
 
       {/* ======================== MODALS ======================== */}
       {activeModal === 'transaksi' && (
-        <TransaksiForm onClose={() => setActiveModal(null)} />
+        <TransaksiForm 
+          onClose={() => {
+            setActiveModal(null);
+            setTransaksiToEdit(null);
+          }} 
+          transaksiToEdit={transaksiToEdit}
+        />
       )}
       {activeModal === 'transfer' && (
-        <TransferForm onClose={() => setActiveModal(null)} />
+        <TransferForm 
+          onClose={() => {
+            setActiveModal(null);
+            setTransaksiToEdit(null);
+          }} 
+          transferToEdit={transaksiToEdit}
+        />
       )}
       {activeModal === 'recurring' && (
-        <RecurringForm onClose={() => setActiveModal(null)} />
+        <RecurringForm 
+          onClose={() => {
+            setActiveModal(null);
+            setRecurringToEdit(null);
+          }} 
+          recurringToEdit={recurringToEdit}
+        />
       )}
       {activeModal === 'budget' && (
-        <BudgetForm onClose={() => setActiveModal(null)} />
+        <BudgetForm 
+          onClose={() => {
+            setActiveModal(null);
+            setBudgetToEdit(null);
+          }} 
+          budgetToEdit={budgetToEdit}
+        />
       )}
       {activeModal === 'kategori' && (
         <KategoriForm

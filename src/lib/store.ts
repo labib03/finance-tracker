@@ -17,6 +17,9 @@ import {
   tambahTransfer,
   tambahRecurring,
   tambahBudget,
+  updateBudget as updateBudgetAction,
+  hapusBudget,
+  updateTransaksi as updateTransaksiAction,
   hapusTransaksi,
   tambahKategori,
   updateKategori as updateKategoriAction,
@@ -53,6 +56,7 @@ interface FinanceState {
 
   // Actions - Transactions (with Optimistic Updates)
   addTransaksi: (data: Omit<Transaksi, "id">) => Promise<void>;
+  updateTransaksi: (data: Transaksi) => Promise<void>;
   addTransfer: (
     id_sumber_dana_asal: string,
     id_sumber_dana_tujuan: string,
@@ -70,6 +74,8 @@ interface FinanceState {
 
   // Actions - Budget
   addBudget: (data: Omit<Budget, "id_anggaran">) => Promise<void>;
+  updateBudget: (data: Budget) => Promise<void>;
+  removeBudget: (id: string) => Promise<void>;
 
   // Actions - Kategori CRUD
   addKategori: (data: Kategori) => Promise<void>;
@@ -188,6 +194,23 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         transaksiList: state.transaksiList.filter((t) => t.id !== id),
       }));
       toast.error("Gagal menyimpan ke server. Transaksi dibatalkan.");
+    }
+  },
+
+  updateTransaksi: async (data) => {
+    const prev = get().transaksiList;
+    set((state) => ({
+      transaksiList: state.transaksiList.map((t) =>
+        t.id === data.id ? data : t,
+      ),
+    }));
+
+    toast.success("Transaksi diperbarui!");
+
+    const success = await updateTransaksiAction(data);
+    if (!success) {
+      set({ transaksiList: prev });
+      toast.error("Gagal memperbarui transaksi.");
     }
   },
 
@@ -323,6 +346,38 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         ),
       }));
       toast.error("Gagal menyimpan anggaran ke server.");
+    }
+  },
+
+  updateBudget: async (data) => {
+    const prev = get().budgetList;
+    set((state) => ({
+      budgetList: state.budgetList.map((b) =>
+        b.id_anggaran === data.id_anggaran ? data : b,
+      ),
+    }));
+
+    toast.success("Anggaran diperbarui!");
+
+    const success = await updateBudgetAction(data);
+    if (!success) {
+      set({ budgetList: prev });
+      toast.error("Gagal memperbarui anggaran.");
+    }
+  },
+
+  removeBudget: async (id) => {
+    const prev = get().budgetList;
+    set((state) => ({
+      budgetList: state.budgetList.filter((b) => b.id_anggaran !== id),
+    }));
+
+    toast.info("Anggaran dihapus.");
+
+    const success = await hapusBudget(id);
+    if (!success) {
+      set({ budgetList: prev });
+      toast.error("Gagal menghapus anggaran.");
     }
   },
 

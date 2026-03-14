@@ -1,9 +1,6 @@
-import { clsx, type ClassValue } from "clsx"
-import { twMerge } from "tailwind-merge"
-
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
-}
+// ============================================================
+// Utility & Helper Functions
+// ============================================================
 
 import type {
   Transaksi,
@@ -33,7 +30,6 @@ export function formatRupiah(amount: number): string {
  * Format a date string to localized Indonesian date
  */
 export function formatTanggal(dateStr: string): string {
-  if (!dateStr) return "";
   const date = new Date(dateStr);
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
@@ -46,7 +42,6 @@ export function formatTanggal(dateStr: string): string {
  * Format a date to short form
  */
 export function formatTanggalPendek(dateStr: string): string {
-  if (!dateStr) return "";
   const date = new Date(dateStr);
   return new Intl.DateTimeFormat("id-ID", {
     day: "numeric",
@@ -266,7 +261,7 @@ export const CHART_COLORS = [
   "#f59e0b", // amber
   "#ef4444", // red
   "#3b82f6", // blue
-  "#06b6d4", // cyan (replaced violet)
+  "#8b5cf6", // violet
   "#ec4899", // pink
   "#14b8a6", // teal
   "#f97316", // orange
@@ -278,7 +273,6 @@ export const CHART_COLORS = [
  * Get month name in Indonesian
  */
 export function getNamaBulan(bulan: string): string {
-  if (!bulan) return "";
   const [year, month] = bulan.split("-");
   const date = new Date(parseInt(year), parseInt(month) - 1, 1);
   return new Intl.DateTimeFormat("id-ID", {
@@ -286,30 +280,3 @@ export function getNamaBulan(bulan: string): string {
     year: "numeric",
   }).format(date);
 }
-
-export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {
-  const date = new Date(tanggal);
-  if (isNaN(date.getTime())) return "";
-  
-  switch (frekuensi) {
-    case 'Harian':
-      date.setDate(date.getDate() + 1);
-      break;
-    case 'Mingguan':
-      date.setDate(date.getDate() + 7);
-      break;
-    case 'Bulanan':
-      date.setMonth(date.getMonth() + 1);
-      break;
-    case 'Tahunan':
-      date.setFullYear(date.getFullYear() + 1);
-      break;
-    default:
-      return tanggal;
-  }
-  return date.toISOString().split('T')[0];
-};
-
-export const formatNumber = (num: number) => {
-  return new Intl.NumberFormat('id-ID').format(num);
-};
