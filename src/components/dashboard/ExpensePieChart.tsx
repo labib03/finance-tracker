@@ -22,10 +22,11 @@ export default function ExpensePieChart() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
 
     const data = useMemo(
-        () => hitungPengeluaranPerKategori(transaksiList, kategoriList, activeMonth),
-        [transaksiList, kategoriList, activeMonth]
+        () => hitungPengeluaranPerKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
+        [transaksiList, kategoriList, activeMonth, cycleStartDay]
     );
 
     if (data.length === 0) {

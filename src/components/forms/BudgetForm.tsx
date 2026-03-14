@@ -23,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -122,18 +123,17 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                             name="id_kategori"
                             control={control}
                             render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger className={errors.id_kategori ? 'border-destructive' : ''}>
-                                        <SelectValue placeholder="Pilih kategori..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {pengeluaranKategori.map((k) => (
-                                            <SelectItem key={k.id_kategori} value={k.id_kategori}>
-                                                {k.nama_kategori}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    options={pengeluaranKategori.map(k => ({
+                                        value: k.nama_kategori,
+                                        label: k.nama_kategori
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder="Pilih kategori..."
+                                    searchPlaceholder="Cari kategori..."
+                                    error={!!errors.id_kategori}
+                                />
                             )}
                         />
                         {errors.id_kategori && (

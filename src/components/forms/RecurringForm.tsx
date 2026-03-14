@@ -24,6 +24,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -149,21 +150,17 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                             name="id_sumber_dana"
                             control={control}
                             render={({ field }) => (
-                                <Select 
-                                    onValueChange={field.onChange} 
+                                <SearchableSelect
+                                    options={sumberDanaList.map(s => ({
+                                        value: s.nama_sumber,
+                                        label: s.nama_sumber
+                                    }))}
                                     value={sumberDanaList.find(s => s.id_sumber_dana === field.value)?.nama_sumber || field.value}
-                                >
-                                    <SelectTrigger className={errors.id_sumber_dana ? 'border-destructive' : ''}>
-                                        <SelectValue placeholder="Pilih sumber dana..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {sumberDanaList.map((sd) => (
-                                            <SelectItem key={sd.id_sumber_dana} value={sd.nama_sumber}>
-                                                {sd.nama_sumber}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    onValueChange={field.onChange}
+                                    placeholder="Pilih sumber dana..."
+                                    searchPlaceholder="Cari sumber dana..."
+                                    error={!!errors.id_sumber_dana}
+                                />
                             )}
                         />
                         {errors.id_sumber_dana && (
@@ -178,21 +175,17 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                             name="id_kategori"
                             control={control}
                             render={({ field }) => (
-                                <Select 
-                                    onValueChange={field.onChange} 
+                                <SearchableSelect
+                                    options={filteredKategori.map(k => ({
+                                        value: k.nama_kategori,
+                                        label: k.nama_kategori
+                                    }))}
                                     value={kategoriList.find(k => k.id_kategori === field.value)?.nama_kategori || field.value}
-                                >
-                                    <SelectTrigger className={errors.id_kategori ? 'border-destructive' : ''}>
-                                        <SelectValue placeholder="Pilih kategori..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {filteredKategori.map((k) => (
-                                            <SelectItem key={k.id_kategori} value={k.nama_kategori}>
-                                                {k.nama_kategori}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                    onValueChange={field.onChange}
+                                    placeholder="Pilih kategori..."
+                                    searchPlaceholder="Cari kategori..."
+                                    error={!!errors.id_kategori}
+                                />
                             )}
                         />
                         {errors.id_kategori && (

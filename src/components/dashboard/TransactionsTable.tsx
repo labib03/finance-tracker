@@ -2,7 +2,7 @@
 
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { formatRupiah, formatTanggal, formatTanggalPendek } from '@/lib/utils';
+import { formatRupiah, formatTanggal, formatTanggalPendek, isInCustomMonth } from '@/lib/utils';
 import {
     ArrowUpRight,
     ArrowDownRight,
@@ -23,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -57,6 +58,7 @@ export default function TransactionsTable({
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const removeTransaksi = useFinanceStore((s) => s.removeTransaksi);
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, id: string }>({
@@ -81,7 +83,7 @@ export default function TransactionsTable({
 
     const filteredTransaksi = useMemo(() => {
         let list = transaksiList
-            .filter((t) => t.tanggal.startsWith(activeMonth))
+            .filter((t) => isInCustomMonth(t.tanggal, activeMonth, cycleStartDay))
             .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
         
         // Search filter (catatan)
@@ -159,19 +161,20 @@ export default function TransactionsTable({
                                 </SelectContent>
                             </Select>
 
-                            <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val || 'all')}>
-                                <SelectTrigger className="h-9 min-w-[140px] text-xs rounded-xl bg-muted/50 border-none">
-                                    <SelectValue placeholder="Semua Kategori" />
-                                </SelectTrigger>
-                                <SelectContent className="rounded-xl border-none shadow-xl">
-                                    <SelectItem value="all">Semua Kategori</SelectItem>
-                                    {kategoriList.map(k => (
-                                        <SelectItem key={k.id_kategori} value={k.id_kategori}>
-                                            {k.nama_kategori}
-                                        </SelectItem>
-                                    ))}
-                                </SelectContent>
-                            </Select>
+                            <SearchableSelect
+                                options={[
+                                    { value: 'all', label: 'Semua Kategori' },
+                                    ...kategoriList.map(k => ({
+                                        value: k.id_kategori,
+                                        label: k.nama_kategori
+                                    }))
+                                ]}
+                                value={categoryFilter}
+                                onValueChange={(val) => setCategoryFilter(val || 'all')}
+                                placeholder="Semua Kategori"
+                                searchPlaceholder="Cari kategori..."
+                                className="h-9 min-w-[160px] text-xs rounded-xl bg-muted/50 border-none shadow-none"
+                            />
                         </div>
                     </div>
                 </div>

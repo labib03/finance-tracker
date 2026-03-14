@@ -19,10 +19,11 @@ import { LineChart as TrendingUp } from 'lucide-react';
 export default function WeeklyTrendChart() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
 
     const data = useMemo(
-        () => hitungTrenMingguan(transaksiList, activeMonth),
-        [transaksiList, activeMonth]
+        () => hitungTrenMingguan(transaksiList, activeMonth, cycleStartDay),
+        [transaksiList, activeMonth, cycleStartDay]
     );
 
     const hasData = data.some((d) => d.pemasukan > 0 || d.pengeluaran > 0);

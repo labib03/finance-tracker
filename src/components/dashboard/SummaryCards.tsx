@@ -19,10 +19,11 @@ export default function SummaryCards() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
 
     const ringkasan = useMemo(
-        () => hitungRingkasanBulanan(transaksiList, activeMonth),
-        [transaksiList, activeMonth]
+        () => hitungRingkasanBulanan(transaksiList, activeMonth, cycleStartDay),
+        [transaksiList, activeMonth, cycleStartDay]
     );
 
     const saldoAkun = useMemo(

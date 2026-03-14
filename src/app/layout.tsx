@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import PWAInstallPrompt from "@/components/ui/PWAInstallPrompt";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
@@ -17,6 +18,13 @@ const jetbrainsMono = JetBrains_Mono({
   display: "swap",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#4f46e5",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+};
+
 export const metadata: Metadata = {
   title: "FinanceTracker — Pemantau Keuangan Pribadi",
   description:
@@ -28,6 +36,12 @@ export const metadata: Metadata = {
     "anggaran",
     "budgeting",
   ],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "FinanceTracker",
+  },
 };
 
 export default function RootLayout({
@@ -39,6 +53,7 @@ export default function RootLayout({
     <html lang="id" className={cn("font-sans", geist.variable)}>
       <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
         {children}
+        <PWAInstallPrompt />
       </body>
     </html>
   );

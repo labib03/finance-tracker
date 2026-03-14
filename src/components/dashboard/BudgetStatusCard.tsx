@@ -13,10 +13,11 @@ export default function BudgetStatusCard() {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const budgetList = useFinanceStore((s) => s.budgetList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
 
     const budgetStatus = useMemo(
-        () => hitungBudgetStatus(transaksiList, kategoriList, budgetList, activeMonth),
-        [transaksiList, kategoriList, budgetList, activeMonth]
+        () => hitungBudgetStatus(transaksiList, kategoriList, budgetList, activeMonth, cycleStartDay),
+        [transaksiList, kategoriList, budgetList, activeMonth, cycleStartDay]
     );
 
     if (budgetStatus.length === 0) {

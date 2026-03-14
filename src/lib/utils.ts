@@ -56,10 +56,38 @@ export function formatTanggalPendek(dateStr: string): string {
 
 /**
  * Get current month in YYYY-MM format
+ * Based on custom cycle: if day >= cycleStartDay, it's the next month's cycle
  */
-export function getCurrentMonth(): string {
+export function getCurrentMonth(cycleStartDay: number = 25): string {
   const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+  let year = now.getFullYear();
+  let month = now.getMonth() + 1;
+  const day = now.getDate();
+  
+  if (day >= cycleStartDay) {
+    month += 1;
+    if (month > 12) {
+      month = 1;
+      year += 1;
+    }
+  }
+  
+  return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+/**
+ * Check if a date falls within the custom month cycle (cycleStartDay to cycleStartDay-1)
+ */
+export function isInCustomMonth(dateStr: string, monthId: string, cycleStartDay: number = 25): boolean {
+  if (!dateStr || !monthId) return false;
+  const [targetYear, targetMonth] = monthId.split('-').map(Number);
+  
+  // Custom month cycle starts on cycleStartDay of previous month and ends on cycleStartDay-1 of target month
+  const startDate = new Date(targetYear, targetMonth - 2, cycleStartDay);
+  const endDate = new Date(targetYear, targetMonth - 1, cycleStartDay - 1, 23, 59, 59, 999);
+  
+  const date = new Date(dateStr);
+  return date >= startDate && date <= endDate;
 }
 
 /**
@@ -114,8 +142,9 @@ export function hitungSaldoAkun(
 export function hitungRingkasanBulanan(
   transaksiList: Transaksi[],
   bulan: string, // YYYY-MM
+  cycleStartDay: number = 25,
 ): RingkasanBulanan {
-  const filtered = transaksiList.filter((t) => t.tanggal.startsWith(bulan));
+  const filtered = transaksiList.filter((t) => isInCustomMonth(t.tanggal, bulan, cycleStartDay));
 
   let total_pemasukan = 0;
   let total_pengeluaran = 0;
@@ -139,9 +168,10 @@ export function hitungPengeluaranPerKategori(
   transaksiList: Transaksi[],
   kategoriList: Kategori[],
   bulan: string,
+  cycleStartDay: number = 25,
 ): PengeluaranPerKategori[] {
   const filtered = transaksiList.filter(
-    (t) => t.jenis === "Pengeluaran" && t.tanggal.startsWith(bulan),
+    (t) => t.jenis === "Pengeluaran" && isInCustomMonth(t.tanggal, bulan, cycleStartDay),
   );
 
   const map = new Map<string, number>();
@@ -171,10 +201,13 @@ export function hitungPengeluaranPerKategori(
 export function hitungTrenMingguan(
   transaksiList: Transaksi[],
   bulan: string,
+  cycleStartDay: number = 25,
 ): TrenMingguan[] {
-  const filtered = transaksiList.filter((t) => t.tanggal.startsWith(bulan));
+  const filtered = transaksiList.filter((t) => isInCustomMonth(t.tanggal, bulan, cycleStartDay));
+  const [targetYear, targetMonth] = bulan.split('-').map(Number);
+  const startDate = new Date(targetYear, targetMonth - 2, cycleStartDay);
 
-  // Group by week of month
+  // Group by 7-day chunks starting from the 25th
   const weeks: TrenMingguan[] = [
     { minggu: "Minggu 1", pemasukan: 0, pengeluaran: 0 },
     { minggu: "Minggu 2", pemasukan: 0, pengeluaran: 0 },
@@ -184,13 +217,17 @@ export function hitungTrenMingguan(
   ];
 
   filtered.forEach((t) => {
-    const day = new Date(t.tanggal).getDate();
-    const weekIndex = Math.min(Math.floor((day - 1) / 7), 4);
+    const date = new Date(t.tanggal);
+    const diffTime = date.getTime() - startDate.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const weekIndex = Math.min(Math.floor(diffDays / 7), 4);
 
-    if (t.jenis === "Pemasukan") {
-      weeks[weekIndex].pemasukan += t.nominal;
-    } else if (t.jenis === "Pengeluaran") {
-      weeks[weekIndex].pengeluaran += t.nominal;
+    if (weekIndex >= 0) {
+      if (t.jenis === "Pemasukan") {
+        weeks[weekIndex].pemasukan += t.nominal;
+      } else if (t.jenis === "Pengeluaran") {
+        weeks[weekIndex].pengeluaran += t.nominal;
+      }
     }
   });
 
@@ -212,7 +249,8 @@ export function hitungTrenBulananKategori(
   transaksiList: Transaksi[],
   kategoriList: Kategori[],
   bulanAkhir: string, // YYYY-MM
-  jumlahBulan: number = 6
+  jumlahBulan: number = 6,
+  cycleStartDay: number = 25,
 ): any[] {
   const result = [];
   const [year, month] = bulanAkhir.split("-").map(Number);
@@ -222,7 +260,7 @@ export function hitungTrenBulananKategori(
     const bulanKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
     const bulanNama = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(d);
     
-    const pengeluaranBulan = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanKey);
+    const pengeluaranBulan = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanKey, cycleStartDay);
     const entry: any = { name: bulanNama, total: 0 };
     
     pengeluaranBulan.forEach(p => {
@@ -243,6 +281,7 @@ export function hitungPerbandinganKategori(
   transaksiList: Transaksi[],
   kategoriList: Kategori[],
   bulanAktif: string,
+  cycleStartDay: number = 25,
 ): {
   nama_kategori: string;
   totalAktif: number;
@@ -255,8 +294,8 @@ export function hitungPerbandinganKategori(
   const dLalu = new Date(year, month - 2, 1);
   const bulanLalu = `${dLalu.getFullYear()}-${String(dLalu.getMonth() + 1).padStart(2, "0")}`;
 
-  const aktif = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanAktif);
-  const lalu = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanLalu);
+  const aktif = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanAktif, cycleStartDay);
+  const lalu = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanLalu, cycleStartDay);
 
   const allKategori = Array.from(new Set([
     ...aktif.map(a => a.nama_kategori),
@@ -296,13 +335,14 @@ export function hitungBudgetStatus(
   kategoriList: Kategori[],
   budgetList: Budget[],
   bulan: string, // YYYY-MM
+  cycleStartDay: number = 25,
 ): BudgetStatus[] {
   const [yearStr, monthStr] = bulan.split("-");
   const yearNum = parseInt(yearStr);
   const monthNum = parseInt(monthStr);
 
   const filtered = transaksiList.filter(
-    (t) => t.jenis === "Pengeluaran" && t.tanggal.startsWith(bulan),
+    (t) => t.jenis === "Pengeluaran" && isInCustomMonth(t.tanggal, bulan, cycleStartDay),
   );
 
   return budgetList

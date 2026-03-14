@@ -15,6 +15,7 @@ import {
     ChevronRight,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useFinanceStore } from '@/lib/store';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import {
@@ -117,11 +118,26 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                     <NavLinks />
                 </div>
                 
-                <div className="mt-8">
-                    <Separator className="mb-6 opacity-50" />
+                <div className="mt-8 space-y-4">
+                    <Separator className="opacity-50" />
+                    <button
+                        onClick={() => {
+                            useFinanceStore.getState().setActiveModal('cycle_settings');
+                        }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300 text-left"
+                    >
+                        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0 group-hover:bg-background transition-colors">
+                            <CalendarClock size={18} />
+                        </div>
+                        <div className="flex flex-col">
+                            <span className="text-[13px] font-bold tracking-tight">Pengaturan Siklus</span>
+                            <span className="text-[9px] font-medium opacity-60">Ubah rentang bulan</span>
+                        </div>
+                    </button>
+
                     <div className="px-4 py-4 rounded-3xl bg-muted/50 border border-border/50 flex flex-col items-center text-center">
-                        <p className="text-[11px] font-bold text-muted-foreground/80 mb-2">
-                             GOOGLE SHEETS CLOUD
+                        <p className="text-[11px] font-bold text-muted-foreground/80 mb-2 uppercase tracking-widest">
+                             Google Sheets Cloud
                         </p>
                         <div className="flex items-center gap-2">
                             <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -151,7 +167,23 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                         <div className="flex-1">
                             <NavLinks mobile />
                         </div>
-                        <div className="mt-auto pt-6 border-t border-border/50">
+                        <div className="mt-auto pt-6 space-y-4">
+                             <button
+                                onClick={() => {
+                                    useFinanceStore.getState().setActiveModal('cycle_settings');
+                                    setOpen(false);
+                                }}
+                                className="w-full flex items-center gap-3 px-3 py-3 rounded-2xl text-muted-foreground hover:text-foreground hover:bg-muted transition-all duration-300 text-left"
+                            >
+                                <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-muted shrink-0 transition-colors">
+                                    <CalendarClock size={18} />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-[13px] font-bold tracking-tight">Pengaturan Siklus</span>
+                                    <span className="text-[9px] font-medium opacity-60">Ubah rentang bulan</span>
+                                </div>
+                            </button>
+                             <Separator className="opacity-50" />
                              <p className="text-[10px] font-black text-center text-muted-foreground tracking-widest uppercase">
                                 v1.2.0 · Premium Dashboard
                              </p>

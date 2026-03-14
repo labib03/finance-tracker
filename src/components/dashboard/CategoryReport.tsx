@@ -38,15 +38,16 @@ export default function CategoryReport() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
 
     const perbandinganData = useMemo(
-        () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth),
-        [transaksiList, kategoriList, activeMonth]
+        () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
+        [transaksiList, kategoriList, activeMonth, cycleStartDay]
     );
 
     const trenData = useMemo(
-        () => hitungTrenBulananKategori(transaksiList, kategoriList, activeMonth, 6),
-        [transaksiList, kategoriList, activeMonth]
+        () => hitungTrenBulananKategori(transaksiList, kategoriList, activeMonth, 6, cycleStartDay),
+        [transaksiList, kategoriList, activeMonth, cycleStartDay]
     );
 
     const totalBulanIni = useMemo(

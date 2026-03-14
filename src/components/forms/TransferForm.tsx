@@ -24,6 +24,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
+import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
@@ -127,18 +128,17 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             name="id_sumber_dana_asal"
                             control={control}
                             render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger className={errors.id_sumber_dana_asal ? 'border-destructive' : ''}>
-                                        <SelectValue placeholder="Pilih akun asal..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {sumberDanaList.map((sd) => (
-                                            <SelectItem key={sd.id_sumber_dana} value={sd.id_sumber_dana}>
-                                                {sd.nama_sumber}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    options={sumberDanaList.map(s => ({
+                                        value: s.nama_sumber,
+                                        label: s.nama_sumber
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder="Pilih akun asal..."
+                                    searchPlaceholder="Cari akun..."
+                                    error={!!errors.id_sumber_dana_asal}
+                                />
                             )}
                         />
                         {errors.id_sumber_dana_asal && (
@@ -160,18 +160,17 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             name="id_sumber_dana_tujuan"
                             control={control}
                             render={({ field }) => (
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                    <SelectTrigger className={errors.id_sumber_dana_tujuan ? 'border-destructive' : ''}>
-                                        <SelectValue placeholder="Pilih akun tujuan..." />
-                                    </SelectTrigger>
-                                    <SelectContent>
-                                        {sumberDanaList.map((sd) => (
-                                            <SelectItem key={sd.id_sumber_dana} value={sd.id_sumber_dana}>
-                                                {sd.nama_sumber}
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    options={sumberDanaList.map(s => ({
+                                        value: s.nama_sumber,
+                                        label: s.nama_sumber
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder="Pilih akun tujuan..."
+                                    searchPlaceholder="Cari akun..."
+                                    error={!!errors.id_sumber_dana_tujuan}
+                                />
                             )}
                         />
                         {errors.id_sumber_dana_tujuan && (

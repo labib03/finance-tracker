@@ -47,6 +47,7 @@ interface FinanceState {
   isInitialized: boolean;
   activeMonth: string;
   activeModal: string | null;
+  cycleStartDay: number;
 
   // Actions - Data Fetching
   initialize: () => Promise<void>;
@@ -89,6 +90,7 @@ interface FinanceState {
 
   // Actions - UI
   setActiveModal: (modal: string | null) => void;
+  setCycleStartDay: (day: number) => void;
 }
 
 // ---------- Create Store ----------
@@ -101,7 +103,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   budgetList: [],
   isLoading: true,
   isInitialized: false,
-  activeMonth: getCurrentMonth(),
+  cycleStartDay: 25, // Default
+  activeMonth: "", 
   activeModal: null,
 
   // ======================== Data Fetching ========================
@@ -109,7 +112,18 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   initialize: async () => {
     if (get().isInitialized) return;
 
-    set({ isLoading: true });
+    // Load cycle start day from local storage
+    let savedDay = 25;
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('cycle_start_day');
+      if (stored) savedDay = parseInt(stored);
+    }
+
+    set({ 
+      isLoading: true, 
+      cycleStartDay: savedDay,
+      activeMonth: getCurrentMonth(savedDay)
+    });
     try {
       const [kategori, sumberDana, transaksi, recurring, budgets] =
         await Promise.all([
@@ -503,4 +517,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   // ======================== UI State ========================
 
   setActiveModal: (modal) => set({ activeModal: modal }),
+
+  setCycleStartDay: (day) => {
+    set({ 
+      cycleStartDay: day,
+      activeMonth: getCurrentMonth(day) // Recalculate current month based on new cycle
+    });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('cycle_start_day', day.toString());
+    }
+  },
 }));

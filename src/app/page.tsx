@@ -18,6 +18,7 @@ import SaldoCards from '@/components/dashboard/SaldoCards';
 import ExpensePieChart from '@/components/dashboard/ExpensePieChart';
 import WeeklyTrendChart from '@/components/dashboard/WeeklyTrendChart';
 import BudgetStatusCard from '@/components/dashboard/BudgetStatusCard';
+import RecurringReminder from '@/components/dashboard/RecurringReminder';
 import TransactionsTable from '@/components/dashboard/TransactionsTable';
 import RecurringList from '@/components/dashboard/RecurringList';
 import CategoryReport from '@/components/dashboard/CategoryReport';
@@ -32,6 +33,7 @@ import KategoriForm from '@/components/forms/KategoriForm';
 import SumberDanaForm from '@/components/forms/SumberDanaForm';
 import KategoriManagement from '@/components/dashboard/KategoriManagement';
 import SumberDanaManagement from '@/components/dashboard/SumberDanaManagement';
+import CycleSettingsForm from '@/components/forms/CycleSettingsForm';
 
 import { 
   Plus, 
@@ -168,24 +170,27 @@ export default function HomePage() {
                     <ExpensePieChart />
                     <WeeklyTrendChart />
                   </div>
-                  <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                    <div className="xl:col-span-2">
-                       <TransactionsTable 
-                         limit={6} 
-                         title="Transaksi Terakhir" 
-                         showEdit
-                         onEdit={(t) => {
-                           setTransaksiToEdit(t);
-                           if (t.jenis === 'Transfer') {
-                             setActiveModal('transfer');
-                           } else {
-                             setActiveModal('transaksi');
-                           }
-                         }}
-                       />
+                    <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                      <div className="xl:col-span-2">
+                         <TransactionsTable 
+                           limit={6} 
+                           title="Transaksi Terakhir" 
+                           showEdit
+                           onEdit={(t) => {
+                             setTransaksiToEdit(t);
+                             if (t.jenis === 'Transfer') {
+                               setActiveModal('transfer');
+                             } else {
+                               setActiveModal('transaksi');
+                             }
+                           }}
+                         />
+                      </div>
+                      <div className="grid grid-cols-1 gap-8 content-start h-fit">
+                        <RecurringReminder onViewAll={() => setActiveView('recurring')} />
+                        <BudgetStatusCard />
+                      </div>
                     </div>
-                    <BudgetStatusCard />
-                  </div>
                 </div>
               )}
 
@@ -405,6 +410,11 @@ export default function HomePage() {
             setSumberDanaToEdit(null);
           }}
           sumberDanaToEdit={sumberDanaToEdit}
+        />
+      )}
+      {activeModal === 'cycle_settings' && (
+        <CycleSettingsForm
+          onClose={() => setActiveModal(null)}
         />
       )}
     </div>
