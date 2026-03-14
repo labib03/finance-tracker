@@ -82,16 +82,10 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
     const filteredKategori = kategoriList.filter((k) => k.tipe === activeJenis);
 
     const onSubmit = async (data: RecurringFormData) => {
-        // Map names back to IDs for database
-        const sdId = sumberDanaList.find(s => s.nama_sumber === data.id_sumber_dana)?.id_sumber_dana || data.id_sumber_dana;
-        const katId = kategoriList.find(k => k.nama_kategori === data.id_kategori)?.id_kategori || data.id_kategori;
-
         if (recurringToEdit) {
             await updateRecurring({
                 ...recurringToEdit,
                 ...data,
-                id_sumber_dana: sdId,
-                id_kategori: katId,
                 // If start date changed, we might need to recalculate next date? 
                 // For simplicity, we just keep current next date unless start date is in future
                 tanggal_berikutnya: data.tanggal_mulai > recurringToEdit.tanggal_berikutnya ? data.tanggal_mulai : recurringToEdit.tanggal_berikutnya
@@ -99,8 +93,6 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
         } else {
             await addRecurring({
                 ...data,
-                id_sumber_dana: sdId,
-                id_kategori: katId,
                 tanggal_berikutnya: data.tanggal_mulai,
                 aktif: true,
             });
@@ -152,10 +144,10 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={sumberDanaList.map(s => ({
-                                        value: s.nama_sumber,
+                                        value: s.id_sumber_dana,
                                         label: s.nama_sumber
                                     }))}
-                                    value={sumberDanaList.find(s => s.id_sumber_dana === field.value)?.nama_sumber || field.value}
+                                    value={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Pilih sumber dana..."
                                     searchPlaceholder="Cari sumber dana..."
@@ -177,10 +169,10 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={filteredKategori.map(k => ({
-                                        value: k.nama_kategori,
+                                        value: k.id_kategori,
                                         label: k.nama_kategori
                                     }))}
-                                    value={kategoriList.find(k => k.id_kategori === field.value)?.nama_kategori || field.value}
+                                    value={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Pilih kategori..."
                                     searchPlaceholder="Cari kategori..."

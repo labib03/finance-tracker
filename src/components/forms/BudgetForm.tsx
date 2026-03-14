@@ -125,7 +125,7 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={pengeluaranKategori.map(k => ({
-                                        value: k.nama_kategori,
+                                        value: k.id_kategori,
                                         label: k.nama_kategori
                                     }))}
                                     value={field.value}

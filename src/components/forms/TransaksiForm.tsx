@@ -81,22 +81,14 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     const filteredKategori = kategoriList.filter((k) => k.tipe === activeJenis);
 
     const onSubmit = async (data: TransaksiFormData) => {
-        // Map names back to IDs for database
-        const sdId = sumberDanaList.find(s => s.nama_sumber === data.id_sumber_dana)?.id_sumber_dana || data.id_sumber_dana;
-        const katId = kategoriList.find(k => k.nama_kategori === data.id_kategori)?.id_kategori || data.id_kategori;
-
         if (transaksiToEdit) {
             await updateTransaksi({
                 ...transaksiToEdit,
                 ...data,
-                id_sumber_dana: sdId,
-                id_kategori: katId,
             });
         } else {
             await addTransaksi({
                 ...data,
-                id_sumber_dana: sdId,
-                id_kategori: katId,
             });
         }
         onClose();
@@ -155,10 +147,10 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={sumberDanaList.map(s => ({
-                                        value: s.nama_sumber,
+                                        value: s.id_sumber_dana,
                                         label: s.nama_sumber
                                     }))}
-                                    value={sumberDanaList.find(s => s.id_sumber_dana === field.value)?.nama_sumber || field.value}
+                                    value={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Pilih sumber dana..."
                                     searchPlaceholder="Cari sumber dana..."
@@ -180,10 +172,10 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={filteredKategori.map(k => ({
-                                        value: k.nama_kategori,
+                                        value: k.id_kategori,
                                         label: k.nama_kategori
                                     }))}
-                                    value={kategoriList.find(k => k.id_kategori === field.value)?.nama_kategori || field.value}
+                                    value={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Pilih kategori..."
                                     searchPlaceholder="Cari kategori..."

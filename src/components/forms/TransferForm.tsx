@@ -131,7 +131,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={sumberDanaList.map(s => ({
-                                        value: s.nama_sumber,
+                                        value: s.id_sumber_dana,
                                         label: s.nama_sumber
                                     }))}
                                     value={field.value}
@@ -163,7 +163,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             render={({ field }) => (
                                 <SearchableSelect
                                     options={sumberDanaList.map(s => ({
-                                        value: s.nama_sumber,
+                                        value: s.id_sumber_dana,
                                         label: s.nama_sumber
                                     }))}
                                     value={field.value}

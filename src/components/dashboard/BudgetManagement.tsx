@@ -76,8 +76,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
     }, [budgetList, activeMonth, search, kategoriList, statusFilter, budgetStatusMap]);
 
     const getKategoriName = (id: string) => {
-        console.log("id", id)
-        return kategoriList.find((k) => k.nama_kategori === id)?.nama_kategori || 'Kategori Terhapus';
+        return kategoriList.find((k) => k.id_kategori === id)?.nama_kategori || 'Kategori Terhapus';
     }
 
     const handleDelete = (id: string, name: string) => {

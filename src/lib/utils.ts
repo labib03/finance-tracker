@@ -389,7 +389,7 @@ export function hitungBudgetStatus(
   return budgetList
     .filter((b) => b.bulan === monthNum && b.tahun === yearNum)
     .map((b) => {
-      const kat = kategoriList.find((k) => k.nama_kategori === b.id_kategori);
+      const kat = kategoriList.find((k) => k.id_kategori === b.id_kategori);
       const terpakai = filtered
         .filter((t) => t.id_kategori === b.id_kategori)
         .reduce((sum, t) => sum + t.nominal, 0);
