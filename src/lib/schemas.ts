@@ -25,6 +25,11 @@ export const transferSchema = z
     nominal: z.coerce
       .number({ message: "Nominal harus berupa angka" })
       .positive("Nominal harus lebih dari 0"),
+    biaya_admin: z.coerce
+      .number({ message: "Biaya admin harus berupa angka" })
+      .min(0, "Biaya admin tidak boleh negatif")
+      .optional()
+      .default(0),
     catatan: z.string().optional().default(""),
   })
   .refine((data) => data.id_sumber_dana_asal !== data.id_sumber_dana_tujuan, {

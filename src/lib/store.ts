@@ -64,6 +64,11 @@ interface FinanceState {
     nominal: number,
     catatan: string,
     tanggal: string,
+    biaya_admin?: number,
+  ) => Promise<void>;
+  updateTransfer: (
+    data: Transaksi,
+    biaya_admin: number,
   ) => Promise<void>;
   removeTransaksi: (id: string) => Promise<void>;
 
@@ -234,6 +239,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     nominal,
     catatan,
     tanggal,
+    biaya_admin = 0,
   ) => {
     const id = generateId();
     const transferTx: Transaksi = {
@@ -247,8 +253,26 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       catatan,
     };
 
+    const newTransactions = [transferTx];
+    let adminFeeId = '';
+
+    if (biaya_admin > 0) {
+      adminFeeId = generateId();
+      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
+      const adminTx: Transaksi = {
+        id: adminFeeId,
+        tanggal,
+        jenis: "Pengeluaran",
+        id_sumber_dana: id_sumber_dana_asal,
+        id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
+        nominal: biaya_admin,
+        catatan: `[ADMIN_FEE:${id}] Biaya Admin Transfer`,
+      };
+      newTransactions.push(adminTx);
+    }
+
     set((state) => ({
-      transaksiList: [transferTx, ...state.transaksiList],
+      transaksiList: [...newTransactions, ...state.transaksiList],
     }));
 
     toast.success("Transfer berhasil!");
@@ -256,24 +280,112 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const success = await tambahTransfer(transferTx);
     if (!success) {
       set((state) => ({
-        transaksiList: state.transaksiList.filter((t) => t.id !== id),
+        transaksiList: state.transaksiList.filter((t) => t.id !== id && !t.catatan.includes(`[ADMIN_FEE:${id}]`)),
       }));
       toast.error("Gagal menyimpan transfer ke server.");
+      return;
+    }
+
+    if (biaya_admin > 0) {
+      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
+      const adminTx: Transaksi = {
+        id: adminFeeId,
+        tanggal,
+        jenis: "Pengeluaran",
+        id_sumber_dana: id_sumber_dana_asal,
+        id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
+        nominal: biaya_admin,
+        catatan: `[ADMIN_FEE:${id}] Biaya Admin Transfer`,
+      };
+      const successAdmin = await tambahTransaksi(adminTx);
+      if (!successAdmin) {
+        toast.error("Gagal menyimpan biaya admin ke server.");
+      }
+    }
+  },
+
+  updateTransfer: async (data, biaya_admin) => {
+    const prev = get().transaksiList;
+    const transferId = data.id;
+
+    // 1. Cari existing admin fee
+    const existingAdminFee = prev.find(t => t.catatan.includes(`[ADMIN_FEE:${transferId}]`));
+    
+    let updatedTransactions = prev.map(t => t.id === transferId ? data : t);
+    let adminFeeAction: 'create' | 'update' | 'delete' | 'none' = 'none';
+    let adminTxToSave: Transaksi | null = null;
+
+    if (biaya_admin > 0) {
+      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
+      if (existingAdminFee) {
+        adminFeeAction = 'update';
+        adminTxToSave = { 
+          ...existingAdminFee, 
+          nominal: biaya_admin, 
+          tanggal: data.tanggal, 
+          id_sumber_dana: data.id_sumber_dana 
+        };
+        updatedTransactions = updatedTransactions.map(t => 
+           t.id === existingAdminFee.id ? adminTxToSave! : t
+        );
+      } else {
+        adminFeeAction = 'create';
+        adminTxToSave = {
+          id: generateId(),
+          tanggal: data.tanggal,
+          jenis: "Pengeluaran",
+          id_sumber_dana: data.id_sumber_dana,
+          id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
+          nominal: biaya_admin,
+          catatan: `[ADMIN_FEE:${transferId}] Biaya Admin Transfer`,
+        };
+        updatedTransactions = [adminTxToSave, ...updatedTransactions];
+      }
+    } else if (existingAdminFee) {
+      adminFeeAction = 'delete';
+      updatedTransactions = updatedTransactions.filter(t => t.id !== existingAdminFee.id);
+    }
+
+    set({ transaksiList: updatedTransactions });
+    toast.success("Transfer diperbarui!");
+
+    const successTransfer = await updateTransaksiAction(data);
+    if (!successTransfer) {
+      set({ transaksiList: prev });
+      toast.error("Gagal memperbarui transfer di server.");
+      return;
+    }
+
+    if (adminFeeAction === 'update' && adminTxToSave) {
+      await updateTransaksiAction(adminTxToSave);
+    } else if (adminFeeAction === 'create' && adminTxToSave) {
+      await tambahTransaksi(adminTxToSave);
+    } else if (adminFeeAction === 'delete' && existingAdminFee) {
+      await hapusTransaksi(existingAdminFee.id);
     }
   },
 
   removeTransaksi: async (id) => {
     const prev = get().transaksiList;
+    
+    // Cari apakah ada biaya admin yang terhubung jika yang dihapus adalah transfer
+    const linkedAdminFee = prev.find(t => t.catatan.includes(`[ADMIN_FEE:${id}]`));
+    
     set((state) => ({
-      transaksiList: state.transaksiList.filter((t) => t.id !== id),
+      transaksiList: state.transaksiList.filter((t) => t.id !== id && t.id !== linkedAdminFee?.id),
     }));
 
-    toast.info("Transaksi dihapus.");
+    toast.info(linkedAdminFee ? "Transfer dan biaya admin dihapus." : "Transaksi dihapus.");
 
     const success = await hapusTransaksi(id);
     if (!success) {
       set({ transaksiList: prev });
       toast.error("Gagal menghapus dari server.");
+      return;
+    }
+
+    if (linkedAdminFee) {
+      await hapusTransaksi(linkedAdminFee.id);
     }
   },
 

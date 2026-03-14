@@ -2,8 +2,8 @@
 
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { 
-    hitungPerbandinganKategori, 
+import {
+    hitungPerbandinganKategori,
     hitungTrenBulananKategori,
     formatRupiah,
     CHART_COLORS,
@@ -24,11 +24,11 @@ import {
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { CategoryIcon } from '@/components/CategoryIcon';
-import { 
-    TrendingUp, 
-    TrendingDown, 
-    Minus, 
-    BarChart3, 
+import {
+    TrendingUp,
+    TrendingDown,
+    Minus,
+    BarChart3,
     LineChart as LineChartIcon,
     ArrowUpRight,
     ArrowDownRight
@@ -44,6 +44,8 @@ export default function CategoryReport() {
         () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
         [transaksiList, kategoriList, activeMonth, cycleStartDay]
     );
+
+    console.log("perbandinganData", perbandinganData)
 
     const trenData = useMemo(
         () => hitungTrenBulananKategori(transaksiList, kategoriList, activeMonth, 6, cycleStartDay),
@@ -100,8 +102,8 @@ export default function CategoryReport() {
                             </div>
                             <div className={cn(
                                 "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[10px] font-black border transition-all duration-500",
-                                selisihTotal <= 0 
-                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                                selisihTotal <= 0
+                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                     : "bg-rose-50 text-rose-600 border-rose-100"
                             )}>
                                 {selisihTotal <= 0 ? <ArrowDownRight size={14} strokeWidth={3} /> : <ArrowUpRight size={14} strokeWidth={3} />}
@@ -135,10 +137,10 @@ export default function CategoryReport() {
 
             {/* Main Insight Grid */}
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-                 {/* Top Spending Categories List */}
-                 <div className="xl:col-span-1 space-y-6">
+                {/* Top Spending Categories List */}
+                <div className="xl:col-span-1 space-y-6">
                     <div className="px-2">
-                         <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Kategori Terbesar</h4>
+                        <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">Kategori Terbesar</h4>
                     </div>
                     <div className="space-y-3">
                         {perbandinganData.slice(0, 4).map((item, idx) => (
@@ -167,13 +169,13 @@ export default function CategoryReport() {
                             </div>
                         ))}
                     </div>
-                 </div>
+                </div>
 
-                 {/* Trend Analytics Visualization */}
-                 <div className="xl:col-span-2 space-y-6">
+                {/* Trend Analytics Visualization */}
+                <div className="xl:col-span-2 space-y-6">
                     <div className="bg-white p-8 rounded-[2.5rem] border border-border/40 shadow-scandi h-full">
                         <div className="flex items-center justify-between mb-8">
-                             <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
                                     <LineChartIcon size={18} />
                                 </div>
@@ -181,39 +183,39 @@ export default function CategoryReport() {
                                     <p className="text-xs font-black text-foreground uppercase tracking-widest">Visualisasi Tren</p>
                                     <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">6 Bulan Terakhir</p>
                                 </div>
-                             </div>
-                             <div className="flex items-center gap-2">
+                            </div>
+                            <div className="flex items-center gap-2">
                                 <div className="flex items-center gap-2 px-3 py-1 bg-muted/30 rounded-full">
                                     <div className="w-2 h-2 rounded-full bg-primary" />
                                     <span className="text-[9px] font-black uppercase text-muted-foreground">Total Pengeluaran</span>
                                 </div>
-                             </div>
+                            </div>
                         </div>
-                        
+
                         <div className="h-[300px] w-full mt-4">
                             <ResponsiveContainer width="100%" height="100%">
                                 <AreaChart data={trenData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                                     <defs>
                                         <linearGradient id="premiumGradient" x1="0" y1="0" x2="0" y2="1">
-                                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1}/>
-                                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
+                                            <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.1} />
+                                            <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0} />
                                         </linearGradient>
                                     </defs>
                                     <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--muted))" opacity={0.3} />
-                                    <XAxis 
-                                        dataKey="name" 
-                                        axisLine={false} 
-                                        tickLine={false} 
+                                    <XAxis
+                                        dataKey="name"
+                                        axisLine={false}
+                                        tickLine={false}
                                         tick={{ fontSize: 10, fontWeight: 900, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
                                         dy={10}
                                     />
-                                    <YAxis 
-                                        axisLine={false} 
-                                        tickLine={false} 
+                                    <YAxis
+                                        axisLine={false}
+                                        tickLine={false}
                                         tick={{ fontSize: 10, fontWeight: 900, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
                                         tickFormatter={(val) => val >= 1000000 ? `${val / 1000000}jt` : val >= 1000 ? `${val / 1000}rb` : val}
                                     />
-                                    <Tooltip 
+                                    <Tooltip
                                         content={({ active, payload }) => {
                                             if (active && payload && payload.length) {
                                                 return (
@@ -226,31 +228,31 @@ export default function CategoryReport() {
                                             return null;
                                         }}
                                     />
-                                    <Area 
-                                        type="monotone" 
-                                        dataKey="total" 
-                                        stroke="hsl(var(--primary))" 
+                                    <Area
+                                        type="monotone"
+                                        dataKey="total"
+                                        stroke="hsl(var(--primary))"
                                         strokeWidth={4}
-                                        fillOpacity={1} 
-                                        fill="url(#premiumGradient)" 
+                                        fillOpacity={1}
+                                        fill="url(#premiumGradient)"
                                         animationDuration={2000}
                                     />
                                 </AreaChart>
                             </ResponsiveContainer>
                         </div>
                     </div>
-                 </div>
+                </div>
             </div>
 
             {/* Detailed Ledger Analysis */}
             <div className="space-y-6">
                 <div className="flex items-center justify-between px-2">
-                     <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
+                    <h4 className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground flex items-center gap-2">
                         <BarChart3 size={14} strokeWidth={3} />
                         Ledger Perbandingan Lengkap
-                     </h4>
+                    </h4>
                 </div>
-                
+
                 <div className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left">
@@ -273,13 +275,13 @@ export default function CategoryReport() {
                                                 <div className="flex flex-col">
                                                     <span className="text-xs font-black text-foreground uppercase tracking-widest">{item.nama_kategori}</span>
                                                     <div className="flex items-center gap-1.5 mt-0.5">
-                                                         <div className="w-16 h-1 bg-muted/40 rounded-full overflow-hidden">
-                                                            <div 
-                                                                className="h-full bg-primary" 
-                                                                style={{ width: `${Math.min(100, (item.totalAktif / totalBulanIni) * 100)}%` }} 
+                                                        <div className="w-16 h-1 bg-muted/40 rounded-full overflow-hidden">
+                                                            <div
+                                                                className="h-full bg-primary"
+                                                                style={{ width: `${Math.min(100, (item.totalAktif / totalBulanIni) * 100)}%` }}
                                                             />
-                                                         </div>
-                                                         <span className="text-[9px] font-black text-muted-foreground/50">{Math.round((item.totalAktif / totalBulanIni) * 100)}%</span>
+                                                        </div>
+                                                        <span className="text-[9px] font-black text-muted-foreground/50">{Math.round((item.totalAktif / totalBulanIni) * 100)}%</span>
                                                     </div>
                                                 </div>
                                             </div>

@@ -36,8 +36,9 @@ interface TransferFormProps {
 
 export default function TransferForm({ onClose, transferToEdit }: TransferFormProps) {
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
+    const transaksiList = useFinanceStore((s) => s.transaksiList);
     const addTransfer = useFinanceStore((s) => s.addTransfer);
-    const updateTransaksi = useFinanceStore((s) => s.updateTransaksi);
+    const updateTransfer = useFinanceStore((s) => s.updateTransfer);
 
     const {
         register,
@@ -53,39 +54,43 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
             id_sumber_dana_asal: transferToEdit?.id_sumber_dana || '',
             id_sumber_dana_tujuan: transferToEdit?.id_sumber_dana_tujuan || '',
             nominal: transferToEdit?.nominal || 0,
+            biaya_admin: 0,
             catatan: transferToEdit?.catatan || '',
         },
     });
 
     useEffect(() => {
         if (transferToEdit) {
+            const linkedAdminFee = transaksiList.find(t => t.catatan.includes(`[ADMIN_FEE:${transferToEdit.id}]`));
             reset({
                 tanggal: transferToEdit.tanggal,
                 id_sumber_dana_asal: transferToEdit.id_sumber_dana,
                 id_sumber_dana_tujuan: transferToEdit.id_sumber_dana_tujuan || '',
                 nominal: transferToEdit.nominal,
+                biaya_admin: linkedAdminFee ? linkedAdminFee.nominal : 0,
                 catatan: transferToEdit.catatan,
             });
         }
-    }, [transferToEdit, reset]);
+    }, [transferToEdit, reset, transaksiList]);
 
     const onSubmit = async (data: TransferFormData) => {
         if (transferToEdit) {
-            await updateTransaksi({
+            await updateTransfer({
                 ...transferToEdit,
                 tanggal: data.tanggal,
                 id_sumber_dana: data.id_sumber_dana_asal,
                 id_sumber_dana_tujuan: data.id_sumber_dana_tujuan,
                 nominal: data.nominal,
                 catatan: data.catatan || '',
-            });
+            }, data.biaya_admin || 0);
         } else {
             await addTransfer(
                 data.id_sumber_dana_asal,
                 data.id_sumber_dana_tujuan,
                 data.nominal,
                 data.catatan || '',
-                data.tanggal
+                data.tanggal,
+                data.biaya_admin // Pass the admin fee
             );
         }
         onClose();
@@ -180,12 +185,20 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                     </div>
 
                     {/* Nominal */}
-                    <NumericInput
-                        label="Nominal Transfer"
-                        name="nominal"
-                        control={control}
-                        error={errors.nominal?.message}
-                    />
+                    <div className="grid grid-cols-2 gap-4">
+                        <NumericInput
+                            label="Nominal Transfer"
+                            name="nominal"
+                            control={control}
+                            error={errors.nominal?.message}
+                        />
+                        <NumericInput
+                            label="Biaya Admin"
+                            name="biaya_admin"
+                            control={control}
+                            error={errors.biaya_admin?.message}
+                        />
+                    </div>
 
                     {/* Catatan */}
                     <div className="space-y-2">
