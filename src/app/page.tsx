@@ -31,8 +31,7 @@ import BudgetForm from '@/components/forms/BudgetForm';
 import BudgetManagement from '@/components/dashboard/BudgetManagement';
 import KategoriForm from '@/components/forms/KategoriForm';
 import SumberDanaForm from '@/components/forms/SumberDanaForm';
-import KategoriManagement from '@/components/dashboard/KategoriManagement';
-import SumberDanaManagement from '@/components/dashboard/SumberDanaManagement';
+import MasterDataManagement from '@/components/dashboard/MasterDataManagement';
 import CycleSettingsForm from '@/components/forms/CycleSettingsForm';
 
 import { 
@@ -253,26 +252,49 @@ export default function HomePage() {
               )}
 
               {activeView === 'transfer' && (
-                <div className="space-y-6">
+                <div className="space-y-8">
                   <SaldoCards />
-                  <Card className="max-w-3xl border-none shadow-sm">
-                    <CardHeader>
-                      <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">Transfer Antar Akun</CardTitle>
-                      <CardDescription>
-                        Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran.
-                        Contoh: Tarik tunai dari ATM ke Cash, atau isi saldo E-Wallet.
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
+
+                  {/* Transfer Hero Card */}
+                  <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-scandi border border-border/40 relative overflow-hidden group transition-all duration-500 hover:shadow-float">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                      <div className="flex items-center gap-5">
+                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/50 shadow-sm">
+                          <Sparkles size={24} strokeWidth={2.5} />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-black uppercase tracking-[0.2em] text-foreground">Transfer Antar Akun</h3>
+                          <p className="text-[10px] font-medium text-muted-foreground/60 uppercase tracking-tighter mt-1 max-w-md">
+                            Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran
+                          </p>
+                        </div>
+                      </div>
                       <Button
-                        onClick={() => setActiveModal('transfer')}
-                        className="rounded-full px-6"
+                        onClick={() => {
+                          setTransaksiToEdit(null);
+                          setActiveModal('transfer');
+                        }}
+                        className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-[10px] font-black uppercase tracking-widest shrink-0"
                       >
-                        <Plus size={18} className="mr-2" />
+                        <Plus size={16} className="mr-2" />
                         Buat Transfer
                       </Button>
-                    </CardContent>
-                  </Card>
+                    </div>
+                  </div>
+
+                  {/* Transfer History */}
+                  <TransactionsTable 
+                    limit={30} 
+                    showDelete 
+                    showEdit
+                    filterType="Transfer"
+                    onEdit={(t) => {
+                      setTransaksiToEdit(t);
+                      setActiveModal('transfer');
+                    }}
+                    title="Riwayat Transfer" 
+                    description="Semua mutasi antar akun"
+                  />
                 </div>
               )}
 
@@ -327,28 +349,24 @@ export default function HomePage() {
               )}
 
               {activeView === 'master' && (
-                <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
-                  <KategoriManagement
-                    onAdd={() => {
-                      setKategoriToEdit(null);
-                      setActiveModal('kategori');
-                    }}
-                    onEdit={(k) => {
-                      setKategoriToEdit(k);
-                      setActiveModal('kategori');
-                    }}
-                  />
-                  <SumberDanaManagement
-                    onAdd={() => {
-                      setSumberDanaToEdit(null);
-                      setActiveModal('sumber_dana');
-                    }}
-                    onEdit={(s) => {
-                      setSumberDanaToEdit(s);
-                      setActiveModal('sumber_dana');
-                    }}
-                  />
-                </div>
+                <MasterDataManagement
+                  onAddKategori={() => {
+                    setKategoriToEdit(null);
+                    setActiveModal('kategori');
+                  }}
+                  onEditKategori={(k) => {
+                    setKategoriToEdit(k);
+                    setActiveModal('kategori');
+                  }}
+                  onAddSumberDana={() => {
+                    setSumberDanaToEdit(null);
+                    setActiveModal('sumber_dana');
+                  }}
+                  onEditSumberDana={(s) => {
+                    setSumberDanaToEdit(s);
+                    setActiveModal('sumber_dana');
+                  }}
+                />
               )}
             </div>
           </div>

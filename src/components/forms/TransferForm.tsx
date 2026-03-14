@@ -45,6 +45,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
         control,
         handleSubmit,
         reset,
+        watch,
         formState: { errors, isSubmitting },
     } = useForm<TransferFormData>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -167,10 +168,12 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             control={control}
                             render={({ field }) => (
                                 <SearchableSelect
-                                    options={sumberDanaList.map(s => ({
-                                        value: s.id_sumber_dana,
-                                        label: s.nama_sumber
-                                    }))}
+                                    options={sumberDanaList
+                                        .filter(s => s.id_sumber_dana !== watch('id_sumber_dana_asal'))
+                                        .map(s => ({
+                                            value: s.id_sumber_dana,
+                                            label: s.nama_sumber
+                                        }))}
                                     value={field.value}
                                     onValueChange={field.onChange}
                                     placeholder="Pilih akun tujuan..."

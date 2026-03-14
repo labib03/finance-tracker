@@ -47,6 +47,7 @@ interface TransactionsTableProps {
     onEdit?: (transaksi: Transaksi) => void;
     title?: string;
     description?: string;
+    filterType?: string;
 }
 
 export default function TransactionsTable({
@@ -56,6 +57,7 @@ export default function TransactionsTable({
     onEdit,
     title = "Riwayat Transaksi",
     description,
+    filterType,
 }: TransactionsTableProps) {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
@@ -89,6 +91,11 @@ export default function TransactionsTable({
         let list = transaksiList
             .filter((t) => isInCustomMonth(t.tanggal, activeMonth, cycleStartDay))
             .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+
+        // Pre-filter by type if provided via prop
+        if (filterType) {
+            list = list.filter(t => t.jenis === filterType);
+        }
         
         // Search filter (catatan)
         if (search) {

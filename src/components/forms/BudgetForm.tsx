@@ -5,7 +5,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { budgetSchema, type BudgetFormData } from '@/lib/schemas';
 import { PieChart, Send } from 'lucide-react';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import type { Budget } from '@/lib/types';
 import NumericInput from '@/components/forms/NumericInput';
 import { Button } from '@/components/ui/button';
@@ -49,6 +49,7 @@ interface BudgetFormProps {
 
 export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
+    const budgetList = useFinanceStore((s) => s.budgetList);
     const addBudget = useFinanceStore((s) => s.addBudget);
     const updateBudget = useFinanceStore((s) => s.updateBudget);
 
@@ -61,6 +62,7 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
         control,
         handleSubmit,
         reset,
+        watch,
         formState: { errors, isSubmitting },
     } = useForm<BudgetFormData>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -83,6 +85,17 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
             });
         }
     }, [budgetToEdit, reset]);
+
+    const watchedBulan = watch('bulan');
+    const watchedTahun = watch('tahun');
+
+    const availableKategori = useMemo(() => {
+        if (budgetToEdit) return pengeluaranKategori;
+        const usedIds = budgetList
+            .filter(b => b.bulan === Number(watchedBulan) && b.tahun === Number(watchedTahun))
+            .map(b => b.id_kategori);
+        return pengeluaranKategori.filter(k => !usedIds.includes(k.id_kategori));
+    }, [pengeluaranKategori, budgetList, watchedBulan, watchedTahun, budgetToEdit]);
 
     const onSubmit = async (data: BudgetFormData) => {
         if (budgetToEdit) {
@@ -124,7 +137,7 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                             control={control}
                             render={({ field }) => (
                                 <SearchableSelect
-                                    options={pengeluaranKategori.map(k => ({
+                                    options={availableKategori.map(k => ({
                                         value: k.id_kategori,
                                         label: k.nama_kategori
                                     }))}
