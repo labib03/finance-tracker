@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { Trash2, Plus, Target, Info, Pencil, CheckCircle, AlertTriangle, XCircle } from 'lucide-react';
+import { Trash2, Plus, Target, Info, Pencil, CheckCircle, AlertTriangle, XCircle, Search, X, Filter } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 import { formatRupiah, getNamaBulan, hitungBudgetStatus, cn } from '@/lib/utils';
 import { Progress } from '@/components/ui/progress';
 import type { Budget } from '@/lib/types';
@@ -37,6 +38,8 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
         name: ''
     });
     const [isDeleting, setIsDeleting] = useState(false);
+    const [search, setSearch] = useState('');
+    const [statusFilter, setStatusFilter] = useState<'all' | 'aman' | 'peringatan' | 'bahaya'>('all');
 
     const budgetStatusMap = useMemo(() => {
         const statusList = hitungBudgetStatus(transaksiList, kategoriList, budgetList, activeMonth);
@@ -50,8 +53,26 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
         const year = parseInt(yearStr);
         const month = parseInt(monthStr);
 
-        return budgetList.filter(b => b.bulan === month && b.tahun === year);
-    }, [budgetList, activeMonth]);
+        let list = budgetList.filter(b => b.bulan === month && b.tahun === year);
+
+        // Search filter
+        if (search) {
+            const lowSearch = search.toLowerCase();
+            list = list.filter(b => 
+                kategoriList.find(k => k.id_kategori === b.id_kategori)?.nama_kategori.toLowerCase().includes(lowSearch)
+            );
+        }
+
+        // Status filter
+        if (statusFilter !== 'all') {
+            list = list.filter(b => {
+                const status = budgetStatusMap.get(b.id_kategori);
+                return status?.status === statusFilter;
+            });
+        }
+
+        return list;
+    }, [budgetList, activeMonth, search, kategoriList, statusFilter, budgetStatusMap]);
 
     const getKategoriName = (id: string) =>
         kategoriList.find((k) => k.id_kategori === id)?.nama_kategori || 'Kategori Terhapus';
@@ -69,43 +90,126 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
 
     return (
         <Card className="border-none shadow-sm overflow-hidden flex flex-col h-full bg-background/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-8">
-                <div>
-                    <CardTitle className="text-xl font-bold tracking-tight">Anggaran {getNamaBulan(activeMonth)}</CardTitle>
-                    <CardDescription>
-                        Tetapkan batas pengeluaran per kategori
-                    </CardDescription>
+            <CardHeader className="flex flex-col gap-6 pb-6">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                    <div>
+                        <CardTitle className="text-xl font-bold tracking-tight">Anggaran {getNamaBulan(activeMonth)}</CardTitle>
+                        <CardDescription>
+                            Tetapkan batas pengeluaran per kategori
+                        </CardDescription>
+                    </div>
+                    <Button onClick={onAdd} className="shrink-0 rounded-2xl shadow-lg shadow-primary/10 bg-indigo-600 hover:bg-indigo-700">
+                        <Plus size={18} className="mr-2" />
+                        Tambah Anggaran
+                    </Button>
                 </div>
-                <Button onClick={onAdd} className="shrink-0 rounded-2xl shadow-lg shadow-primary/10 bg-indigo-600 hover:bg-indigo-700">
-                    <Plus size={18} className="mr-2" />
-                    Tambah Anggaran
-                </Button>
+
+                <div className="flex flex-col gap-4">
+                    <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                        <Input
+                            placeholder="Cari kategori anggaran..."
+                            className="pl-9 rounded-xl bg-muted/50 border-none h-10 text-sm"
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                        />
+                        {search && (
+                            <button 
+                                onClick={() => setSearch('')}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                            >
+                                <X size={14} />
+                            </button>
+                        )}
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-1.5 p-1 bg-muted/30 rounded-2xl w-fit">
+                        <button 
+                            onClick={() => setStatusFilter('all')}
+                            className={cn(
+                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
+                                statusFilter === 'all' ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+                            )}
+                        >
+                            Semua
+                        </button>
+                        <button 
+                            onClick={() => setStatusFilter('aman')}
+                            className={cn(
+                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
+                                statusFilter === 'aman' ? "bg-white shadow-sm text-emerald-600" : "text-muted-foreground hover:text-emerald-600"
+                            )}
+                        >
+                            Aman
+                        </button>
+                        <button 
+                            onClick={() => setStatusFilter('peringatan')}
+                            className={cn(
+                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
+                                statusFilter === 'peringatan' ? "bg-white shadow-sm text-amber-600" : "text-muted-foreground hover:text-amber-600"
+                            )}
+                        >
+                            Waspada
+                        </button>
+                        <button 
+                            onClick={() => setStatusFilter('bahaya')}
+                            className={cn(
+                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
+                                statusFilter === 'bahaya' ? "bg-white shadow-sm text-red-600" : "text-muted-foreground hover:text-red-600"
+                            )}
+                        >
+                            Bahaya
+                        </button>
+                    </div>
+                </div>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="px-6 mb-6">
                     <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100/50 flex items-center gap-4">
                         <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-                            <Info size={20} />
+                            <Search size={20} />
                         </div>
-                        <div>
-                            <p className="text-xs font-bold text-indigo-900 uppercase tracking-widest leading-none mb-1">Tips Anggaran</p>
-                            <p className="text-[11px] text-indigo-700/80 font-medium">Batas anggaran membantu Anda mengontrol pengeluaran agar tidak over-budget.</p>
+                        <div className="flex-1">
+                            <p className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-primary">Status Pencarian</p>
+                            <p className="text-[11px] text-indigo-700/80 font-medium">
+                                {search || statusFilter !== 'all' 
+                                    ? `Menampilkan anggaran yang sesuai dengan filter Anda.` 
+                                    : "Batas anggaran membantu Anda mengontrol pengeluaran agar tidak over-budget."}
+                            </p>
                         </div>
+                        {(search || statusFilter !== 'all') && (
+                            <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-7 text-[10px] font-bold text-indigo-600 hover:bg-indigo-100 rounded-lg"
+                                onClick={() => {
+                                    setSearch('');
+                                    setStatusFilter('all');
+                                }}
+                            >
+                                Reset Filter
+                            </Button>
+                        )}
                     </div>
                 </div>
 
-                {activeBudgets.length === 0 ? (
-                    <div className="text-center py-20 px-6">
-                        <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 text-muted-foreground">
-                            <Target size={32} />
+                <div className="flex-1">
+                    {activeBudgets.length === 0 ? (
+                        <div className="text-center py-20 px-6">
+                            <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4 text-muted-foreground">
+                                {search || statusFilter !== 'all' ? <Filter size={32} className="opacity-20" /> : <Target size={32} />}
+                            </div>
+                            <p className="text-sm font-bold text-foreground">
+                                {search || statusFilter !== 'all' ? "Tidak ada anggaran ditemukan" : "Belum ada anggaran bulan ini"}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1 text-balance max-w-[250px] mx-auto">
+                                {search || statusFilter !== 'all' 
+                                    ? "Coba sesuaikan pencarian atau filter status Anda." 
+                                    : "Klik tombol di atas untuk mulai memantau pengeluaran bulanan Anda."}
+                            </p>
                         </div>
-                        <p className="text-sm font-bold text-foreground">Belum ada anggaran bulan ini</p>
-                        <p className="text-xs text-muted-foreground mt-1 text-balance max-w-[250px] mx-auto">
-                            Klik tombol di atas untuk mulai memantau pengeluaran bulanan Anda.
-                        </p>
-                    </div>
-                ) : (
-                    <div className="overflow-x-auto">
+                    ) : (
+                        <div className="overflow-x-auto">
                         <Table>
                             <TableHeader className="bg-muted/30">
                                 <TableRow className="hover:bg-transparent border-none">
@@ -210,8 +314,9 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                 })}
                             </TableBody>
                         </Table>
-                    </div>
-                )}
+                        </div>
+                    )}
+                </div>
             </CardContent>
 
             <ConfirmDialog 

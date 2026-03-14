@@ -14,6 +14,15 @@ import type { Transaksi } from '@/lib/types';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useState } from 'react';
+import { Input } from '@/components/ui/input';
+import { Search, Filter, X } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -55,6 +64,9 @@ export default function TransactionsTable({
         id: ''
     });
     const [isDeleting, setIsDeleting] = useState(false);
+    const [search, setSearch] = useState('');
+    const [typeFilter, setTypeFilter] = useState<string>('all');
+    const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
     const handleDeleteClick = (id: string) => {
         setConfirmDelete({ isOpen: true, id });
@@ -72,11 +84,30 @@ export default function TransactionsTable({
             .filter((t) => t.tanggal.startsWith(activeMonth))
             .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
         
+        // Search filter (catatan)
+        if (search) {
+            const lowSearch = search.toLowerCase();
+            list = list.filter(t => 
+                (t.catatan?.toLowerCase().includes(lowSearch)) || 
+                (kategoriList.find(k => k.id_kategori === t.id_kategori)?.nama_kategori.toLowerCase().includes(lowSearch))
+            );
+        }
+
+        // Type filter
+        if (typeFilter !== 'all') {
+            list = list.filter(t => t.jenis === typeFilter);
+        }
+
+        // Category filter
+        if (categoryFilter !== 'all') {
+            list = list.filter(t => t.id_kategori === categoryFilter);
+        }
+
         if (limit) {
             list = list.slice(0, limit);
         }
         return list;
-    }, [transaksiList, activeMonth, limit]);
+    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, kategoriList]);
 
     const getKategori = (id: string) =>
         kategoriList.find((k) => k.id_kategori === id);
@@ -84,30 +115,64 @@ export default function TransactionsTable({
     const getSumberDanaName = (id: string) =>
         sumberDanaList.find((s) => s.id_sumber_dana === id)?.nama_sumber || '-';
 
-    if (filteredTransaksi.length === 0) {
-        return (
-            <Card className="border-none shadow-sm">
-                <CardHeader>
-                    <CardTitle className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                        {title}
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-sm py-12 text-center text-muted-foreground bg-muted/20 rounded-3xl border border-dashed">
-                        Belum ada transaksi di bulan ini.
-                    </p>
-                </CardContent>
-            </Card>
-        );
-    }
 
     return (
         <Card className="border-none shadow-sm overflow-hidden">
             <CardHeader className="px-6 py-5">
-                <div className="flex items-center justify-between">
-                    <div>
-                        <CardTitle className="text-lg font-bold tracking-tight">{title}</CardTitle>
-                        {description && <CardDescription>{description}</CardDescription>}
+                <div className="flex flex-col gap-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="text-lg font-bold tracking-tight">{title}</CardTitle>
+                            {description && <CardDescription>{description}</CardDescription>}
+                        </div>
+                    </div>
+
+                    <div className="flex flex-wrap items-center gap-2">
+                        <div className="relative flex-1 min-w-[200px]">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                            <Input
+                                placeholder="Cari catatan atau kategori..."
+                                className="pl-9 h-9 text-xs rounded-xl bg-muted/50 border-none"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                            {search && (
+                                <button 
+                                    onClick={() => setSearch('')}
+                                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                    <X size={14} />
+                                </button>
+                            )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                            <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || 'all')}>
+                                <SelectTrigger className="h-9 min-w-[120px] text-xs rounded-xl bg-muted/50 border-none">
+                                    <SelectValue placeholder="Semua Tipe" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-none shadow-xl">
+                                    <SelectItem value="all">Semua Tipe</SelectItem>
+                                    <SelectItem value="Pengeluaran">Pengeluaran</SelectItem>
+                                    <SelectItem value="Pemasukan">Pemasukan</SelectItem>
+                                    <SelectItem value="Transfer">Transfer</SelectItem>
+                                </SelectContent>
+                            </Select>
+
+                            <Select value={categoryFilter} onValueChange={(val) => setCategoryFilter(val || 'all')}>
+                                <SelectTrigger className="h-9 min-w-[140px] text-xs rounded-xl bg-muted/50 border-none">
+                                    <SelectValue placeholder="Semua Kategori" />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-xl border-none shadow-xl">
+                                    <SelectItem value="all">Semua Kategori</SelectItem>
+                                    {kategoriList.map(k => (
+                                        <SelectItem key={k.id_kategori} value={k.id_kategori}>
+                                            {k.nama_kategori}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
                 </div>
             </CardHeader>
@@ -125,103 +190,129 @@ export default function TransactionsTable({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {filteredTransaksi.map((t) => {
-                            const isIncome = t.jenis === 'Pemasukan';
-                            const isTransfer = t.jenis === 'Transfer';
+                        {filteredTransaksi.length === 0 ? (
+                            <TableRow>
+                                <TableCell colSpan={7} className="py-20 text-center">
+                                    <div className="flex flex-col items-center justify-center text-muted-foreground">
+                                        <Filter size={40} className="mb-4 opacity-20" />
+                                        <p className="text-sm font-medium">Tidak ada transaksi ditemukan</p>
+                                        <p className="text-xs opacity-60">Coba sesuaikan filter atau pencarian Anda</p>
+                                        {(search || typeFilter !== 'all' || categoryFilter !== 'all') && (
+                                            <Button 
+                                                variant="link" 
+                                                size="sm" 
+                                                className="mt-2 text-primary"
+                                                onClick={() => {
+                                                    setSearch('');
+                                                    setTypeFilter('all');
+                                                    setCategoryFilter('all');
+                                                }}
+                                            >
+                                                Bersihkan semua filter
+                                            </Button>
+                                        )}
+                                    </div>
+                                </TableCell>
+                            </TableRow>
+                        ) : (
+                            filteredTransaksi.map((t) => {
+                                const isIncome = t.jenis === 'Pemasukan';
+                                const isTransfer = t.jenis === 'Transfer';
 
-                            return (
-                                <TableRow key={t.id} className="group hover:bg-muted/30 transition-colors">
-                                    <TableCell className="px-6 py-4">
-                                        <div className={cn(
-                                            "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
-                                            isTransfer 
-                                                ? "bg-indigo-50 text-indigo-600 border-indigo-100" 
-                                                : isIncome 
-                                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
-                                                    : "bg-red-50 text-red-600 border-red-100"
-                                        )}>
-                                            {isTransfer ? (
-                                                <ArrowLeftRight size={18} />
-                                            ) : (
-                                                <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={18} />
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="px-4 font-bold text-foreground">
-                                        {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
-                                    </TableCell>
-                                    <TableCell className="px-4">
-                                        <div className="flex flex-col">
-                                            <span className="text-xs font-semibold text-foreground/80">
-                                                {getSumberDanaName(t.id_sumber_dana)}
-                                            </span>
-                                            {isTransfer && t.id_sumber_dana_tujuan && (
-                                                <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                                                    <ArrowLeftRight size={10} className="rotate-90 md:rotate-0" />
-                                                    {getSumberDanaName(t.id_sumber_dana_tujuan)}
-                                                </span>
-                                            )}
-                                        </div>
-                                    </TableCell>
-                                    <TableCell className="px-4 hidden md:table-cell max-w-[200px] truncate">
-                                        <span className="text-xs text-muted-foreground italic">
-                                            {t.catatan || '-'}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="px-4 text-right">
-                                        <span className={cn(
-                                            "display-number text-sm font-black",
-                                            isTransfer 
-                                                ? "text-indigo-600" 
-                                                : isIncome 
-                                                    ? "text-emerald-600" 
-                                                    : "text-orange-600"
-                                        )}>
-                                            {isIncome ? '+' : isTransfer ? '' : '-'}
-                                            {formatRupiah(t.nominal)}
-                                        </span>
-                                    </TableCell>
-                                    <TableCell className="px-4 text-right">
-                                        <div className="flex flex-col items-end">
-                                            <span className="text-xs font-bold text-foreground">
-                                                {formatTanggalPendek(t.tanggal)}
-                                            </span>
-                                            <span className="text-[10px] text-muted-foreground hidden sm:inline">
-                                                {formatTanggal(t.tanggal).split(' ').slice(2).join(' ')}
-                                            </span>
-                                        </div>
-                                    </TableCell>
-                                    {(showDelete || showEdit) && (
-                                        <TableCell className="pr-6 text-right">
-                                            <div className="flex items-center justify-end gap-1">
-                                                {showEdit && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon-xs"
-                                                        onClick={() => onEdit?.(t)}
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-primary hover:bg-primary/10 rounded-lg"
-                                                        title="Edit"
-                                                    >
-                                                        <Pencil size={14} />
-                                                    </Button>
-                                                )}
-                                                {showDelete && (
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="icon-xs"
-                                                        onClick={() => handleDeleteClick(t.id)}
-                                                        className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 rounded-lg"
-                                                        title="Hapus"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </Button>
+                                return (
+                                    <TableRow key={t.id} className="group hover:bg-muted/30 transition-colors">
+                                        <TableCell className="px-6 py-4">
+                                            <div className={cn(
+                                                "w-9 h-9 rounded-xl flex items-center justify-center shrink-0 border",
+                                                isTransfer 
+                                                    ? "bg-indigo-50 text-indigo-600 border-indigo-100" 
+                                                    : isIncome 
+                                                        ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                                                        : "bg-red-50 text-red-600 border-red-100"
+                                            )}>
+                                                {isTransfer ? (
+                                                    <ArrowLeftRight size={18} />
+                                                ) : (
+                                                    <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={18} />
                                                 )}
                                             </div>
                                         </TableCell>
-                                    )}
-                                </TableRow>
-                            );
-                        })}
+                                        <TableCell className="px-4 font-bold text-foreground">
+                                            {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
+                                        </TableCell>
+                                        <TableCell className="px-4">
+                                            <div className="flex flex-col">
+                                                <span className="text-xs font-semibold text-foreground/80">
+                                                    {getSumberDanaName(t.id_sumber_dana)}
+                                                </span>
+                                                {isTransfer && t.id_sumber_dana_tujuan && (
+                                                    <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                                                        <ArrowLeftRight size={10} className="rotate-90 md:rotate-0" />
+                                                        {getSumberDanaName(t.id_sumber_dana_tujuan)}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </TableCell>
+                                        <TableCell className="px-4 hidden md:table-cell max-w-[200px] truncate">
+                                            <span className="text-xs text-muted-foreground italic">
+                                                {t.catatan || '-'}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="px-4 text-right">
+                                            <span className={cn(
+                                                "display-number text-sm font-black",
+                                                isTransfer 
+                                                    ? "text-indigo-600" 
+                                                    : isIncome 
+                                                        ? "text-emerald-600" 
+                                                        : "text-orange-600"
+                                            )}>
+                                                {isIncome ? '+' : isTransfer ? '' : '-'}
+                                                {formatRupiah(t.nominal)}
+                                            </span>
+                                        </TableCell>
+                                        <TableCell className="px-4 text-right">
+                                            <div className="flex flex-col items-end">
+                                                <span className="text-xs font-bold text-foreground">
+                                                    {formatTanggalPendek(t.tanggal)}
+                                                </span>
+                                                <span className="text-[10px] text-muted-foreground hidden sm:inline">
+                                                    {formatTanggal(t.tanggal).split(' ').slice(2).join(' ')}
+                                                </span>
+                                            </div>
+                                        </TableCell>
+                                        {(showDelete || showEdit) && (
+                                            <TableCell className="pr-6 text-right">
+                                                <div className="flex items-center justify-end gap-1">
+                                                    {showEdit && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-xs"
+                                                            onClick={() => onEdit?.(t)}
+                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-primary hover:bg-primary/10 rounded-lg"
+                                                            title="Edit"
+                                                        >
+                                                            <Pencil size={14} />
+                                                        </Button>
+                                                    )}
+                                                    {showDelete && (
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-xs"
+                                                            onClick={() => handleDeleteClick(t.id)}
+                                                            className="opacity-0 group-hover:opacity-100 transition-opacity text-destructive hover:bg-destructive/10 rounded-lg"
+                                                            title="Hapus"
+                                                        >
+                                                            <Trash2 size={14} />
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </TableCell>
+                                        )}
+                                    </TableRow>
+                                );
+                            })
+                        )}
                     </TableBody>
                 </Table>
             </CardContent>

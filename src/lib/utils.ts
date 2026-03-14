@@ -202,8 +202,90 @@ export function hitungTrenMingguan(
   ) {
     weeks.pop();
   }
-
   return weeks;
+}
+
+/**
+ * Calculate multi-month trend for categories
+ */
+export function hitungTrenBulananKategori(
+  transaksiList: Transaksi[],
+  kategoriList: Kategori[],
+  bulanAkhir: string, // YYYY-MM
+  jumlahBulan: number = 6
+): any[] {
+  const result = [];
+  const [year, month] = bulanAkhir.split("-").map(Number);
+  
+  for (let i = jumlahBulan - 1; i >= 0; i--) {
+    const d = new Date(year, month - 1 - i, 1);
+    const bulanKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    const bulanNama = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(d);
+    
+    const pengeluaranBulan = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanKey);
+    const entry: any = { name: bulanNama, total: 0 };
+    
+    pengeluaranBulan.forEach(p => {
+      entry[p.nama_kategori] = p.total;
+      entry.total += p.total;
+    });
+    
+    result.push(entry);
+  }
+  
+  return result;
+}
+
+/**
+ * Calculate month-over-month spending comparison per category
+ */
+export function hitungPerbandinganKategori(
+  transaksiList: Transaksi[],
+  kategoriList: Kategori[],
+  bulanAktif: string,
+): {
+  nama_kategori: string;
+  totalAktif: number;
+  totalLalu: number;
+  selisih: number;
+  persentase: number;
+  icon_name: string;
+}[] {
+  const [year, month] = bulanAktif.split("-").map(Number);
+  const dLalu = new Date(year, month - 2, 1);
+  const bulanLalu = `${dLalu.getFullYear()}-${String(dLalu.getMonth() + 1).padStart(2, "0")}`;
+
+  const aktif = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanAktif);
+  const lalu = hitungPengeluaranPerKategori(transaksiList, kategoriList, bulanLalu);
+
+  const allKategori = Array.from(new Set([
+    ...aktif.map(a => a.nama_kategori),
+    ...lalu.map(l => l.nama_kategori)
+  ]));
+
+  return allKategori.map(name => {
+    const dataAktif = aktif.find(a => a.nama_kategori === name);
+    const dataLalu = lalu.find(l => l.nama_kategori === name);
+    const totalAktif = dataAktif?.total || 0;
+    const totalLalu = dataLalu?.total || 0;
+    const selisih = totalAktif - totalLalu;
+    
+    let persentase = 0;
+    if (totalLalu > 0) {
+      persentase = Math.round((selisih / totalLalu) * 100);
+    } else if (totalAktif > 0) {
+      persentase = 100;
+    }
+
+    return {
+      nama_kategori: name,
+      totalAktif,
+      totalLalu,
+      selisih,
+      persentase,
+      icon_name: dataAktif?.icon_name || dataLalu?.icon_name || 'Circle'
+    };
+  }).sort((a, b) => b.totalAktif - a.totalAktif);
 }
 
 /**

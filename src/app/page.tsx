@@ -20,6 +20,7 @@ import WeeklyTrendChart from '@/components/dashboard/WeeklyTrendChart';
 import BudgetStatusCard from '@/components/dashboard/BudgetStatusCard';
 import TransactionsTable from '@/components/dashboard/TransactionsTable';
 import RecurringList from '@/components/dashboard/RecurringList';
+import CategoryReport from '@/components/dashboard/CategoryReport';
 
 // Forms
 import TransaksiForm from '@/components/forms/TransaksiForm';
@@ -103,6 +104,7 @@ export default function HomePage() {
                   {activeView === 'transaksi' && 'Daftar Transaksi'}
                   {activeView === 'transfer' && 'Transfer Antar Akun'}
                   {activeView === 'anggaran' && 'Anggaran Bulanan'}
+                  {activeView === 'laporan' && 'Laporan Analitik'}
                   {activeView === 'recurring' && 'Transaksi Berulang'}
                   {activeView === 'master' && 'Master Data'}
                 </h1>
@@ -112,6 +114,7 @@ export default function HomePage() {
                   {activeView === 'transaksi' && 'Lihat dan kelola riwayat transaksi'}
                   {activeView === 'transfer' && 'Pindahkan saldo antar akun'}
                   {activeView === 'anggaran' && 'Atur dan pantau batas pengeluaran'}
+                  {activeView === 'laporan' && 'Analisis perbandingan pengeluaran per kategori'}
                   {activeView === 'recurring' && 'Kelola transaksi terjadwal'}
                   {activeView === 'master' && 'Kelola kategori dan sumber dana Anda'}
                 </p>
@@ -273,6 +276,12 @@ export default function HomePage() {
                         setActiveModal('budget');
                     }}
                   />
+                </div>
+              )}
+
+              {activeView === 'laporan' && (
+                <div className="space-y-6">
+                  <CategoryReport />
                 </div>
               )}
 

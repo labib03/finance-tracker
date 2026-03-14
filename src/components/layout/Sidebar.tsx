@@ -31,6 +31,7 @@ const navItems = [
     { id: 'transaksi', label: 'Input Cepat', icon: PlusCircle, description: 'Catat transaksi' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
     { id: 'anggaran', label: 'Target Budget', icon: PieChart, description: 'Batas hemat' },
+    { id: 'laporan', label: 'Laporan Analitik', icon: LayoutDashboard, description: 'Statistik kategori' },
     { id: 'recurring', label: 'Jadwal Rutin', icon: CalendarClock, description: 'Biaya langganan' },
     { id: 'master', label: 'Master Data', icon: Database, description: 'Kategori & sumber' },
 ];
