@@ -189,7 +189,7 @@ export async function fetchRecurring(): Promise<RecurringTransaction[]> {
       frekuensi: (row[6] as RecurringTransaction["frekuensi"]) || "Bulanan",
       tanggal_mulai: row[7] || "",
       tanggal_berikutnya: row[8] || "",
-      aktif: row[9] === "true",
+      aktif: String(row[9]).toLowerCase() === "true",
     }));
   } catch (error) {
     console.error("Error fetching recurring:", error);

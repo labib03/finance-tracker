@@ -32,7 +32,7 @@ const navItems = [
     { id: 'transaksi', label: 'Riwayat Transaksi', icon: PlusCircle, description: 'Catat transaksi' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
     { id: 'anggaran', label: 'Target Budget', icon: PieChart, description: 'Batas hemat' },
-    { id: 'laporan', label: 'Analitik Pro', icon: PieChart, description: 'Statistik kategori' },
+    { id: 'laporan', label: 'Analitik Keuangan', icon: PieChart, description: 'Statistik kategori' },
     { id: 'recurring', label: 'Tagihan Rutin', icon: CalendarClock, description: 'Biaya langganan' },
     { id: 'master', label: 'Master Data', icon: Database, description: 'Kategori & sumber' },
 ];
@@ -113,7 +113,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
     return (
         <>
             {/* Desktop Sidebar */}
-            <aside className="fixed top-0 left-0 h-screen w-[320px] bg-white border-r border-border/40 hidden lg:flex flex-col p-10 z-40 transition-all duration-300">
+            <aside className="fixed top-0 left-0 h-screen w-[320px] bg-white border-r border-border/40 hidden lg:flex flex-col py-10 px-6 z-40 transition-all duration-300">
                 <Brand />
                 <div className="flex-1 overflow-y-auto px-1 -mx-1 scrollbar-none">
                     <div className="mb-4">
