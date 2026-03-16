@@ -41,7 +41,7 @@ export interface RecurringTransaction {
   nominal: number;
   label: string;
   catatan: string;
-  frekuensi: "Harian" | "Mingguan" | "Bulanan" | "Tahunan";
+  frekuensi: "Harian" | "Mingguan" | "Bulanan" | "3 Bulan" | "6 Bulan" | "Tahunan";
   tanggal_mulai: string;
   tanggal_berikutnya: string;
   aktif: boolean;
@@ -119,7 +119,7 @@ export interface RecurringFormInput {
   nominal: number;
   label: string;
   catatan: string;
-  frekuensi: "Harian" | "Mingguan" | "Bulanan" | "Tahunan";
+  frekuensi: "Harian" | "Mingguan" | "Bulanan" | "3 Bulan" | "6 Bulan" | "Tahunan";
   tanggal_mulai: string;
 }
 

@@ -4,7 +4,7 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { recurringSchema, type RecurringFormData } from '@/lib/schemas';
-import { getToday, cn } from '@/lib/utils';
+import { getToday, cn, hitungTanggalBerikutnya } from '@/lib/utils';
 import { CalendarClock, CalendarIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { RecurringTransaction } from '@/lib/types';
@@ -92,17 +92,24 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
 
     const onSubmit = async (data: RecurringFormData) => {
         if (recurringToEdit) {
+            // Jika tanggal mulai atau frekuensi berubah, hitung ulang tanggal berikutnya
+            const perluUpdateTanggal = 
+                data.tanggal_mulai !== recurringToEdit.tanggal_mulai || 
+                data.frekuensi !== recurringToEdit.frekuensi;
+                
             await updateRecurring({
                 ...recurringToEdit,
                 ...data,
-                // If start date changed, we might need to recalculate next date? 
-                // For simplicity, we just keep current next date unless start date is in future
-                tanggal_berikutnya: data.tanggal_mulai > recurringToEdit.tanggal_berikutnya ? data.tanggal_mulai : recurringToEdit.tanggal_berikutnya
+                tanggal_berikutnya: perluUpdateTanggal 
+                    ? hitungTanggalBerikutnya(data.tanggal_mulai, data.frekuensi)
+                    : recurringToEdit.tanggal_berikutnya
             });
         } else {
+            // Saat membuat baru, set tanggal berikutnya ke satu periode setelah tanggal mulai
+            // sesuai permintaan user agar tidak sama dengan tanggal mulai
             await addRecurring({
                 ...data,
-                tanggal_berikutnya: data.tanggal_mulai,
+                tanggal_berikutnya: hitungTanggalBerikutnya(data.tanggal_mulai, data.frekuensi),
                 aktif: true,
             });
         }
@@ -217,7 +224,9 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                                         <SelectContent>
                                             <SelectItem value="Harian">Harian</SelectItem>
                                             <SelectItem value="Mingguan">Mingguan</SelectItem>
-                                            <SelectItem value="Bulanan">Bulanan</SelectItem>
+                                            <SelectItem value="Bulanan">Setiap Bulan</SelectItem>
+                                            <SelectItem value="3 Bulan">3 Bulan (Kuartal)</SelectItem>
+                                            <SelectItem value="6 Bulan">6 Bulan (Semester)</SelectItem>
                                             <SelectItem value="Tahunan">Tahunan</SelectItem>
                                         </SelectContent>
                                     </Select>

@@ -29,7 +29,7 @@ export function formatRupiah(amount: number): string {
   }).format(amount);
 }
 
-import { format, parseISO } from "date-fns";
+import { format, parseISO, isValid } from "date-fns";
 import { id } from "date-fns/locale";
 
 /**
@@ -37,8 +37,13 @@ import { id } from "date-fns/locale";
  */
 export function formatTanggal(dateStr: string): string {
   if (!dateStr) return "";
-  const date = parseISO(dateStr);
-  return format(date, "d MMMM yyyy", { locale: id });
+  try {
+    const date = parseISO(dateStr);
+    if (!isValid(date)) return dateStr;
+    return format(date, "d MMMM yyyy", { locale: id });
+  } catch (error) {
+    return dateStr;
+  }
 }
 
 /**
@@ -46,8 +51,13 @@ export function formatTanggal(dateStr: string): string {
  */
 export function formatTanggalDDMMYYYY(dateStr: string): string {
   if (!dateStr) return "";
-  const date = parseISO(dateStr);
-  return format(date, "dd MMMM yyyy", { locale: id });
+  try {
+    const date = parseISO(dateStr);
+    if (!isValid(date)) return dateStr;
+    return format(date, "dd MMMM yyyy", { locale: id });
+  } catch (error) {
+    return dateStr;
+  }
 }
 
 /**
@@ -55,11 +65,16 @@ export function formatTanggalDDMMYYYY(dateStr: string): string {
  */
 export function formatTanggalPendek(dateStr: string): string {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "short",
-  }).format(date);
+  try {
+    const date = parseISO(dateStr);
+    if (!isValid(date)) return dateStr;
+    return new Intl.DateTimeFormat("id-ID", {
+      day: "numeric",
+      month: "short",
+    }).format(date);
+  } catch (error) {
+    return dateStr;
+  }
 }
 
 /**
@@ -484,6 +499,12 @@ export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {
     case "Bulanan":
       date.setMonth(date.getMonth() + 1);
       break;
+    case "3 Bulan":
+      date.setMonth(date.getMonth() + 3);
+      break;
+    case "6 Bulan":
+      date.setMonth(date.getMonth() + 6);
+      break;
     case "Tahunan":
       date.setFullYear(date.getFullYear() + 1);
       break;
@@ -492,6 +513,17 @@ export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {
   }
   return date.toISOString().split("T")[0];
 };
+
+/**
+ * Mendapatkan tanggal efektif yang harus ditampilkan ke user.
+ * Jika tanggal_mulai belum lewat hari ini, gunakan itu.
+ * Jika sudah lewat, gunakan tanggal_berikutnya.
+ */
+export function getJadwalTerdekat(mulai: string, berikutnya: string): string {
+  const today = getToday();
+  if (!mulai) return berikutnya;
+  return mulai >= today ? mulai : berikutnya;
+}
 
 export const formatNumber = (num: number) => {
   return new Intl.NumberFormat("id-ID").format(num);

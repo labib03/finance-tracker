@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { formatRupiah, formatTanggalPendek } from '@/lib/utils';
+import { formatRupiah, formatTanggalPendek, getJadwalTerdekat } from '@/lib/utils';
 import { CalendarClock, Pause, Play, Trash2, Calendar, Pencil, Search, X, Filter } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useMemo } from 'react';
@@ -57,7 +57,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
         // Search filter
         if (search) {
             const lowSearch = search.toLowerCase();
-            list = list.filter(r => 
+            list = list.filter(r =>
                 getKategoriName(r.id_kategori).toLowerCase().includes(lowSearch) ||
                 r.catatan?.toLowerCase().includes(lowSearch)
             );
@@ -68,6 +68,13 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
             const target = statusFilter === 'active';
             list = list.filter(r => r.aktif === target);
         }
+
+        // Sort by effective next date (nearest first)
+        list.sort((a, b) => {
+            const dateA = getJadwalTerdekat(a.tanggal_mulai, a.tanggal_berikutnya);
+            const dateB = getJadwalTerdekat(b.tanggal_mulai, b.tanggal_berikutnya);
+            return new Date(dateA).getTime() - new Date(dateB).getTime();
+        });
 
         return list;
     }, [recurringList, search, statusFilter, kategoriList]);
@@ -84,7 +91,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                     {search && (
-                        <button 
+                        <button
                             onClick={() => setSearch('')}
                             className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
@@ -94,7 +101,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                 </div>
 
                 <div className="flex items-center gap-1.5 p-1 bg-muted/30 rounded-2xl w-fit">
-                    <button 
+                    <button
                         onClick={() => setStatusFilter('all')}
                         className={cn(
                             "px-4 py-1 text-xs font-bold rounded-xl transition-all",
@@ -103,7 +110,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                     >
                         Semua
                     </button>
-                    <button 
+                    <button
                         onClick={() => setStatusFilter('active')}
                         className={cn(
                             "px-4 py-1 text-xs font-bold rounded-xl transition-all",
@@ -112,7 +119,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                     >
                         Aktif
                     </button>
-                    <button 
+                    <button
                         onClick={() => setStatusFilter('inactive')}
                         className={cn(
                             "px-4 py-1 text-xs font-bold rounded-xl transition-all",
@@ -144,9 +151,9 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                         </div>
                         <p className="text-sm font-bold text-foreground">Tidak ada jadwal ditemukan</p>
                         <p className="text-xs text-muted-foreground mt-1">Coba sesuaikan pencarian atau filter status Anda.</p>
-                        <Button 
-                            variant="link" 
-                            size="sm" 
+                        <Button
+                            variant="link"
+                            size="sm"
                             className="mt-2 text-primary"
                             onClick={() => {
                                 setSearch('');
@@ -159,87 +166,85 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                 ) : (
                     <div className="space-y-4">
                         {filteredRecurring.map((r) => (
-                <Card key={r.id} className="overflow-hidden hover:border-primary/50 transition-colors">
-                    <CardContent className="p-0">
-                        <div className="flex items-center gap-4 p-4">
-                            <div
-                                className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${
-                                    r.jenis === 'Pemasukan'
-                                        ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
-                                        : 'bg-orange-50 text-orange-600 dark:bg-orange-500/10'
-                                }`}
-                            >
-                                <CalendarClock size={24} />
-                            </div>
+                            <Card key={r.id} className="overflow-hidden hover:border-primary/50 transition-colors">
+                                <CardContent className="p-0">
+                                    <div className="flex items-center gap-4 p-4">
+                                        <div
+                                            className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${r.jenis === 'Pemasukan'
+                                                ? 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10'
+                                                : 'bg-orange-50 text-orange-600 dark:bg-orange-500/10'
+                                                }`}
+                                        >
+                                            <CalendarClock size={24} />
+                                        </div>
 
-                            <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-2">
-                                    <p className="text-sm font-bold truncate">
-                                        {getKategoriName(r.id_kategori)}
-                                    </p>
-                                    <Badge variant={r.aktif ? "success" : "secondary"} className="text-xs h-4">
-                                        {r.aktif ? 'Aktif' : 'Off'}
-                                    </Badge>
-                                </div>
-                                <p className="text-xs text-muted-foreground mt-0.5">
-                                    {r.frekuensi} · {getSumberDanaName(r.id_sumber_dana)}
-                                    {r.catatan && ` · ${r.catatan}`}
-                                </p>
-                                <div className="flex items-center gap-1.5 mt-2">
-                                    <Calendar size={12} className="text-primary" />
-                                    <p className="text-[11px] font-semibold text-primary">
-                                        Mendatang: {formatTanggalPendek(r.tanggal_berikutnya)}
-                                    </p>
-                                </div>
-                            </div>
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2">
+                                                <p className="text-sm font-bold truncate">
+                                                    {r.label}
+                                                </p>
+                                                <Badge variant={r.aktif ? "success" : "secondary"} className="text-xs h-4">
+                                                    {r.aktif ? 'Aktif' : 'Off'}
+                                                </Badge>
+                                            </div>
+                                            <p className="text-xs text-muted-foreground mt-0.5">
+                                                {r.frekuensi} · {getSumberDanaName(r.id_sumber_dana)} · {getKategoriName(r.id_kategori)}
+                                                {r.catatan && ` · ${r.catatan}`}
+                                            </p>
+                                            <div className="flex items-center gap-1.5 mt-2">
+                                                <Calendar size={12} className="text-primary" />
+                                                <p className="text-[11px] font-semibold text-primary">
+                                                    Mendatang: {formatTanggalPendek(getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya))}
+                                                </p>
+                                            </div>
+                                        </div>
 
-                            <div className="flex flex-col items-end gap-2">
-                                <p
-                                    className={`text-sm font-black display-number ${
-                                        r.jenis === 'Pemasukan' ? 'text-emerald-600' : 'text-orange-600'
-                                    }`}
-                                >
-                                    {formatRupiah(r.nominal)}
-                                </p>
-                                <div className="flex items-center gap-1">
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        onClick={() => updateRecurring({ ...r, aktif: !r.aktif })}
-                                        title={r.aktif ? 'Nonaktifkan' : 'Aktifkan'}
-                                        className={r.aktif ? 'text-orange-600 hover:bg-orange-50' : 'text-emerald-600 hover:bg-emerald-50'}
-                                    >
-                                        {r.aktif ? <Pause size={14} /> : <Play size={14} />}
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        onClick={() => onEdit?.(r)}
-                                        title="Edit"
-                                        className="text-primary hover:bg-primary/10"
-                                    >
-                                        <Pencil size={14} />
-                                    </Button>
-                                    <Button
-                                        variant="ghost"
-                                        size="icon-sm"
-                                        onClick={() => handleDeleteClick(r.id, r.id_kategori)}
-                                        className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
-                                        title="Hapus"
-                                    >
-                                        <Trash2 size={14} />
-                                    </Button>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                        </Card>
-                    ))}
-                </div>
-            )}
-        </div>
+                                        <div className="flex flex-col items-end gap-2">
+                                            <p
+                                                className={`text-sm font-black display-number ${r.jenis === 'Pemasukan' ? 'text-emerald-600' : 'text-orange-600'
+                                                    }`}
+                                            >
+                                                {formatRupiah(r.nominal)}
+                                            </p>
+                                            <div className="flex items-center gap-1">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    onClick={() => updateRecurring({ ...r, aktif: !r.aktif })}
+                                                    title={r.aktif ? 'Nonaktifkan' : 'Aktifkan'}
+                                                    className={r.aktif ? 'text-orange-600 hover:bg-orange-50' : 'text-emerald-600 hover:bg-emerald-50'}
+                                                >
+                                                    {r.aktif ? <Pause size={14} /> : <Play size={14} />}
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    onClick={() => onEdit?.(r)}
+                                                    title="Edit"
+                                                    className="text-primary hover:bg-primary/10"
+                                                >
+                                                    <Pencil size={14} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon-sm"
+                                                    onClick={() => handleDeleteClick(r.id, r.id_kategori)}
+                                                    className="text-muted-foreground hover:bg-destructive/10 hover:text-destructive"
+                                                    title="Hapus"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        ))}
+                    </div>
+                )}
+            </div>
 
-            <ConfirmDialog 
+            <ConfirmDialog
                 isOpen={confirmDelete.isOpen}
                 onClose={() => setConfirmDelete({ ...confirmDelete, isOpen: false })}
                 onConfirm={confirmDeleteAction}

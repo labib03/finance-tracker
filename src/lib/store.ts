@@ -411,6 +411,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         recurringList: state.recurringList.filter((r) => r.id !== id),
       }));
       toast.error("Gagal menyimpan ke server.");
+    } else {
+      // Auto-process to handle any missed occurrences if applicable
+      await get().processRecurring();
     }
   },
 
@@ -426,6 +429,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     if (!success) {
       set({ recurringList: prev });
       toast.error("Gagal memperbarui transaksi berulang.");
+    } else {
+      // Auto-process after update in case dates changed
+      await get().processRecurring();
     }
   },
 

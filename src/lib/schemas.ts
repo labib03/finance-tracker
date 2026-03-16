@@ -45,7 +45,7 @@ export const recurringSchema = z.object({
     .positive("Nominal harus lebih dari 0"),
   label: z.string().min(1, "Judul/Label wajib diisi"),
   catatan: z.string().optional().default(""),
-  frekuensi: z.enum(["Harian", "Mingguan", "Bulanan", "Tahunan"], {
+  frekuensi: z.enum(["Harian", "Mingguan", "Bulanan", "3 Bulan", "6 Bulan", "Tahunan"], {
     message: "Pilih frekuensi",
   }),
   tanggal_mulai: z.string().min(1, "Tanggal mulai wajib diisi"),

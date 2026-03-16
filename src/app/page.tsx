@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useFinanceStore } from '@/lib/store';
-import { getNamaBulan, cn } from '@/lib/utils';
+import { getNamaBulan, cn, getToday } from '@/lib/utils';
 
 // Layout
 import Sidebar from '@/components/layout/Sidebar';
@@ -180,7 +180,23 @@ export default function HomePage() {
                   </div>
                   <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                     <BudgetStatusCard />
-                    <RecurringReminder onViewAll={() => setActiveView('recurring')} />
+                    <RecurringReminder 
+                      onViewAll={() => setActiveView('recurring')} 
+                      onProcess={(r) => {
+                        setTransaksiToEdit({
+                          id: '', // Kosong agar dideteksi sebagai transaksi baru
+                          tanggal: getToday(),
+                          jenis: r.jenis,
+                          id_sumber_dana: r.id_sumber_dana,
+                          id_kategori: r.id_kategori,
+                          nominal: r.nominal,
+                          label: r.label,
+                          catatan: r.catatan,
+                          id_target_dana: ''
+                        } as any);
+                        setActiveModal('transaksi');
+                      }}
+                    />
                   </div>
 
                   <TransactionsTable 

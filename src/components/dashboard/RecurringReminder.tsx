@@ -1,29 +1,49 @@
 'use client';
 
 import { useFinanceStore } from '@/lib/store';
-import { formatRupiah, formatTanggalPendek, cn } from '@/lib/utils';
+import { formatRupiah, formatTanggalPendek, cn, getJadwalTerdekat, getToday } from '@/lib/utils';
 import { CalendarClock, ArrowRight, Bell } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useMemo } from 'react';
+import type { RecurringTransaction } from '@/lib/types';
+import { Plus } from 'lucide-react';
 
 interface RecurringReminderProps {
     onViewAll: () => void;
+    onProcess: (recurring: RecurringTransaction) => void;
 }
 
-export default function RecurringReminder({ onViewAll }: RecurringReminderProps) {
+export default function RecurringReminder({ onViewAll, onProcess }: RecurringReminderProps) {
     const recurringList = useFinanceStore((s) => s.recurringList);
+    const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
 
     const upcomingReminders = useMemo(() => {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
         return recurringList
-            .filter(r => r.aktif && r.jenis === 'Pengeluaran')
-            .sort((a, b) => new Date(a.tanggal_berikutnya).getTime() - new Date(b.tanggal_berikutnya).getTime())
+            .filter(r => {
+                if (!r.aktif || r.jenis !== 'Pengeluaran') return false;
+                
+                const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
+                
+                // Cek apakah sudah ada transaksi yang dicatat untuk jadwal ini
+                const isAlreadyRecorded = transaksiList.some(t => 
+                    t.id_kategori === r.id_kategori && 
+                    t.nominal === r.nominal && 
+                    t.tanggal === effectiveDateStr &&
+                    t.jenis === r.jenis &&
+                    t.label === r.label
+                );
+
+                return !isAlreadyRecorded;
+            })
+            .sort((a, b) => {
+                const dateA = getJadwalTerdekat(a.tanggal_mulai, a.tanggal_berikutnya);
+                const dateB = getJadwalTerdekat(b.tanggal_mulai, b.tanggal_berikutnya);
+                return new Date(dateA).getTime() - new Date(dateB).getTime();
+            })
             .slice(0, 3);
-    }, [recurringList]);
+    }, [recurringList, transaksiList]);
 
     const getKategoriName = (id: string) =>
         kategoriList.find((k) => k.id_kategori === id)?.nama_kategori || 'Kategori';
@@ -51,15 +71,21 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
             <CardContent className="space-y-4 pt-2 pb-8 px-8 relative z-10">
                 {upcomingReminders.length > 0 ? (
                     upcomingReminders.map((r) => {
-                        const nextDate = new Date(r.tanggal_berikutnya);
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const diffDays = Math.ceil((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
+                        const todayStr = getToday();
+                        
+                        let diffDays = 0;
+                        if (effectiveDateStr !== todayStr) {
+                             const nextDate = new Date(effectiveDateStr + 'T00:00:00');
+                             const today = new Date();
+                             today.setHours(0, 0, 0, 0);
+                             diffDays = Math.ceil((nextDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+                        }
 
                         let statusText = `${diffDays} HARI LAGI`;
                         let statusColor = "text-muted-foreground/80";
 
-                        if (diffDays === 0) {
+                        if (effectiveDateStr === todayStr) {
                             statusText = 'HARI INI';
                             statusColor = "text-rose-500 font-black";
                         } else if (diffDays === 1) {
@@ -78,11 +104,11 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                                 <div className="flex items-center gap-4 flex-1 min-w-0">
                                     <div className="flex-1 min-w-0">
                                         <p className="text-xs font-black text-foreground uppercase tracking-widest truncate group-hover/item:text-indigo-600 transition-colors">
-                                            {r.catatan}
+                                            {r.label}
                                         </p>
                                         <div className="flex items-center gap-2 mt-1">
                                             <span className="text-xs text-muted-foreground font-black display-number opacity-60">
-                                                {formatTanggalPendek(r.tanggal_berikutnya)}
+                                                {formatTanggalPendek(effectiveDateStr)}
                                             </span>
                                             <span className="text-xs text-muted-foreground font-black display-number opacity-60">
                                                 {getKategoriName(r.id_kategori)}
@@ -98,13 +124,29 @@ export default function RecurringReminder({ onViewAll }: RecurringReminderProps)
                                         </div>
                                     </div>
                                 </div>
-                                <div className="text-right ml-4">
-                                    <p className="text-sm font-black display-number text-foreground tracking-widest group-hover/item:scale-105 transition-transform origin-right duration-300">
-                                        {formatRupiah(r.nominal)}
-                                    </p>
-                                    <p className="text-xs text-muted-foreground/80 font-black uppercase tracking-widest mt-0.5">
-                                        {r.frekuensi}
-                                    </p>
+                                <div className="flex flex-col items-end gap-2 ml-4">
+                                    <div className="text-right">
+                                        <p className="text-sm font-black display-number text-foreground tracking-widest group-hover/item:scale-105 transition-transform origin-right duration-300">
+                                            {formatRupiah(r.nominal)}
+                                        </p>
+                                        <p className="text-xs text-muted-foreground/80 font-black uppercase tracking-widest mt-0.5">
+                                            {r.frekuensi}
+                                        </p>
+                                    </div>
+                                    
+                                    {diffDays === 0 && (
+                                        <Button
+                                            size="sm"
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onProcess(r);
+                                            }}
+                                            className="h-8 pr-4 pl-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-[10px] font-black uppercase tracking-widest shadow-scandi border-none transition-all hover:scale-105 active:scale-95"
+                                        >
+                                            <Plus size={12} className="mr-1.5" strokeWidth={3} />
+                                            Catat Sekarang
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         );

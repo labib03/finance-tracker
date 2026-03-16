@@ -129,7 +129,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     }, [watchedNominal, watchedKategori, watchedJenis, budgetList, transaksiList, activeMonth, transaksiToEdit, kategoriList]);
 
     const onSubmit = async (data: TransaksiFormData) => {
-        if (transaksiToEdit) {
+        if (transaksiToEdit && transaksiToEdit.id) {
             await updateTransaksi({
                 ...transaksiToEdit,
                 ...data,
