@@ -9,6 +9,7 @@ import { ArrowLeftRight, CalendarIcon } from 'lucide-react';
 import { useEffect } from 'react';
 import type { Transaksi } from '@/lib/types';
 import NumericInput from '@/components/forms/NumericInput';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -51,9 +52,9 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
         defaultValues: {
             tanggal: transferToEdit?.tanggal || getToday(),
             id_sumber_dana_asal: transferToEdit?.id_sumber_dana || '',
-            id_sumber_dana_tujuan: transferToEdit?.id_sumber_dana_tujuan || '',
+            id_target_dana: transferToEdit?.id_target_dana || '',
             nominal: transferToEdit?.nominal || 0,
-            biaya_admin: 0,
+            label: transferToEdit?.label || 'Transfer Saldo',
             catatan: transferToEdit?.catatan || '',
         },
     });
@@ -64,9 +65,9 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
             reset({
                 tanggal: transferToEdit.tanggal,
                 id_sumber_dana_asal: transferToEdit.id_sumber_dana,
-                id_sumber_dana_tujuan: transferToEdit.id_sumber_dana_tujuan || '',
+                id_target_dana: transferToEdit.id_target_dana || '',
                 nominal: transferToEdit.nominal,
-                biaya_admin: linkedAdminFee ? linkedAdminFee.nominal : 0,
+                label: transferToEdit.label,
                 catatan: transferToEdit.catatan,
             });
         }
@@ -78,18 +79,19 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 ...transferToEdit,
                 tanggal: data.tanggal,
                 id_sumber_dana: data.id_sumber_dana_asal,
-                id_sumber_dana_tujuan: data.id_sumber_dana_tujuan,
+                id_target_dana: data.id_target_dana,
                 nominal: data.nominal,
+                label: data.label,
                 catatan: data.catatan || '',
-            }, data.biaya_admin || 0);
+            }, 0);
         } else {
             await addTransfer(
                 data.id_sumber_dana_asal,
-                data.id_sumber_dana_tujuan,
+                data.id_target_dana,
                 data.nominal,
+                data.label,
                 data.catatan || '',
-                data.tanggal,
-                data.biaya_admin // Pass the admin fee
+                data.tanggal
             );
         }
         onClose();
@@ -193,7 +195,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                     <div className="space-y-2">
                         <Label htmlFor="sumber-tujuan">Ke Akun</Label>
                         <Controller
-                            name="id_sumber_dana_tujuan"
+                            name="id_target_dana"
                             control={control}
                             render={({ field }) => (
                                 <SearchableSelect
@@ -207,39 +209,50 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                                     onValueChange={field.onChange}
                                     placeholder="Pilih akun tujuan..."
                                     searchPlaceholder="Cari akun..."
-                                    error={!!errors.id_sumber_dana_tujuan}
+                                    error={!!errors.id_target_dana}
                                 />
                             )}
                         />
-                        {errors.id_sumber_dana_tujuan && (
-                            <p className="text-xs font-medium text-destructive">{errors.id_sumber_dana_tujuan.message}</p>
+                        {errors.id_target_dana && (
+                            <p className="text-xs font-medium text-destructive">{errors.id_target_dana.message}</p>
                         )}
                     </div>
 
                     {/* Nominal */}
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 gap-4">
                         <NumericInput
                             label="Nominal Transfer"
                             name="nominal"
                             control={control}
                             error={errors.nominal?.message}
                         />
-                        <NumericInput
-                            label="Biaya Admin"
-                            name="biaya_admin"
-                            control={control}
-                            error={errors.biaya_admin?.message}
-                        />
                     </div>
 
-                    {/* Catatan */}
+                    {/* Label/Judul */}
                     <div className="space-y-2">
-                        <Label htmlFor="catatan">Catatan (opsional)</Label>
+                        <Label htmlFor="label">Judul Transfer</Label>
+                        <Input
+                            id="label"
+                            placeholder="Misal: Transfer ke Tabungan"
+                            {...register('label')}
+                            className={cn(
+                                "h-11 rounded-xl whitespace-nowrap",
+                                errors.label && "border-destructive"
+                            )}
+                        />
+                        {errors.label && (
+                            <p className="text-xs font-medium text-destructive">{errors.label.message}</p>
+                        )}
+                    </div>
+
+                    {/* Catatan (Detail) */}
+                    <div className="space-y-2">
+                        <Label htmlFor="catatan">Detail (opsional)</Label>
                         <Textarea
                             id="catatan"
-                            placeholder="Misal: Tarik tunai ATM"
+                            placeholder="Tambah detail atau catatan tambahan..."
                             {...register('catatan')}
-                            className="resize-none"
+                            className="resize-none rounded-xl"
                             rows={3}
                         />
                     </div>

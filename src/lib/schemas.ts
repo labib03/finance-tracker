@@ -14,6 +14,7 @@ export const transaksiSchema = z.object({
   nominal: z.coerce
     .number({ message: "Nominal harus berupa angka" })
     .positive("Nominal harus lebih dari 0"),
+  label: z.string().min(1, "Judul/Label wajib diisi"),
   catatan: z.string().optional().default(""),
 });
 
@@ -21,20 +22,16 @@ export const transferSchema = z
   .object({
     tanggal: z.string().min(1, "Tanggal wajib diisi"),
     id_sumber_dana_asal: z.string().min(1, "Pilih sumber dana asal"),
-    id_sumber_dana_tujuan: z.string().min(1, "Pilih sumber dana tujuan"),
+    id_target_dana: z.string().min(1, "Pilih sumber dana tujuan"),
     nominal: z.coerce
       .number({ message: "Nominal harus berupa angka" })
       .positive("Nominal harus lebih dari 0"),
-    biaya_admin: z.coerce
-      .number({ message: "Biaya admin harus berupa angka" })
-      .min(0, "Biaya admin tidak boleh negatif")
-      .optional()
-      .default(0),
+    label: z.string().min(1, "Judul/Label wajib diisi"),
     catatan: z.string().optional().default(""),
   })
-  .refine((data) => data.id_sumber_dana_asal !== data.id_sumber_dana_tujuan, {
+  .refine((data) => data.id_sumber_dana_asal !== data.id_target_dana, {
     message: "Sumber dana asal dan tujuan tidak boleh sama",
-    path: ["id_sumber_dana_tujuan"],
+    path: ["id_target_dana"],
   });
 
 export const recurringSchema = z.object({
@@ -46,6 +43,7 @@ export const recurringSchema = z.object({
   nominal: z.coerce
     .number({ message: "Nominal harus berupa angka" })
     .positive("Nominal harus lebih dari 0"),
+  label: z.string().min(1, "Judul/Label wajib diisi"),
   catatan: z.string().optional().default(""),
   frekuensi: z.enum(["Harian", "Mingguan", "Bulanan", "Tahunan"], {
     message: "Pilih frekuensi",

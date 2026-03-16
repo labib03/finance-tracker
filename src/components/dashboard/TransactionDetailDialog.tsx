@@ -1,29 +1,29 @@
 'use client';
 
-import { 
-    Dialog, 
-    DialogContent, 
-    DialogHeader, 
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
     DialogTitle,
-    DialogFooter 
+    DialogFooter
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { useState } from 'react';
-import { 
-    formatRupiah, 
-    formatTanggal, 
-    cn 
+import {
+    formatRupiah,
+    formatTanggal,
+    cn
 } from '@/lib/utils';
-import { 
-    Calendar, 
-    Tag, 
-    Wallet, 
-    FileText, 
-    ArrowLeftRight, 
-    Pencil, 
+import {
+    Calendar,
+    Tag,
+    Wallet,
+    FileText,
+    ArrowLeftRight,
+    Pencil,
     Trash2,
     ArrowDownCircle,
     ArrowUpCircle,
@@ -56,16 +56,16 @@ export function TransactionDetailDialog({
 
     const isIncome = transaksi.jenis === 'Pemasukan';
     const isTransfer = transaksi.jenis === 'Transfer';
-    
+
     const kategori = kategoriList.find(k => k.id_kategori === transaksi.id_kategori);
     const sumberDana = sumberDanaList.find(s => s.id_sumber_dana === transaksi.id_sumber_dana);
-    const sumberDanaTujuan = isTransfer 
-        ? sumberDanaList.find(s => s.id_sumber_dana === transaksi.id_sumber_dana_tujuan) 
+    const sumberDanaTujuan = isTransfer
+        ? sumberDanaList.find(s => s.id_sumber_dana === transaksi.id_target_dana)
         : null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent 
+            <DialogContent
                 className="sm:max-w-[420px] bg-white p-0 rounded-[2.5rem] border-none shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden"
                 showCloseButton={true}
             >
@@ -85,12 +85,17 @@ export function TransactionDetailDialog({
 
                     <div className="text-center space-y-1">
                         <p className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">
-                            {isTransfer ? 'Transfer Antar Akun' : kategori?.nama_kategori}
+                            {transaksi.label || (isTransfer ? 'Transfer Antar Akun' : kategori?.nama_kategori)}
                         </p>
                         <h2 className="text-4xl font-black text-foreground tracking-widest">
                             {isIncome ? '+' : isTransfer ? '' : '-'}
                             {formatRupiah(transaksi.nominal)}
                         </h2>
+                        {!isTransfer && (
+                            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-[0.2em] pt-1">
+                                {kategori?.nama_kategori || 'Tanpa Kategori'}
+                            </p>
+                        )}
                     </div>
                 </div>
 
@@ -129,7 +134,7 @@ export function TransactionDetailDialog({
                                     </div>
                                 </div>
                                 {isTransfer && (
-                                     <ArrowLeftRight size={14} className="text-muted-foreground/80 rotate-90" />
+                                    <ArrowLeftRight size={14} className="text-muted-foreground/80 rotate-90" />
                                 )}
                             </div>
 
@@ -148,9 +153,9 @@ export function TransactionDetailDialog({
 
                         {/* Catatan Area */}
                         <div className="pt-6 border-t border-muted/50">
-                            <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest mb-3 block">Catatan</span>
-                            <p className="text-sm text-foreground/70 leading-relaxed italic font-medium whitespace-pre-wrap">
-                                {transaksi.catatan || 'Tidak ada catatan khusus...'}
+                            <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest mb-3 block">Detail</span>
+                            <p className="text-sm text-foreground/70 leading-relaxed font-medium whitespace-pre-wrap">
+                                {transaksi.catatan || 'Tidak ada detail tambahan...'}
                             </p>
                         </div>
                     </div>

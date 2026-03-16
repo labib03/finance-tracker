@@ -145,7 +145,7 @@ export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
     const sheets = getSheets();
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Transaksi!A2:H",
+      range: "Transaksi!A2:I",
     });
 
     const rows = response.data.values || [];
@@ -157,7 +157,8 @@ export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
       id_kategori: row[4] || "",
       nominal: parseFloat(row[5]) || 0,
       catatan: row[6] || "",
-      id_sumber_dana_tujuan: row[7] || undefined,
+      id_target_dana: row[7] || undefined,
+      label: row[8] || "",
     }));
 
     if (bulan) {
@@ -175,7 +176,7 @@ export async function fetchRecurring(): Promise<RecurringTransaction[]> {
     const sheets = getSheets();
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Recurring!A2:J",
+      range: "Recurring!A2:K",
     });
 
     const rows = response.data.values || [];
@@ -186,10 +187,11 @@ export async function fetchRecurring(): Promise<RecurringTransaction[]> {
       jenis: (row[3] as "Pengeluaran" | "Pemasukan") || "Pengeluaran",
       nominal: parseFloat(row[4]) || 0,
       catatan: row[5] || "",
-      frekuensi: (row[6] as RecurringTransaction["frekuensi"]) || "Bulanan",
-      tanggal_mulai: row[7] || "",
-      tanggal_berikutnya: row[8] || "",
-      aktif: String(row[9]).toLowerCase() === "true",
+      label: row[6] || "",
+      frekuensi: (row[7] as RecurringTransaction["frekuensi"]) || "Bulanan",
+      tanggal_mulai: row[8] || "",
+      tanggal_berikutnya: row[9] || "",
+      aktif: String(row[10]).toLowerCase() === "true",
     }));
   } catch (error) {
     console.error("Error fetching recurring:", error);
@@ -228,7 +230,7 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
     const sheets = getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Transaksi!A:H",
+      range: "Transaksi!A:I",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -240,7 +242,8 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
             transaksi.id_kategori,
             transaksi.nominal,
             transaksi.catatan,
-            transaksi.id_sumber_dana_tujuan || "",
+            transaksi.id_target_dana || "",
+            transaksi.label,
           ],
         ],
       },
@@ -262,7 +265,7 @@ export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Transaksi!A${rowIndex + 1}:H${rowIndex + 1}`,
+      range: `Transaksi!A${rowIndex + 1}:I${rowIndex + 1}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -273,8 +276,9 @@ export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
             transaksi.id_sumber_dana,
             transaksi.id_kategori,
             transaksi.nominal,
+            transaksi.label,
             transaksi.catatan,
-            transaksi.id_sumber_dana_tujuan || "",
+            transaksi.id_target_dana || "",
           ],
         ],
       },
@@ -297,7 +301,7 @@ export async function tambahRecurring(
     const sheets = getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Recurring!A:J",
+      range: "Recurring!A:K",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -308,6 +312,7 @@ export async function tambahRecurring(
             recurring.jenis,
             recurring.nominal,
             recurring.catatan,
+            recurring.label,
             recurring.frekuensi,
             recurring.tanggal_mulai,
             recurring.tanggal_berikutnya,
@@ -335,7 +340,7 @@ export async function updateRecurring(
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Recurring!A${rowIndex + 1}:J${rowIndex + 1}`,
+      range: `Recurring!A${rowIndex + 1}:K${rowIndex + 1}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -345,6 +350,7 @@ export async function updateRecurring(
             recurring.id_sumber_dana,
             recurring.jenis,
             recurring.nominal,
+            recurring.label,
             recurring.catatan,
             recurring.frekuensi,
             recurring.tanggal_mulai,
@@ -460,6 +466,7 @@ export async function prosesRecurring(): Promise<boolean> {
           id_sumber_dana: r.id_sumber_dana,
           id_kategori: r.id_kategori,
           nominal: r.nominal,
+          label: r.label,
           catatan: r.catatan ? `[RECURRING] ${r.catatan}` : "[RECURRING]",
         };
 
@@ -497,7 +504,7 @@ export async function prosesRecurring(): Promise<boolean> {
     if (newTransactions.length > 0) {
       await sheets.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
-        range: "Transaksi!A:H",
+        range: "Transaksi!A:I",
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: newTransactions.map((t) => [
@@ -507,8 +514,9 @@ export async function prosesRecurring(): Promise<boolean> {
             t.id_sumber_dana,
             t.id_kategori,
             t.nominal,
+            t.label,
             t.catatan,
-            t.id_sumber_dana_tujuan || "",
+            t.id_target_dana || "",
           ]),
         },
       });

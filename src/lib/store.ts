@@ -60,8 +60,9 @@ interface FinanceState {
   updateTransaksi: (data: Transaksi) => Promise<void>;
   addTransfer: (
     id_sumber_dana_asal: string,
-    id_sumber_dana_tujuan: string,
+    id_target_dana: string,
     nominal: number,
+    label: string,
     catatan: string,
     tanggal: string,
     biaya_admin?: number,
@@ -235,8 +236,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   addTransfer: async (
     id_sumber_dana_asal,
-    id_sumber_dana_tujuan,
+    id_target_dana,
     nominal,
+    label,
     catatan,
     tanggal,
     biaya_admin = 0,
@@ -247,9 +249,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       tanggal,
       jenis: "Transfer",
       id_sumber_dana: id_sumber_dana_asal,
-      id_sumber_dana_tujuan,
+      id_target_dana,
       id_kategori: "TRANSFER",
       nominal,
+      label,
       catatan,
     };
 
@@ -266,6 +269,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         id_sumber_dana: id_sumber_dana_asal,
         id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
         nominal: biaya_admin,
+        label: "Biaya Admin Transfer",
         catatan: `[ADMIN_FEE:${id}] Biaya Admin Transfer`,
       };
       newTransactions.push(adminTx);
@@ -295,6 +299,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         id_sumber_dana: id_sumber_dana_asal,
         id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
         nominal: biaya_admin,
+        label: "Biaya Admin Transfer",
         catatan: `[ADMIN_FEE:${id}] Biaya Admin Transfer`,
       };
       const successAdmin = await tambahTransaksi(adminTx);
@@ -326,7 +331,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           id_sumber_dana: data.id_sumber_dana 
         };
         updatedTransactions = updatedTransactions.map(t => 
-           t.id === existingAdminFee.id ? adminTxToSave! : t
+           t.id === existingAdminFee.id ? (adminTxToSave as Transaksi) : t
         );
       } else {
         adminFeeAction = 'create';
@@ -337,6 +342,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           id_sumber_dana: data.id_sumber_dana,
           id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
           nominal: biaya_admin,
+          label: "Biaya Admin Transfer",
           catatan: `[ADMIN_FEE:${transferId}] Biaya Admin Transfer`,
         };
         updatedTransactions = [adminTxToSave, ...updatedTransactions];

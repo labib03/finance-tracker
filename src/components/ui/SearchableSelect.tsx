@@ -38,6 +38,17 @@ export function SearchableSelect({
 }: SearchableSelectProps) {
     const [open, setOpen] = React.useState(false);
     const [search, setSearch] = React.useState('');
+    const inputRef = React.useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        if (open) {
+            // Focus input after a small delay to ensure positioning is done
+            const timer = setTimeout(() => {
+                inputRef.current?.focus();
+            }, 50);
+            return () => clearTimeout(timer);
+        }
+    }, [open]);
 
     const filteredOptions = React.useMemo(() => {
         if (!search) return options;
@@ -52,8 +63,9 @@ export function SearchableSelect({
     );
 
     return (
-        <Popover open={open} onOpenChange={setOpen}>
+        <Popover open={open} onOpenChange={setOpen} modal={false}>
             <PopoverTrigger
+                type="button"
                 className={cn(
                     "flex h-10 w-full items-center justify-between rounded-lg border border-input bg-transparent px-3 py-2 text-sm whitespace-nowrap transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
                     !value && "text-muted-foreground",
@@ -72,11 +84,11 @@ export function SearchableSelect({
                 <div className="flex items-center border-b px-3 h-10 sticky top-0 bg-popover z-10">
                     <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
                     <input
+                        ref={inputRef}
                         className="flex h-full w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder={searchPlaceholder}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        autoFocus
                     />
                 </div>
                 <div className="max-h-[250px] overflow-y-auto p-1">
@@ -91,7 +103,9 @@ export function SearchableSelect({
                                     "relative flex w-full cursor-default select-none items-center rounded-md px-2 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-colors text-left",
                                     value === option.value && "bg-accent text-accent-foreground"
                                 )}
-                                onClick={() => {
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
                                     onValueChange(option.value);
                                     setOpen(false);
                                     setSearch('');

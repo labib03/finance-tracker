@@ -142,7 +142,7 @@ export function hitungSaldoAkun(
       // If this sumber dana is the TARGET of a transfer
       if (
         t.jenis === "Transfer" &&
-        t.id_sumber_dana_tujuan === sd.id_sumber_dana
+        t.id_target_dana === sd.id_sumber_dana
       ) {
         saldo += t.nominal;
       }

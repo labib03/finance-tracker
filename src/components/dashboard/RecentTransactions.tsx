@@ -93,13 +93,13 @@ export default function RecentTransactions({
                                 {/* Info */}
                                 <div className="flex-1 min-w-0">
                                     <p className="text-sm font-semibold truncate text-foreground">
-                                        {getKategoriName(t.id_kategori)}
+                                        {t.label || (isTransfer ? 'Transfer Saldo' : getKategoriName(t.id_kategori))}
                                     </p>
                                     <p className="text-xs truncate text-muted-foreground">
                                         {getSumberDanaName(t.id_sumber_dana)}
                                         {isTransfer &&
-                                            t.id_sumber_dana_tujuan &&
-                                            ` → ${getSumberDanaName(t.id_sumber_dana_tujuan)}`}
+                                            t.id_target_dana &&
+                                            ` → ${getSumberDanaName(t.id_target_dana)}`}
                                         {t.catatan && ` · ${t.catatan}`}
                                     </p>
                                 </div>

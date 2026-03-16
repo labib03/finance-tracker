@@ -9,6 +9,7 @@ import type { Transaksi } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
 import { Send, CalendarIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
 import NumericInput from '@/components/forms/NumericInput';
+import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
@@ -62,6 +63,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
             id_sumber_dana: transaksiToEdit?.id_sumber_dana || '',
             id_kategori: transaksiToEdit?.id_kategori || '',
             nominal: transaksiToEdit?.nominal || 0,
+            label: transaksiToEdit?.label || '',
             catatan: transaksiToEdit?.catatan || '',
         },
     });
@@ -74,6 +76,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                 id_sumber_dana: transaksiToEdit.id_sumber_dana,
                 id_kategori: transaksiToEdit.id_kategori,
                 nominal: transaksiToEdit.nominal,
+                label: transaksiToEdit.label,
                 catatan: transaksiToEdit.catatan,
             });
             // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -272,14 +275,31 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                         error={errors.nominal?.message}
                     />
 
-                    {/* Catatan */}
+                    {/* Label/Judul */}
                     <div className="space-y-2">
-                        <Label htmlFor="catatan">Catatan (opsional)</Label>
+                        <Label htmlFor="label">Judul Transaksi</Label>
+                        <Input
+                            id="label"
+                            placeholder="Contoh: Makan Siang, Gaji, dll."
+                            {...register('label')}
+                            className={cn(
+                                "h-11 rounded-xl whitespace-nowrap",
+                                errors.label && "border-destructive"
+                            )}
+                        />
+                        {errors.label && (
+                            <p className="text-xs font-medium text-destructive">{errors.label.message}</p>
+                        )}
+                    </div>
+
+                    {/* Catatan (Detail) */}
+                    <div className="space-y-2">
+                        <Label htmlFor="catatan">Detail (opsional)</Label>
                         <Textarea
                             id="catatan"
-                            placeholder="Tambah catatan..."
+                            placeholder="Tambah detail atau catatan tambahan..."
                             {...register('catatan')}
-                            className="resize-none"
+                            className="resize-none rounded-xl"
                             rows={3}
                         />
                     </div>

@@ -26,9 +26,10 @@ export interface Transaksi {
   id_sumber_dana: string;
   id_kategori: string;
   nominal: number;
+  label: string;
   catatan: string;
   // Transfer fields (optional)
-  id_sumber_dana_tujuan?: string;
+  id_target_dana?: string;
 }
 
 // ---------- Recurring Transaction ----------
@@ -38,6 +39,7 @@ export interface RecurringTransaction {
   id_sumber_dana: string;
   jenis: "Pengeluaran" | "Pemasukan";
   nominal: number;
+  label: string;
   catatan: string;
   frekuensi: "Harian" | "Mingguan" | "Bulanan" | "Tahunan";
   tanggal_mulai: string;
@@ -97,14 +99,16 @@ export interface TransaksiFormInput {
   id_sumber_dana: string;
   id_kategori: string;
   nominal: number;
+  label: string;
   catatan: string;
 }
 
 export interface TransferFormInput {
   tanggal: string;
   id_sumber_dana_asal: string;
-  id_sumber_dana_tujuan: string;
+  id_target_dana: string;
   nominal: number;
+  label: string;
   catatan: string;
 }
 
@@ -113,6 +117,7 @@ export interface RecurringFormInput {
   id_sumber_dana: string;
   jenis: "Pengeluaran" | "Pemasukan";
   nominal: number;
+  label: string;
   catatan: string;
   frekuensi: "Harian" | "Mingguan" | "Bulanan" | "Tahunan";
   tanggal_mulai: string;

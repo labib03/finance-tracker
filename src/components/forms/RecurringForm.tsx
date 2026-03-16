@@ -64,6 +64,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
             id_sumber_dana: recurringToEdit?.id_sumber_dana || '',
             jenis: recurringToEdit?.jenis || 'Pengeluaran',
             nominal: recurringToEdit?.nominal || 0,
+            label: recurringToEdit?.label || '',
             frekuensi: recurringToEdit?.frekuensi || 'Bulanan',
             tanggal_mulai: recurringToEdit?.tanggal_mulai || getToday(),
             catatan: recurringToEdit?.catatan || '',
@@ -77,6 +78,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                 id_sumber_dana: recurringToEdit.id_sumber_dana,
                 jenis: recurringToEdit.jenis as 'Pengeluaran' | 'Pemasukan',
                 nominal: recurringToEdit.nominal,
+                label: recurringToEdit.label,
                 frekuensi: recurringToEdit.frekuensi as any,
                 tanggal_mulai: recurringToEdit.tanggal_mulai,
                 catatan: recurringToEdit.catatan,
@@ -267,13 +269,31 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                         </div>
                     </div>
 
-                    {/* Catatan */}
+                    {/* Label/Judul */}
                     <div className="space-y-2">
-                        <Label htmlFor="catatan">Catatan (opsional)</Label>
+                        <Label htmlFor="label">Judul Jadwal</Label>
+                        <Input
+                            id="label"
+                            placeholder="Contoh: Tagihan Internet, Sewa Rumah, dll."
+                            {...register('label')}
+                            className={cn(
+                                "h-11 rounded-xl whitespace-nowrap",
+                                errors.label && "border-destructive"
+                            )}
+                        />
+                        {errors.label && (
+                            <p className="text-xs font-medium text-destructive">{errors.label.message}</p>
+                        )}
+                    </div>
+
+                    {/* Catatan (Detail) */}
+                    <div className="space-y-2">
+                        <Label htmlFor="catatan">Detail (opsional)</Label>
                         <Input
                             id="catatan"
-                            placeholder="Misal: Tagihan listrik"
+                            placeholder="Tambah detail atau catatan tambahan..."
                             {...register('catatan')}
+                            className="h-11 rounded-xl whitespace-nowrap"
                         />
                     </div>
 
