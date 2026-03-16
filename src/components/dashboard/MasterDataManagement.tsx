@@ -77,7 +77,7 @@ export default function MasterDataManagement({
     };
 
     const handleDeleteSumberDana = (id: string, nama: string) => {
-        const isUsed = transaksiList.some(t => t.id_sumber_dana === id || t.id_sumber_dana_tujuan === id) || recurringList.some(r => r.id_sumber_dana === id);
+        const isUsed = transaksiList.some(t => t.id_sumber_dana === id || t.id_target_dana === id) || recurringList.some(r => r.id_sumber_dana === id);
         setDeleteRestricted(isUsed);
         setConfirmDelete({ isOpen: true, id, name: nama, type: 'sumber_dana' });
     };

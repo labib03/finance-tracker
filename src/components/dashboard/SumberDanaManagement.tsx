@@ -40,17 +40,17 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
 
     const handleDelete = (id: string, nama: string) => {
         // Check if source is used in transactions (from or to) or recurring
-        const isUsedInTransaksi = transaksiList.some(t => 
-            t.id_sumber_dana === id || t.id_sumber_dana_tujuan === id
+        const isUsedInTransaksi = transaksiList.some(t =>
+            t.id_sumber_dana === id || t.id_target_dana === id
         );
         const isUsedInRecurring = recurringList.some(r => r.id_sumber_dana === id);
-        
+
         if (isUsedInTransaksi || isUsedInRecurring) {
             setDeleteRestricted(true);
         } else {
             setDeleteRestricted(false);
         }
-        
+
         setConfirmDelete({ isOpen: true, id, name: nama });
     };
 
@@ -160,7 +160,7 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                 )}
             </CardContent>
 
-            <ConfirmDialog 
+            <ConfirmDialog
                 isOpen={confirmDelete.isOpen}
                 onClose={() => setConfirmDelete({ ...confirmDelete, isOpen: false })}
                 onConfirm={deleteRestricted ? () => setConfirmDelete({ ...confirmDelete, isOpen: false }) : confirmDeleteAction}
@@ -169,8 +169,8 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                 confirmText={deleteRestricted ? "Mengerti" : "Hapus"}
                 variant={deleteRestricted ? "info" : "destructive"}
                 description={
-                    deleteRestricted 
-                        ? `Sumber dana "${confirmDelete.name}" tidak bisa dihapus karena masih digunakan dalam riwayat transaksi atau jadwal rutin Anda.` 
+                    deleteRestricted
+                        ? `Sumber dana "${confirmDelete.name}" tidak bisa dihapus karena masih digunakan dalam riwayat transaksi atau jadwal rutin Anda.`
                         : `Apakah Anda yakin ingin menghapus sumber dana "${confirmDelete.name}"?`
                 }
             />
