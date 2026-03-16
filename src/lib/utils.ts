@@ -29,17 +29,25 @@ export function formatRupiah(amount: number): string {
   }).format(amount);
 }
 
+import { format, parseISO } from "date-fns";
+import { id } from "date-fns/locale";
+
 /**
  * Format a date string to localized Indonesian date
  */
 export function formatTanggal(dateStr: string): string {
   if (!dateStr) return "";
-  const date = new Date(dateStr);
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  const date = parseISO(dateStr);
+  return format(date, "d MMMM yyyy", { locale: id });
+}
+
+/**
+ * Format a date to dd MMMM yyyy
+ */
+export function formatTanggalDDMMYYYY(dateStr: string): string {
+  if (!dateStr) return "";
+  const date = parseISO(dateStr);
+  return format(date, "dd MMMM yyyy", { locale: id });
 }
 
 /**
@@ -488,3 +496,31 @@ export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {
 export const formatNumber = (num: number) => {
   return new Intl.NumberFormat("id-ID").format(num);
 };
+
+/**
+ * Safely evaluate basic math expressions (+, -, *, /)
+ */
+export function evaluateMathExpression(expr: string): number | null {
+  // Remove spaces
+  let sanitized = expr.replace(/\s+/g, "");
+  
+  // Remove any trailing operators that make the expression invalid for evaluation
+  sanitized = sanitized.replace(/[+\-*/.]+$/, "");
+
+  // Only allow digits, operators, and decimal points
+  sanitized = sanitized.replace(/[^0-9+\-*/.]/g, "");
+  
+  if (!sanitized) return null;
+
+  try {
+    // eslint-disable-next-line no-new-func
+    const result = new Function(`return ${sanitized}`)();
+    if (typeof result === 'number' && isFinite(result)) {
+      return result;
+    }
+  } catch {
+    // If it's just an incomplete expression, we don't need to log an error
+    return null;
+  }
+  return null;
+}

@@ -5,7 +5,10 @@ import { NumericFormat, type NumericFormatProps } from 'react-number-format';
 import { useController, type UseControllerProps } from 'react-hook-form';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { cn } from '@/lib/utils';
+import { cn, formatRupiah } from '@/lib/utils';
+import { Calculator, Check } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Button } from '@/components/ui/button';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 type Props = NumericFormatProps & UseControllerProps<any> & {
@@ -34,9 +37,147 @@ export default function NumericInput({
         shouldUnregister,
     });
 
+    const [currentVal, setCurrentVal] = React.useState('0');
+    const [prevVal, setPrevVal] = React.useState<number | null>(null);
+    const [operation, setOperation] = React.useState<string | null>(null);
+    const [history, setHistory] = React.useState<string[]>([]);
+    const [isCalcOpen, setIsCalcOpen] = React.useState(false);
+    const [shouldResetScreen, setShouldResetScreen] = React.useState(false);
+
+    const calculate = (first: number, second: number, op: string): number => {
+        switch (op) {
+            case '+': return first + second;
+            case '-': return first - second;
+            case '*': return first * second;
+            case '/': return second !== 0 ? first / second : 0;
+            default: return second;
+        }
+    };
+
+    const handleDigit = (digit: string) => {
+        if (shouldResetScreen) {
+            setCurrentVal(digit);
+            setShouldResetScreen(false);
+        } else {
+            setCurrentVal(prev => prev === '0' ? digit : prev + digit);
+        }
+    };
+
+    const handleOperator = (op: string) => {
+        const current = parseFloat(currentVal);
+        
+        if (prevVal === null) {
+            setPrevVal(current);
+            setHistory([`${formatRupiah(current)} ${op}`]);
+        } else if (operation) {
+            const result = calculate(prevVal, current, operation);
+            setPrevVal(result);
+            setHistory(prev => [...prev.slice(-2), `${formatRupiah(current)} = ${formatRupiah(result)}`, `${formatRupiah(result)} ${op}`]);
+            setCurrentVal(result.toString());
+        }
+        
+        setOperation(op);
+        setShouldResetScreen(true);
+    };
+
+    const handleEqual = () => {
+        const current = parseFloat(currentVal);
+        if (prevVal !== null && operation) {
+            const result = calculate(prevVal, current, operation);
+            setCurrentVal(result.toString());
+            setHistory(prev => [...prev.slice(-2), `${formatRupiah(current)} = ${formatRupiah(result)}`]);
+            setPrevVal(result);
+            setOperation(null);
+            setShouldResetScreen(true);
+        }
+    };
+
+    const clearCalc = () => {
+        setCurrentVal('0');
+        setPrevVal(null);
+        setOperation(null);
+        setHistory([]);
+    };
+
+    const applyCalc = () => {
+        const finalVal = parseFloat(currentVal);
+        if (!isNaN(finalVal)) {
+            onChange(finalVal);
+            setIsCalcOpen(false);
+            clearCalc();
+        }
+    };
+
     return (
         <div className="w-full space-y-2">
-            {label && <Label className="text-sm font-medium">{label}</Label>}
+            <div className="flex items-center justify-between">
+                {label && <Label className="text-sm font-medium">{label}</Label>}
+                <Popover open={isCalcOpen} onOpenChange={(open) => {
+                    setIsCalcOpen(open);
+                    if (!open) clearCalc();
+                }}>
+                    <PopoverTrigger className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100/50 hover:bg-indigo-100 transition-colors cursor-pointer outline-none">
+                        <Calculator size={10} />
+                        Kalkulator
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-0 overflow-hidden shadow-2xl border-none ring-1 ring-black/5" align="end" sideOffset={8}>
+                        <div className="flex flex-col min-h-[420px] bg-white">
+                            {/* History Display */}
+                            <div className="bg-slate-50/80 p-4 h-24 overflow-y-auto flex flex-col justify-end gap-1 text-right border-b border-slate-100">
+                                {history.length === 0 && <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Riwayat Kosong</span>}
+                                {history.map((h, i) => (
+                                    <span key={i} className="text-[11px] font-mono text-slate-500">{h}</span>
+                                ))}
+                            </div>
+
+                            {/* Main Screen */}
+                            <div className="p-4 bg-white text-right">
+                                <div className="text-[10px] uppercase font-black tracking-widest text-indigo-400 mb-1">Total Saat Ini</div>
+                                <div className="text-3xl font-black text-indigo-600 font-mono break-all truncate">
+                                    {formatRupiah(parseFloat(currentVal))}
+                                </div>
+                            </div>
+
+                            {/* Keypad */}
+                            <div className="grid grid-cols-4 gap-1 p-4 bg-white flex-1">
+                                <Button type="button" variant="secondary" className="h-12 text-sm font-black rounded-xl bg-red-50 text-red-600 hover:bg-red-100 border-none" onClick={clearCalc}>C</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-sm font-black rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 border-none col-span-2" onClick={() => setCurrentVal(prev => prev.length > 1 ? prev.slice(0, -1) : '0')}>Hapus</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('/')}>÷</Button>
+                                
+                                {[7, 8, 9].map(n => (
+                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                                ))}
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('*')}>×</Button>
+                                
+                                {[4, 5, 6].map(n => (
+                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                                ))}
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('-')}>-</Button>
+                                
+                                {[1, 2, 3].map(n => (
+                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                                ))}
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('+')}>+</Button>
+                                
+                                <Button type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 col-span-2" onClick={() => handleDigit('0')}>0</Button>
+                                <Button type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => !currentVal.includes('.') && setCurrentVal(prev => prev + '.')}>.</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 border-none" onClick={handleEqual}>=</Button>
+                            </div>
+
+                            {/* Final Action */}
+                            <div className="p-4 bg-indigo-50/50 border-t border-indigo-100">
+                                <Button 
+                                    className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                                    onClick={applyCalc}
+                                >
+                                    <Check size={20} strokeWidth={3} className="mr-2" />
+                                    Terapkan {formatRupiah(parseFloat(currentVal))}
+                                </Button>
+                            </div>
+                        </div>
+                    </PopoverContent>
+                </Popover>
+            </div>
             <NumericFormat
                 {...inputProps}
                 getInputRef={ref}
@@ -53,7 +194,7 @@ export default function NumericInput({
                 displayType="input"
                 customInput={Input}
                 className={cn(
-                    "display-number text-lg font-semibold",
+                    "display-number text-lg font-semibold h-12",
                     error && "border-destructive focus-visible:ring-destructive",
                     className
                 )}

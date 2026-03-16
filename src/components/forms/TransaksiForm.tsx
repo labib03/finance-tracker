@@ -1,13 +1,13 @@
 'use client';
 
-import { useForm, Controller } from 'react-hook-form';
+import { useState, useEffect, useMemo } from 'react';
+import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
 import type { Transaksi } from '@/lib/types';
-import { getToday } from '@/lib/utils';
-import { X, Send, CalendarIcon } from 'lucide-react';
-import { useState, useEffect } from 'react';
+import { getToday, cn, formatRupiah } from '@/lib/utils';
+import { Send, CalendarIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
 import NumericInput from '@/components/forms/NumericInput';
 import { Button } from '@/components/ui/button';
 import {
@@ -18,14 +18,12 @@ import {
     DialogFooter,
 } from '@/components/ui/dialog';
 import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from '@/components/ui/select';
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
-import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -40,6 +38,10 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const addTransaksi = useFinanceStore((s) => s.addTransaksi);
     const updateTransaksi = useFinanceStore((s) => s.updateTransaksi);
+    const budgetList = useFinanceStore((s) => s.budgetList);
+    const transaksiList = useFinanceStore((s) => s.transaksiList);
+    const activeMonth = useFinanceStore((s) => s.activeMonth);
+
     const [activeJenis, setActiveJenis] = useState<'Pengeluaran' | 'Pemasukan'>(
         (transaksiToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran') as 'Pengeluaran' | 'Pemasukan'
     );
@@ -74,11 +76,54 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                 nominal: transaksiToEdit.nominal,
                 catatan: transaksiToEdit.catatan,
             });
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveJenis(transaksiToEdit.jenis as 'Pengeluaran' | 'Pemasukan');
         }
     }, [transaksiToEdit, reset]);
 
     const filteredKategori = kategoriList.filter((k) => k.tipe === activeJenis);
+
+    // Watch values for live highlights
+    const watchedNominal = useWatch({ control, name: 'nominal' }) || 0;
+    const watchedKategori = useWatch({ control, name: 'id_kategori' });
+    const watchedJenis = useWatch({ control, name: 'jenis' });
+
+    // Calculate budget impact
+    const budgetImpact = useMemo(() => {
+        if (watchedJenis !== 'Pengeluaran' || !watchedKategori) return null;
+
+        const budget = budgetList.find(b => 
+            b.id_kategori === watchedKategori && 
+            b.bulan === parseInt(activeMonth.split('-')[1]) &&
+            b.tahun === parseInt(activeMonth.split('-')[0])
+        );
+
+        if (!budget) return null;
+
+        // Calculate existing usage for this category
+        const currentUsage = transaksiList
+            .filter(t => 
+                t.id_kategori === watchedKategori && 
+                t.jenis === 'Pengeluaran' &&
+                (!transaksiToEdit || t.id !== transaksiToEdit.id)
+            )
+            .reduce((sum, t) => sum + t.nominal, 0);
+
+        const newUsage = currentUsage + watchedNominal;
+        const limit = budget.nominal_limit;
+        const currentPercent = (currentUsage / limit) * 100;
+        const newPercent = (newUsage / limit) * 100;
+
+        return {
+            limit,
+            currentUsage,
+            newUsage,
+            currentPercent,
+            newPercent,
+            kategoriName: kategoriList.find(k => k.id_kategori === watchedKategori)?.nama_kategori || '',
+            isOver: newUsage > limit
+        };
+    }, [watchedNominal, watchedKategori, watchedJenis, budgetList, transaksiList, activeMonth, transaksiToEdit, kategoriList]);
 
     const onSubmit = async (data: TransaksiFormData) => {
         if (transaksiToEdit) {
@@ -101,6 +146,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                     <DialogTitle>{transaksiToEdit ? 'Edit Transaksi' : 'Tambah Transaksi'}</DialogTitle>
                 </DialogHeader>
 
+                {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5 py-2">
                     {/* Jenis toggle */}
                     <div className="flex justify-center">
@@ -125,14 +171,44 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                     {/* Tanggal */}
                     <div className="space-y-2">
                         <Label htmlFor="tanggal">Tanggal</Label>
-                        <div className="relative">
-                            <Input
-                                id="tanggal"
-                                type="date"
-                                {...register('tanggal')}
-                                className={errors.tanggal ? 'border-destructive' : ''}
-                            />
-                        </div>
+                        <Controller
+                            name="tanggal"
+                            control={control}
+                            render={({ field }) => (
+                                <Popover>
+                                    <PopoverTrigger
+                                        className={cn(
+                                            "flex h-10 w-full items-center justify-start rounded-xl border border-input bg-transparent px-3 py-2 text-sm font-normal whitespace-nowrap transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                            !field.value && "text-muted-foreground",
+                                            errors.tanggal && "border-destructive"
+                                        )}
+                                    >
+                                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                                        <span className="display-number">
+                                            {field.value 
+                                                ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) 
+                                                : "Pilih tanggal"}
+                                        </span>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-auto p-0" align="start">
+                                        <Calendar
+                                            mode="single"
+                                            selected={field.value ? new Date(field.value) : undefined}
+                                            onSelect={(date) => {
+                                                if (date) {
+                                                    // Set to local YYYY-MM-DD
+                                                    const year = date.getFullYear();
+                                                    const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                    const day = String(date.getDate()).padStart(2, '0');
+                                                    field.onChange(`${year}-${month}-${day}`);
+                                                }
+                                            }}
+                                            initialFocus
+                                        />
+                                    </PopoverContent>
+                                </Popover>
+                            )}
+                        />
                         {errors.tanggal && (
                             <p className="text-xs font-medium text-destructive">{errors.tanggal.message}</p>
                         )}
@@ -207,6 +283,58 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                             rows={3}
                         />
                     </div>
+
+                    {/* Live Budget Impact highlight */}
+                    {budgetImpact && (
+                        <div className={cn(
+                            "p-4 rounded-2xl border animate-in fade-in slide-in-from-bottom-2 duration-300",
+                            budgetImpact.isOver 
+                                ? "bg-red-50 border-red-100 text-red-900" 
+                                : "bg-emerald-50 border-emerald-100 text-emerald-900"
+                        )}>
+                            <div className="flex items-start gap-3">
+                                {budgetImpact.isOver 
+                                    ? <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+                                    : <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
+                                }
+                                <div className="space-y-1.5 flex-1">
+                                    <h4 className="text-sm font-bold leading-none">
+                                        Impact Anggaran: {budgetImpact.kategoriName}
+                                    </h4>
+                                    <p className="text-xs opacity-80">
+                                        {budgetImpact.isOver 
+                                            ? `Waduh! Transaksi ini akan membuat anggaranmu melebih batas sebesar ${formatRupiah(budgetImpact.newUsage - budgetImpact.limit)}.`
+                                            : `Aman! Kamu masih punya sisa anggaran sebesar ${formatRupiah(budgetImpact.limit - budgetImpact.newUsage)} setelah transaksi ini.`
+                                        }
+                                    </p>
+                                    <div className="space-y-1 pt-1">
+                                        <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider opacity-60">
+                                            <span>Pemakaian</span>
+                                            <span>{Math.round(budgetImpact.newPercent)}%</span>
+                                        </div>
+                                        <div className="h-2 w-full bg-black/5 rounded-full overflow-hidden relative">
+                                            {/* Original usage */}
+                                            <div 
+                                                className="absolute inset-y-0 left-0 bg-black/10 transition-all duration-500"
+                                                style={{ width: `${Math.min(budgetImpact.currentPercent, 100)}%` }}
+                                            />
+                                            {/* New impact */}
+                                            <div 
+                                                className={cn(
+                                                    "absolute inset-y-0 transition-all duration-700",
+                                                    budgetImpact.isOver ? "bg-red-500" : "bg-emerald-500"
+                                                )}
+                                                style={{ 
+                                                    left: `${Math.min(budgetImpact.currentPercent, 100)}%`,
+                                                    width: `${Math.min(budgetImpact.newPercent - budgetImpact.currentPercent, 100 - budgetImpact.currentPercent)}%`
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     <DialogFooter>
                         <Button

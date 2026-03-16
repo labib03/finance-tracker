@@ -4,8 +4,8 @@ import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { recurringSchema, type RecurringFormData } from '@/lib/schemas';
-import { getToday } from '@/lib/utils';
-import { CalendarClock, Send } from 'lucide-react';
+import { getToday, cn } from '@/lib/utils';
+import { CalendarClock, CalendarIcon } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import type { RecurringTransaction } from '@/lib/types';
 import NumericInput from '@/components/forms/NumericInput';
@@ -17,6 +17,12 @@ import {
     DialogTitle,
     DialogFooter,
 } from '@/components/ui/dialog';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import {
     Select,
     SelectContent,
@@ -75,6 +81,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                 tanggal_mulai: recurringToEdit.tanggal_mulai,
                 catatan: recurringToEdit.catatan,
             });
+            // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveJenis(recurringToEdit.jenis as 'Pengeluaran' | 'Pemasukan');
         }
     }, [recurringToEdit, reset]);
@@ -217,12 +224,46 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="tanggal_mulai">Mulai</Label>
-                            <Input
-                                id="tanggal_mulai"
-                                type="date"
-                                {...register('tanggal_mulai')}
-                                className={errors.tanggal_mulai ? 'border-destructive' : ''}
+                            <Controller
+                                name="tanggal_mulai"
+                                control={control}
+                                render={({ field }) => (
+                                    <Popover>
+                                        <PopoverTrigger
+                                            className={cn(
+                                                "flex h-10 w-full items-center justify-start rounded-xl border border-input bg-transparent px-3 py-2 text-sm font-normal whitespace-nowrap transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                                !field.value && "text-muted-foreground",
+                                                errors.tanggal_mulai && "border-destructive"
+                                            )}
+                                        >
+                                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                                            <span className="display-number">
+                                                {field.value 
+                                                    ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) 
+                                                    : "Pilih tanggal"}
+                                            </span>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-auto p-0" align="start">
+                                            <Calendar
+                                                mode="single"
+                                                selected={field.value ? new Date(field.value) : undefined}
+                                                onSelect={(date) => {
+                                                    if (date) {
+                                                        const year = date.getFullYear();
+                                                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                        const day = String(date.getDate()).padStart(2, '0');
+                                                        field.onChange(`${year}-${month}-${day}`);
+                                                    }
+                                                }}
+                                                initialFocus
+                                            />
+                                        </PopoverContent>
+                                    </Popover>
+                                )}
                             />
+                            {errors.tanggal_mulai && (
+                                <p className="text-xs font-medium text-destructive">{errors.tanggal_mulai.message}</p>
+                            )}
                         </div>
                     </div>
 
