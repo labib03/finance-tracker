@@ -118,8 +118,8 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
 
     return (
         <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader className="mb-2">
                     <DialogTitle>{recurringToEdit ? 'Edit Jadwal Berulang' : 'Transaksi Berulang'}</DialogTitle>
                 </DialogHeader>
 
@@ -130,7 +130,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                     </p>
                 </div>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 py-2">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-2">
                     {/* Jenis toggle */}
                     <div className="flex justify-center">
                         <Tabs
@@ -242,19 +242,19 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                                     <Popover>
                                         <PopoverTrigger
                                             className={cn(
-                                                "flex h-10 w-full items-center justify-start rounded-xl border border-input bg-transparent px-3 py-2 text-sm font-normal whitespace-nowrap transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                                !field.value && "text-muted-foreground",
-                                                errors.tanggal_mulai && "border-destructive"
+                                                "flex h-11 w-full items-center justify-start rounded-2xl border border-input bg-muted/20 px-4 py-2 text-sm font-normal whitespace-nowrap transition-all outline-none focus:bg-background focus:ring-4 focus:ring-primary/10 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
+                                                !field.value && "text-muted-foreground/50",
+                                                errors.tanggal_mulai && "border-destructive focus:ring-destructive/10 focus:border-destructive"
                                             )}
                                         >
-                                            <CalendarIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                                            <span className="display-number">
+                                            <CalendarIcon className="mr-3 h-4 w-4 shrink-0 opacity-40" />
+                                            <span className="display-number text-base font-bold">
                                                 {field.value 
                                                     ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) 
                                                     : "Pilih tanggal"}
                                             </span>
                                         </PopoverTrigger>
-                                        <PopoverContent className="w-auto p-0" align="start">
+                                        <PopoverContent className="w-auto p-0 rounded-[2rem] shadow-2xl border-none ring-1 ring-black/5" align="start" sideOffset={8}>
                                             <Calendar
                                                 mode="single"
                                                 selected={field.value ? new Date(field.value) : undefined}
@@ -286,8 +286,8 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                             placeholder="Contoh: Tagihan Internet, Sewa Rumah, dll."
                             {...register('label')}
                             className={cn(
-                                "h-11 rounded-xl whitespace-nowrap",
-                                errors.label && "border-destructive"
+                                "whitespace-nowrap",
+                                errors.label && "border-destructive focus:ring-destructive/10"
                             )}
                         />
                         {errors.label && (
@@ -302,7 +302,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                             id="catatan"
                             placeholder="Tambah detail atau catatan tambahan..."
                             {...register('catatan')}
-                            className="h-11 rounded-xl whitespace-nowrap"
+                            className="whitespace-nowrap"
                         />
                     </div>
 
@@ -310,9 +310,9 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full rounded-xl"
+                            className="w-full"
                         >
-                            <CalendarClock size={16} className="mr-2" />
+                            <CalendarClock size={18} className="mr-2" />
                             {isSubmitting ? 'Menyimpan...' : (recurringToEdit ? 'Simpan Perubahan' : 'Buat Jadwal')}
                         </Button>
                     </DialogFooter>

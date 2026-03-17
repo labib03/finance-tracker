@@ -7,7 +7,7 @@ import { useFinanceStore } from '@/lib/store';
 import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
 import type { Transaksi } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
-import { Send, CalendarIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Save, CalendarIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
 import NumericInput from '@/components/forms/NumericInput';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -95,8 +95,8 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     const budgetImpact = useMemo(() => {
         if (watchedJenis !== 'Pengeluaran' || !watchedKategori) return null;
 
-        const budget = budgetList.find(b => 
-            b.id_kategori === watchedKategori && 
+        const budget = budgetList.find(b =>
+            b.id_kategori === watchedKategori &&
             b.bulan === parseInt(activeMonth.split('-')[1]) &&
             b.tahun === parseInt(activeMonth.split('-')[0])
         );
@@ -105,8 +105,8 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
 
         // Calculate existing usage for this category
         const currentUsage = transaksiList
-            .filter(t => 
-                t.id_kategori === watchedKategori && 
+            .filter(t =>
+                t.id_kategori === watchedKategori &&
                 t.jenis === 'Pengeluaran' &&
                 (!transaksiToEdit || t.id !== transaksiToEdit.id)
             )
@@ -144,13 +144,13 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
 
     return (
         <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader className="mb-2">
                     <DialogTitle>{transaksiToEdit ? 'Edit Transaksi' : 'Tambah Transaksi'}</DialogTitle>
                 </DialogHeader>
 
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
-                <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-5 py-2">
+                <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6 pt-2">
                     {/* Jenis toggle */}
                     <div className="flex justify-center">
                         <Tabs
@@ -181,19 +181,19 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                                 <Popover>
                                     <PopoverTrigger
                                         className={cn(
-                                            "flex h-10 w-full items-center justify-start rounded-xl border border-input bg-transparent px-3 py-2 text-sm font-normal whitespace-nowrap transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                            !field.value && "text-muted-foreground",
-                                            errors.tanggal && "border-destructive"
+                                            "flex h-11 w-full items-center justify-start rounded-2xl border border-input bg-muted/20 px-4 py-2 text-sm font-normal whitespace-nowrap transition-all outline-none focus:bg-background focus:ring-4 focus:ring-primary/10 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
+                                            !field.value && "text-muted-foreground/50",
+                                            errors.tanggal && "border-destructive focus:ring-destructive/10 focus:border-destructive"
                                         )}
                                     >
-                                        <CalendarIcon className="mr-2 h-4 w-4 shrink-0 opacity-50" />
-                                        <span className="display-number">
-                                            {field.value 
-                                                ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) 
+                                        <CalendarIcon className="mr-3 h-4 w-4 shrink-0 opacity-40" />
+                                        <span className="display-number text-base font-bold">
+                                            {field.value
+                                                ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
                                                 : "Pilih tanggal"}
                                         </span>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <PopoverContent className="w-auto p-0 rounded-[1rem] shadow-2xl border-none ring-1 ring-black/5" align="start" sideOffset={8}>
                                         <Calendar
                                             mode="single"
                                             selected={field.value ? new Date(field.value) : undefined}
@@ -308,12 +308,12 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                     {budgetImpact && (
                         <div className={cn(
                             "p-4 rounded-2xl border animate-in fade-in slide-in-from-bottom-2 duration-300",
-                            budgetImpact.isOver 
-                                ? "bg-red-50 border-red-100 text-red-900" 
+                            budgetImpact.isOver
+                                ? "bg-red-50 border-red-100 text-red-900"
                                 : "bg-emerald-50 border-emerald-100 text-emerald-900"
                         )}>
                             <div className="flex items-start gap-3">
-                                {budgetImpact.isOver 
+                                {budgetImpact.isOver
                                     ? <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
                                     : <CheckCircle2 className="w-5 h-5 text-emerald-600 mt-0.5" />
                                 }
@@ -322,7 +322,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                                         Impact Anggaran: {budgetImpact.kategoriName}
                                     </h4>
                                     <p className="text-xs opacity-80">
-                                        {budgetImpact.isOver 
+                                        {budgetImpact.isOver
                                             ? `Waduh! Transaksi ini akan membuat anggaranmu melebih batas sebesar ${formatRupiah(budgetImpact.newUsage - budgetImpact.limit)}.`
                                             : `Aman! Kamu masih punya sisa anggaran sebesar ${formatRupiah(budgetImpact.limit - budgetImpact.newUsage)} setelah transaksi ini.`
                                         }
@@ -334,17 +334,17 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                                         </div>
                                         <div className="h-2 w-full bg-black/5 rounded-full overflow-hidden relative">
                                             {/* Original usage */}
-                                            <div 
+                                            <div
                                                 className="absolute inset-y-0 left-0 bg-black/10 transition-all duration-500"
                                                 style={{ width: `${Math.min(budgetImpact.currentPercent, 100)}%` }}
                                             />
                                             {/* New impact */}
-                                            <div 
+                                            <div
                                                 className={cn(
                                                     "absolute inset-y-0 transition-all duration-700",
                                                     budgetImpact.isOver ? "bg-red-500" : "bg-emerald-500"
                                                 )}
-                                                style={{ 
+                                                style={{
                                                     left: `${Math.min(budgetImpact.currentPercent, 100)}%`,
                                                     width: `${Math.min(budgetImpact.newPercent - budgetImpact.currentPercent, 100 - budgetImpact.currentPercent)}%`
                                                 }}
@@ -360,10 +360,10 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full rounded-xl"
+                            className="w-full"
                         >
-                            <Send size={16} className="mr-2" />
-                            {isSubmitting ? 'Menyimpan...' : 'Simpan Transaksi'}
+                            <Save size={18} className="mr-2" />
+                            {isSubmitting ? 'Menyimpan...' : (transaksiToEdit ? 'Simpan Perubahan' : 'Tambah Transaksi')}
                         </Button>
                     </DialogFooter>
                 </form>

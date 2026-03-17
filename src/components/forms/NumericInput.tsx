@@ -120,11 +120,11 @@ export default function NumericInput({
                         <Calculator size={10} />
                         Kalkulator
                     </PopoverTrigger>
-                    <PopoverContent className="w-80 p-0 overflow-hidden shadow-2xl border-none ring-1 ring-black/5" align="end" sideOffset={8}>
+                    <PopoverContent className="w-80 p-0 overflow-hidden shadow-2xl border-none ring-1 ring-black/5 rounded-[1.25rem] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40" align="end" sideOffset={12}>
                         <div className="flex flex-col min-h-[420px] bg-white">
                             {/* History Display */}
-                            <div className="bg-slate-50/80 p-4 h-24 overflow-y-auto flex flex-col justify-end gap-1 text-right border-b border-slate-100">
-                                {history.length === 0 && <span className="text-[10px] text-slate-400 font-bold uppercase tracking-tighter">Riwayat Kosong</span>}
+                            <div className="bg-slate-50/80 p-6 h-28 overflow-y-auto flex flex-col justify-end gap-1 text-right border-b border-slate-100">
+                                {history.length === 0 && <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Riwayat Kosong</span>}
                                 {history.map((h, i) => (
                                     <span key={i} className="text-[11px] font-mono text-slate-500">{h}</span>
                                 ))}
@@ -139,35 +139,35 @@ export default function NumericInput({
                             </div>
 
                             {/* Keypad */}
-                            <div className="grid grid-cols-4 gap-1 p-4 bg-white flex-1">
-                                <Button type="button" variant="secondary" className="h-12 text-sm font-black rounded-xl bg-red-50 text-red-600 hover:bg-red-100 border-none" onClick={clearCalc}>C</Button>
-                                <Button type="button" variant="secondary" className="h-12 text-sm font-black rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 border-none col-span-2" onClick={() => setCurrentVal(prev => prev.length > 1 ? prev.slice(0, -1) : '0')}>Hapus</Button>
-                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('/')}>÷</Button>
+                            <div className="grid grid-cols-4 gap-2.5 p-6 bg-white flex-1">
+                                <Button type="button" variant="secondary" className="h-12 text-sm font-black rounded-xl bg-red-50 text-red-600 hover:bg-red-100 border-none shadow-none" onClick={clearCalc}>C</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-sm font-black rounded-xl bg-slate-100 text-slate-600 hover:bg-slate-200 border-none col-span-2 shadow-none" onClick={() => setCurrentVal(prev => prev.length > 1 ? prev.slice(0, -1) : '0')}>Hapus</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none shadow-none" onClick={() => handleOperator('/')}>÷</Button>
                                 
                                 {[7, 8, 9].map(n => (
-                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 border-none shadow-none" onClick={() => handleDigit(n.toString())}>{n}</Button>
                                 ))}
-                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('*')}>×</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none shadow-none" onClick={() => handleOperator('*')}>×</Button>
                                 
                                 {[4, 5, 6].map(n => (
-                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 border-none shadow-none" onClick={() => handleDigit(n.toString())}>{n}</Button>
                                 ))}
-                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('-')}>-</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none shadow-none" onClick={() => handleOperator('-')}>-</Button>
                                 
                                 {[1, 2, 3].map(n => (
-                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                                    <Button key={n} type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 border-none shadow-none" onClick={() => handleDigit(n.toString())}>{n}</Button>
                                 ))}
-                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none" onClick={() => handleOperator('+')}>+</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-orange-50 text-orange-600 hover:bg-orange-100 border-none shadow-none" onClick={() => handleOperator('+')}>+</Button>
                                 
-                                <Button type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 col-span-2" onClick={() => handleDigit('0')}>0</Button>
-                                <Button type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50" onClick={() => !currentVal.includes('.') && setCurrentVal(prev => prev + '.')}>.</Button>
-                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 border-none" onClick={handleEqual}>=</Button>
+                                <Button type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 col-span-2 border-none shadow-none" onClick={() => handleDigit('0')}>0</Button>
+                                <Button type="button" variant="ghost" className="h-12 text-lg font-bold rounded-xl hover:bg-slate-50 border-none shadow-none" onClick={() => !currentVal.includes('.') && setCurrentVal(prev => prev + '.')}>.</Button>
+                                <Button type="button" variant="secondary" className="h-12 text-lg font-black rounded-xl bg-primary text-white hover:bg-primary/90 border-none shadow-lg shadow-primary/20" onClick={handleEqual}>=</Button>
                             </div>
 
                             {/* Final Action */}
                             <div className="p-4 bg-indigo-50/50 border-t border-indigo-100">
                                 <Button 
-                                    className="w-full h-12 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-bold shadow-lg shadow-indigo-100 transition-all active:scale-95"
+                                    className="w-full h-12 bg-primary hover:bg-primary/90 text-white rounded-[1.25rem] font-bold shadow-lg shadow-primary/20 transition-all active:scale-95"
                                     onClick={applyCalc}
                                 >
                                     <Check size={20} strokeWidth={3} className="mr-2" />
@@ -194,8 +194,8 @@ export default function NumericInput({
                 displayType="input"
                 customInput={Input}
                 className={cn(
-                    "display-number text-lg font-semibold h-12",
-                    error && "border-destructive focus-visible:ring-destructive",
+                    "display-number text-2xl font-black h-14 bg-muted/20 border-border/50 rounded-xl px-5 transition-all focus:bg-background focus:ring-4 focus:ring-primary/10 self-center",
+                    error && "border-destructive focus:ring-destructive/10",
                     className
                 )}
             />

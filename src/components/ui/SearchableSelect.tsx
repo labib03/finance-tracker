@@ -57,7 +57,7 @@ export function SearchableSelect({
         );
     }, [options, search]);
 
-    const selectedOption = React.useMemo(() => 
+    const selectedOption = React.useMemo(() =>
         options.find((option) => option.value === value),
         [options, value]
     );
@@ -67,41 +67,43 @@ export function SearchableSelect({
             <PopoverTrigger
                 type="button"
                 className={cn(
-                    "flex h-10 w-full items-center justify-between rounded-lg border border-input bg-transparent px-3 py-2 text-sm whitespace-nowrap transition-colors outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                    !value && "text-muted-foreground",
-                    error && "border-destructive",
+                    "flex h-11 w-full items-center justify-between rounded-xl border border-input bg-muted/20 px-4 py-2 text-sm whitespace-nowrap transition-all outline-none focus:bg-background focus:ring-4 focus:ring-primary/10 focus:border-primary disabled:cursor-not-allowed disabled:opacity-50",
+                    !value && "text-muted-foreground/50",
+                    error && "border-destructive focus:ring-destructive/10 focus:border-destructive",
                     className
                 )}
             >
                 <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
                 <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </PopoverTrigger>
-            <PopoverContent 
-                className="w-(--anchor-width) p-0 overflow-hidden bg-popover border shadow-md" 
+            <PopoverContent
+                className="w-(--anchor-width) p-0 overflow-hidden bg-popover/95 backdrop-blur-sm border shadow-2xl rounded-[0.8rem] scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40"
                 align="start"
-                sideOffset={4}
+                sideOffset={8}
             >
-                <div className="flex items-center border-b px-3 h-10 sticky top-0 bg-popover z-10">
-                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-50" />
+                <div className="flex items-center border-b px-4 h-12 sticky top-0 bg-popover z-10">
+                    <Search className="mr-2 h-4 w-4 shrink-0 opacity-40" />
                     <input
                         ref={inputRef}
-                        className="flex h-full w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50"
+                        className="flex h-full w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground/50 disabled:cursor-not-allowed disabled:opacity-50"
                         placeholder={searchPlaceholder}
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <div className="max-h-[250px] overflow-y-auto p-1">
+                <div className="flex flex-col gap-1 px-1 py-1.5 max-h-[300px] overflow-y-auto scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/20 hover:scrollbar-thumb-muted-foreground/40">
                     {filteredOptions.length === 0 ? (
-                        <div className="py-6 text-center text-sm text-muted-foreground">{emptyMessage}</div>
+                        <div className="py-6 text-center text-sm text-muted-foreground">
+                            Tidak ada data ditemukan
+                        </div>
                     ) : (
                         filteredOptions.map((option) => (
                             <button
                                 key={option.value}
                                 type="button"
                                 className={cn(
-                                    "relative flex w-full cursor-default select-none items-center rounded-md px-2 py-2 text-sm outline-none hover:bg-accent hover:text-accent-foreground transition-colors text-left",
-                                    value === option.value && "bg-accent text-accent-foreground"
+                                    "relative flex w-full cursor-default select-none items-center rounded-lg px-3 py-1.5 text-sm outline-none hover:bg-primary/5 hover:text-primary transition-all text-left group",
+                                    value === option.value && "bg-primary/5 text-primary font-bold"
                                 )}
                                 onClick={(e) => {
                                     e.preventDefault();

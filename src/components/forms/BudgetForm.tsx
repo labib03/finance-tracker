@@ -119,8 +119,8 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
 
     return (
         <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader className="mb-2">
                     <DialogTitle>
                         {budgetToEdit
                             ? `Edit Anggaran ${NAMA_BULAN.find(b => Number(b.value) === budgetToEdit.bulan)?.label} ${budgetToEdit.tahun}`
@@ -128,7 +128,7 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                     </DialogTitle>
                 </DialogHeader>
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 py-2">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-2">
                     {/* Kategori */}
                     <div className="space-y-2">
                         <Label htmlFor="kategori">Kategori Pengeluaran</Label>
@@ -215,16 +215,10 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700"
+                            className="w-full"
                         >
-                            {isSubmitting ? (
-                                'Menyimpan...'
-                            ) : (
-                                <>
-                                    <PieChart size={16} className="mr-2" />
-                                    Simpan Anggaran
-                                </>
-                            )}
+                            <PieChart size={18} className="mr-2" />
+                            {isSubmitting ? 'Menyimpan...' : 'Simpan Anggaran'}
                         </Button>
                     </DialogFooter>
                 </form>
