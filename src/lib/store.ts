@@ -48,6 +48,7 @@ interface FinanceState {
   activeMonth: string;
   activeModal: string | null;
   cycleStartDay: number;
+  isSidebarCollapsed: boolean;
 
   // Actions - Data Fetching
   initialize: () => Promise<void>;
@@ -97,6 +98,7 @@ interface FinanceState {
   // Actions - UI
   setActiveModal: (modal: string | null) => void;
   setCycleStartDay: (day: number) => void;
+  setSidebarCollapsed: (collapsed: boolean) => void;
 }
 
 // ---------- Create Store ----------
@@ -112,22 +114,28 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   cycleStartDay: 25, // Default
   activeMonth: "", 
   activeModal: null,
+  isSidebarCollapsed: false,
 
   // ======================== Data Fetching ========================
 
   initialize: async () => {
     if (get().isInitialized) return;
 
-    // Load cycle start day from local storage
+    // Load cycle start day and sidebar state from local storage
     let savedDay = 25;
+    let savedCollapsed = false;
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('cycle_start_day');
       if (stored) savedDay = parseInt(stored);
+      
+      const storedCollapsed = localStorage.getItem('sidebar_collapsed');
+      if (storedCollapsed) savedCollapsed = storedCollapsed === 'true';
     }
-
+ 
     set({ 
       isLoading: true, 
       cycleStartDay: savedDay,
+      isSidebarCollapsed: savedCollapsed,
       activeMonth: getCurrentMonth(savedDay)
     });
     try {
@@ -649,6 +657,13 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     });
     if (typeof window !== 'undefined') {
       localStorage.setItem('cycle_start_day', day.toString());
+    }
+  },
+ 
+  setSidebarCollapsed: (collapsed) => {
+    set({ isSidebarCollapsed: collapsed });
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('sidebar_collapsed', collapsed.toString());
     }
   },
 }));

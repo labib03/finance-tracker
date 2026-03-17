@@ -51,6 +51,7 @@ export default function HomePage() {
   const activeModal = useFinanceStore((s) => s.activeModal);
   const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const refreshData = useFinanceStore((s) => s.refreshData);
+  const isSidebarCollapsed = useFinanceStore((s) => s.isSidebarCollapsed);
 
   const [activeView, setActiveView] = useState('dashboard');
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -93,7 +94,10 @@ export default function HomePage() {
 
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
 
-      <div className="flex-1 lg:ml-[320px] w-full min-w-0 flex flex-col relative z-10 transition-all duration-300">
+      <div className={cn(
+          "flex-1 w-full min-w-0 flex flex-col relative z-10 transition-[margin] duration-300 ease-out will-change-[margin] transform-gpu",
+          isSidebarCollapsed ? "lg:ml-[76px]" : "lg:ml-[320px]"
+      )}>
         <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10 pt-20 lg:pt-8">
           <div className="mx-auto w-full max-w-[2000px]">
             {/* Premium Header Bar */}

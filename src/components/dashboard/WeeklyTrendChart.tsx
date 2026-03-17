@@ -47,7 +47,7 @@ export default function WeeklyTrendChart() {
     }
 
     return (
-        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float">
+        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float transform-gpu backface-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-8 px-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-emerald-50 text-emerald-600 rounded-lg">
@@ -73,7 +73,7 @@ export default function WeeklyTrendChart() {
             </CardHeader>
 
             <CardContent className="px-8 pb-8 pt-4">
-                <div className="h-[280px] w-full mt-4">
+                <div className="h-[280px] w-full mt-4 contain-layout">
                     <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={data} barGap={8} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
                             <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--muted))" opacity={0.3} />

@@ -151,6 +151,16 @@ body {
   letter-spacing: -0.02em;
 }
 
+/* Hide scrollbar utility */
+.scrollbar-none {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Safari and Chrome */
+}
+
 /* ===============================
    BUTTONS
 =============================== */
