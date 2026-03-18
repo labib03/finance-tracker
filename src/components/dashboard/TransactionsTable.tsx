@@ -4,8 +4,6 @@ import { useMemo, useEffect, useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, formatTanggal, formatTanggalPendek, isInCustomMonth } from '@/lib/utils';
 import {
-    ArrowUpRight,
-    ArrowDownRight,
     ArrowLeftRight,
     ArrowRight,
     Trash2,
@@ -13,12 +11,14 @@ import {
     Eye,
     ChevronLeft,
     ChevronRight,
+    CalendarIcon,
 } from 'lucide-react';
 import type { Transaksi } from '@/lib/types';
 import { CategoryIcon } from '@/components/CategoryIcon';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { TransactionDetailDialog } from './TransactionDetailDialog';
 import { Input } from '@/components/ui/input';
+import TransactionFilters from './TransactionFilters';
 import { Search, Filter, X } from 'lucide-react';
 import {
     Select,
@@ -29,6 +29,12 @@ import {
 } from '@/components/ui/select';
 import { SearchableSelect } from '@/components/ui/SearchableSelect';
 import { Button } from '@/components/ui/button';
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import {
     Table,
     TableBody,
@@ -81,6 +87,8 @@ export default function TransactionsTable({
     const [search, setSearch] = useState('');
     const [typeFilter, setTypeFilter] = useState<string>('all');
     const [categoryFilter, setCategoryFilter] = useState<string>(preselectedCategory || 'all');
+    const [accountFilter, setAccountFilter] = useState<string>('all');
+    const [dateFilter, setDateFilter] = useState<string>('all');
     const [selectedDetail, setSelectedDetail] = useState<Transaksi | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -110,11 +118,23 @@ export default function TransactionsTable({
         // Search filter (label & catatan)
         if (search) {
             const lowSearch = search.toLowerCase();
-            list = list.filter(t =>
-                (t.label?.toLowerCase().includes(lowSearch)) ||
-                (t.catatan?.toLowerCase().includes(lowSearch)) ||
-                (kategoriList.find(k => k.id_kategori === t.id_kategori)?.nama_kategori.toLowerCase().includes(lowSearch))
-            );
+            list = list.filter(t => {
+                const searchStr = t.label?.toLowerCase() || '';
+                const catatanStr = t.catatan?.toLowerCase() || '';
+                const kategoriStr = (kategoriList.find(k => k.id_kategori === t.id_kategori)?.nama_kategori || '').toLowerCase();
+                
+                let transferStr = '';
+                if (t.jenis === 'Transfer') {
+                    const sourceName = sumberDanaList.find(s => s.id_sumber_dana === t.id_sumber_dana)?.nama_sumber || '';
+                    const targetName = t.id_target_dana ? (sumberDanaList.find(s => s.id_sumber_dana === t.id_target_dana)?.nama_sumber || '') : '';
+                    transferStr = `${sourceName} ke ${targetName} transfer saldo`.toLowerCase();
+                }
+
+                return searchStr.includes(lowSearch) || 
+                       catatanStr.includes(lowSearch) || 
+                       kategoriStr.includes(lowSearch) ||
+                       transferStr.includes(lowSearch);
+            });
         }
 
         // Type filter
@@ -127,16 +147,26 @@ export default function TransactionsTable({
             list = list.filter(t => t.id_kategori === categoryFilter);
         }
 
+        // Account filter
+        if (accountFilter !== 'all') {
+            list = list.filter(t => t.id_sumber_dana === accountFilter || (t.jenis === 'Transfer' && t.id_target_dana === accountFilter));
+        }
+
+        // Date filter
+        if (dateFilter !== 'all') {
+            list = list.filter(t => t.tanggal === dateFilter);
+        }
+
         if (limit) {
             list = list.slice(0, limit);
         }
         return list;
-    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, kategoriList]);
+    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, accountFilter, dateFilter, kategoriList, cycleStartDay]);
 
     // Reset pagination when filters change
     useEffect(() => {
         setCurrentPage(1);
-    }, [search, typeFilter, categoryFilter, activeMonth]);
+    }, [search, typeFilter, categoryFilter, accountFilter, dateFilter, activeMonth]);
 
     const totalPages = Math.ceil(filteredTransaksi.length / itemsPerPage);
     const paginatedTransaksi = useMemo(() => {
@@ -157,67 +187,32 @@ export default function TransactionsTable({
             !hideHeader && "shadow-scandi hover:shadow-float"
         )}>
             {!hideHeader && (
-                <CardHeader className="px-8 py-8">
-                    <div className="flex flex-col gap-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <CardTitle className="text-sm font-black uppercase tracking-widest">{title}</CardTitle>
-                                {description && <CardDescription className="text-xs font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
-                            </div>
+                <CardHeader className={cn("px-8 pt-8", showSearch ? "pb-6 border-b border-border/10" : "pb-8")}>
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <CardTitle className="text-sm font-black uppercase tracking-widest">{title}</CardTitle>
+                            {description && <CardDescription className="text-xs font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
                         </div>
-
-                        {showSearch && (
-                            <div className="flex flex-wrap items-center gap-3">
-                                <div className="relative flex-1 min-w-[240px]">
-                                    <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/80" size={14} />
-                                    <Input
-                                        placeholder="Cari catatan atau kategori..."
-                                        className="pl-10 h-11 text-xs font-medium rounded-2xl bg-muted/20 border-transparent transition-all focus:bg-white focus:border-border/40 focus:ring-0"
-                                        value={search}
-                                        onChange={(e) => setSearch(e.target.value)}
-                                    />
-                                    {search && (
-                                        <button
-                                            type="button"
-                                            onClick={() => setSearch('')}
-                                            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
-                                        >
-                                            <X size={14} />
-                                        </button>
-                                    )}
-                                </div>
-
-                                <div className="flex items-center gap-3">
-                                    <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || 'all')} modal={false}>
-                                        <SelectTrigger type="button" className="h-11 min-w-[130px] text-xs font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all">
-                                            <SelectValue placeholder="Semua Tipe" />
-                                        </SelectTrigger>
-                                        <SelectContent className="rounded-2xl border-border/40 shadow-float overflow-hidden">
-                                            <SelectItem value="all" className="text-xs font-black uppercase tracking-widest">Semua Tipe</SelectItem>
-                                            <SelectItem value="Pengeluaran" className="text-xs font-black uppercase tracking-widest text-orange-600">Pengeluaran</SelectItem>
-                                            <SelectItem value="Pemasukan" className="text-xs font-black uppercase tracking-widest text-emerald-600">Pemasukan</SelectItem>
-                                            <SelectItem value="Transfer" className="text-xs font-black uppercase tracking-widest text-indigo-600">Transfer</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-
-                                    <SearchableSelect
-                                        options={[
-                                            { value: 'all', label: 'SEMUA KATEGORI' },
-                                            ...kategoriList.map(k => ({
-                                                value: k.id_kategori,
-                                                label: k.nama_kategori.toUpperCase()
-                                            }))
-                                        ]}
-                                        value={categoryFilter}
-                                        onValueChange={(val) => setCategoryFilter(val || 'all')}
-                                        placeholder="PILIH KATEGORI"
-                                        className="h-11 min-w-[180px] text-xs font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all"
-                                    />
-                                </div>
-                            </div>
-                        )}
                     </div>
                 </CardHeader>
+            )}
+
+            {showSearch && (
+                <TransactionFilters 
+                    filterMode={filterType === 'Transfer' ? 'transfer' : 'all'}
+                    search={search}
+                    setSearch={setSearch}
+                    typeFilter={typeFilter}
+                    setTypeFilter={setTypeFilter}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={setCategoryFilter}
+                    accountFilter={accountFilter}
+                    setAccountFilter={setAccountFilter}
+                    dateFilter={dateFilter}
+                    setDateFilter={setDateFilter}
+                    kategoriList={kategoriList}
+                    sumberDanaList={sumberDanaList}
+                />
             )}
             <CardContent className="p-0">
                 <Table>
@@ -251,6 +246,8 @@ export default function TransactionsTable({
                                                     setSearch('');
                                                     setTypeFilter('all');
                                                     setCategoryFilter('all');
+                                                    setAccountFilter('all');
+                                                    setDateFilter('all');
                                                 }}
                                             >
                                                 Bersihkan semua filter
