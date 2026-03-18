@@ -49,11 +49,15 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
         recurringToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran'
     );
 
+    const [multiplier, setMultiplier] = useState(1);
+    const [baseFreq, setBaseFreq] = useState<'Harian' | 'Mingguan' | 'Bulanan' | 'Tahunan' | 'Lainnya'>('Bulanan');
+
     const {
         register,
         control,
         handleSubmit,
         setValue,
+        watch,
         reset,
         formState: { errors, isSubmitting },
     } = useForm<RecurringFormData>({
@@ -85,8 +89,47 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
             });
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveJenis(recurringToEdit.jenis as 'Pengeluaran' | 'Pemasukan');
+
+            // Parse existing frequency
+            const freq = recurringToEdit.frekuensi;
+            const parts = freq.split(' ');
+            if (parts.length === 2) {
+                const mult = parseInt(parts[0]);
+                const unit = parts[1];
+                setMultiplier(mult);
+                if (unit.includes('Hari')) setBaseFreq('Harian');
+                else if (unit.includes('Minggu')) setBaseFreq('Mingguan');
+                else if (unit.includes('Bulan')) setBaseFreq('Bulanan');
+                else if (unit.includes('Tahun')) setBaseFreq('Tahunan');
+                else setBaseFreq('Lainnya');
+            } else {
+                // Legacy formats
+                if (freq === 'Harian') { setBaseFreq('Harian'); setMultiplier(1); }
+                else if (freq === 'Mingguan') { setBaseFreq('Mingguan'); setMultiplier(1); }
+                else if (freq === 'Bulanan') { setBaseFreq('Bulanan'); setMultiplier(1); }
+                else if (freq === 'Tahunan') { setBaseFreq('Tahunan'); setMultiplier(1); }
+                else if (freq === '3 Bulan') { setBaseFreq('Bulanan'); setMultiplier(3); }
+                else if (freq === '6 Bulan') { setBaseFreq('Bulanan'); setMultiplier(6); }
+                else { setBaseFreq('Lainnya'); setMultiplier(1); }
+            }
         }
     }, [recurringToEdit, reset]);
+
+    const freqValue = watch('frekuensi');
+
+    // Update frekuensi whenever multiplier or baseFreq changes
+    useEffect(() => {
+        let fullFreq = '';
+        const unit = baseFreq === 'Harian' ? 'Hari' : 
+                     baseFreq === 'Mingguan' ? 'Minggu' : 
+                     baseFreq === 'Bulanan' ? 'Bulan' : 
+                     baseFreq === 'Tahunan' ? 'Tahun' : '';
+        
+        if (unit) {
+            fullFreq = `${multiplier} ${unit}`;
+            setValue('frekuensi', fullFreq);
+        }
+    }, [multiplier, baseFreq, setValue]);
 
     const filteredKategori = kategoriList.filter((k) => k.tipe === activeJenis);
 
@@ -211,27 +254,51 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
 
                     {/* Frekuensi & Tanggal Mulai Grid */}
                     <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                            <Label htmlFor="frekuensi">Frekuensi</Label>
-                            <Controller
-                                name="frekuensi"
-                                control={control}
-                                render={({ field }) => (
-                                    <Select onValueChange={field.onChange} value={field.value}>
-                                        <SelectTrigger>
-                                            <SelectValue />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="Harian">Harian</SelectItem>
-                                            <SelectItem value="Mingguan">Mingguan</SelectItem>
-                                            <SelectItem value="Bulanan">Setiap Bulan</SelectItem>
-                                            <SelectItem value="3 Bulan">3 Bulan (Kuartal)</SelectItem>
-                                            <SelectItem value="6 Bulan">6 Bulan (Semester)</SelectItem>
-                                            <SelectItem value="Tahunan">Tahunan</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
+                        <div className="space-y-4">
+                            <div className="space-y-2">
+                                <Label htmlFor="frekuensi">Periode</Label>
+                                <Select 
+                                    onValueChange={(val: any) => setBaseFreq(val)} 
+                                    value={baseFreq}
+                                >
+                                    <SelectTrigger className="h-11 rounded-2xl bg-muted/20 border-transparent">
+                                        <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent className="rounded-2xl border-border/40 shadow-float">
+                                        <SelectItem value="Harian">Harian</SelectItem>
+                                        <SelectItem value="Mingguan">Mingguan</SelectItem>
+                                        <SelectItem value="Bulanan">Bulanan</SelectItem>
+                                        <SelectItem value="Tahunan">Tahunan</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
+                                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                                    Setiap berapa {baseFreq === 'Harian' ? 'hari' : 
+                                                   baseFreq === 'Mingguan' ? 'minggu' : 
+                                                   baseFreq === 'Bulanan' ? 'bulan' : 
+                                                   baseFreq === 'Tahunan' ? 'tahun' : ''}?
+                                </Label>
+                                <div className="flex items-center gap-3">
+                                    <Input
+                                        type="number"
+                                        min={1}
+                                        value={multiplier}
+                                        onChange={(e) => setMultiplier(Math.max(1, parseInt(e.target.value) || 1))}
+                                        className="h-11 rounded-2xl bg-muted/20 border-transparent text-center font-bold"
+                                    />
+                                    <span className="text-xs font-black uppercase tracking-widest text-foreground/60 shrink-0">
+                                        {baseFreq === 'Harian' ? 'Hari' : 
+                                         baseFreq === 'Mingguan' ? 'Minggu' : 
+                                         baseFreq === 'Bulanan' ? 'Bulan' : 
+                                         baseFreq === 'Tahunan' ? 'Tahun' : ''}
+                                    </span>
+                                </div>
+                                <p className="text-[10px] font-bold text-indigo-600/60 uppercase tracking-tighter">
+                                    Terjadwal otomatis setiap {multiplier} {baseFreq.toLowerCase()}
+                                </p>
+                            </div>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="tanggal_mulai">Mulai</Label>

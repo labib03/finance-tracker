@@ -489,6 +489,33 @@ export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {
   const date = new Date(tanggal);
   if (isNaN(date.getTime())) return "";
 
+  // Handle custom format: "5 Bulan", "2 Minggu", "3 Hari", "1 Tahunan"
+  const parts = frekuensi.split(' ');
+  if (parts.length === 2) {
+    const num = parseInt(parts[0]);
+    const unit = parts[1];
+
+    if (!isNaN(num)) {
+      if (unit.includes("Hari")) {
+        date.setDate(date.getDate() + num);
+        return date.toISOString().split("T")[0];
+      }
+      if (unit.includes("Minggu")) {
+        date.setDate(date.getDate() + (num * 7));
+        return date.toISOString().split("T")[0];
+      }
+      if (unit.includes("Bulan")) {
+        date.setMonth(date.getMonth() + num);
+        return date.toISOString().split("T")[0];
+      }
+      if (unit.includes("Tahun")) {
+        date.setFullYear(date.getFullYear() + num);
+        return date.toISOString().split("T")[0];
+      }
+    }
+  }
+
+  // Legacy/Fixed fallback
   switch (frekuensi) {
     case "Harian":
       date.setDate(date.getDate() + 1);
