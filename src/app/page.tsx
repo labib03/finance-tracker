@@ -5,34 +5,26 @@ import { useFinanceStore } from '@/lib/store';
 import { getNamaBulan, cn, getToday } from '@/lib/utils';
 
 // Layout
-import Sidebar from '@/components/layout/Sidebar';
-import LiquidBackground from '@/components/ui/LiquidBackground';
-import LoadingScreen from '@/components/ui/LoadingScreen';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import Sidebar from '@/shared/layout/Sidebar';
+import LiquidBackground from '@/shared/ui/LiquidBackground';
+import LoadingScreen from '@/shared/ui/LoadingScreen';
+import { Button } from '@/shared/ui/button';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Toaster } from 'sonner';
 
-// Dashboard Components
-import SummaryCards from '@/components/dashboard/SummaryCards';
-import SaldoCards from '@/components/dashboard/SaldoCards';
-import ExpensePieChart from '@/components/dashboard/ExpensePieChart';
-import WeeklyTrendChart from '@/components/dashboard/WeeklyTrendChart';
-import BudgetStatusCard from '@/components/dashboard/BudgetStatusCard';
-import RecurringReminder from '@/components/dashboard/RecurringReminder';
-import TransactionsTable from '@/components/dashboard/TransactionsTable';
-import RecurringList from '@/components/dashboard/RecurringList';
-import CategoryReport from '@/components/dashboard/CategoryReport';
+// Dashboard Views
+import DashboardView from '@/modules/dashboard/views/DashboardView';
+import SaldoView from '@/modules/dashboard/views/SaldoView';
+import TransaksiView from '@/modules/dashboard/views/TransaksiView';
+import TransferView from '@/modules/dashboard/views/TransferView';
+import AnggaranView from '@/modules/dashboard/views/AnggaranView';
+import LaporanView from '@/modules/dashboard/views/LaporanView';
+import RecurringView from '@/modules/dashboard/views/RecurringView';
+import MasterView from '@/modules/dashboard/views/MasterView';
 
-// Forms
-import TransaksiForm from '@/components/forms/TransaksiForm';
-import TransferForm from '@/components/forms/TransferForm';
-import RecurringForm from '@/components/forms/RecurringForm';
-import BudgetForm from '@/components/forms/BudgetForm';
-import BudgetManagement from '@/components/dashboard/BudgetManagement';
-import KategoriForm from '@/components/forms/KategoriForm';
-import SumberDanaForm from '@/components/forms/SumberDanaForm';
-import MasterDataManagement from '@/components/dashboard/MasterDataManagement';
-import CycleSettingsForm from '@/components/forms/CycleSettingsForm';
+// Forms & Modals
+import ModalOrchestrator from '@/modules/dashboard/components/ModalOrchestrator';
+import DashboardHeader from '@/modules/dashboard/components/DashboardHeader';
 
 import { 
   Plus, 
@@ -101,291 +93,66 @@ export default function HomePage() {
         <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10 pt-20 lg:pt-8">
           <div className="mx-auto w-full max-w-[2000px]">
             {/* Premium Header Bar */}
-            <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-12">
-              <div className="space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 border border-indigo-100">
-                  <Sparkles size={12} className="animate-pulse" />
-                  <span className="text-xs font-black uppercase tracking-widest">Premium Intelligence</span>
-                </div>
-                <div>
-                  <h1 className="text-4xl lg:text-5xl font-black tracking-widest text-foreground mb-2">
-                    {activeView === 'dashboard' && 'Beranda Keuangan'}
-                    {activeView === 'saldo' && 'Manajemen Saldo'}
-                    {activeView === 'transaksi' && 'Daftar Transaksi'}
-                    {activeView === 'transfer' && 'Transfer Akun'}
-                    {activeView === 'anggaran' && 'Plan Anggaran'}
-                    {activeView === 'laporan' && 'Laporan Analitik'}
-                    {activeView === 'recurring' && 'Tagihan Rutin'}
-                    {activeView === 'master' && 'Master Data'}
-                  </h1>
-                  <p className="text-sm font-medium text-muted-foreground/80 max-w-lg leading-relaxed italic">
-                    {activeView === 'dashboard' && '“Uang adalah hamba yang baik, tapi tuan yang buruk.” Kelola dengan bijak hari ini.'}
-                    {activeView === 'saldo' && 'Pantau pertumbuhan aset Anda dari waktu ke waktu.'}
-                    {activeView === 'transaksi' && 'Setiap rupiah memiliki cerita. Lihat jejak pengeluaran Anda.'}
-                    {activeView === 'transfer' && 'Optimalkan distribusi likuiditas antar instrumen keuangan.'}
-                    {activeView === 'anggaran' && 'Disiplin anggaran adalah kunci kebebasan finansial jangka panjang.'}
-                    {activeView === 'laporan' && 'Visualisasi data membantu Anda mengambil keputusan yang lebih cerdas.'}
-                    {activeView === 'recurring' && 'Otomatisasi kewajiban agar fokus Anda tetap pada pertumbuhan.'}
-                    {activeView === 'master' && 'Fondasi data yang rapi menghasilkan analisis yang akurat.'}
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-4">
-                {/* Month Navigator - Scandi Style */}
-                <div className="flex items-center bg-white border border-border/40 rounded-[1.25rem] p-1.5 shadow-scandi transition-all hover:shadow-float">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateMonth(-1)}
-                    className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors"
-                  >
-                    <ChevronLeft size={18} />
-                  </Button>
-                  
-                  <div className="px-6 flex flex-col items-center min-w-[160px]">
-                    <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 leading-none mb-1">Periode</span>
-                    <span className="text-sm font-black text-foreground display-number tracking-tight">
-                      {getNamaBulan(activeMonth)}
-                    </span>
-                  </div>
-
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => navigateMonth(1)}
-                    className="h-9 w-9 rounded-xl hover:bg-muted/50 transition-colors"
-                  >
-                    <ChevronRight size={18} />
-                  </Button>
-                </div>
-
-                {/* Refresh with Tooltip-like style */}
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="h-12 w-12 rounded-[1.25rem] shadow-scandi border-border/40 bg-white hover:bg-muted/10 transition-all active:scale-95 group"
-                >
-                  <RefreshCw size={18} className={cn("transition-all duration-700", isRefreshing ? 'animate-spin' : 'group-hover:rotate-180')} />
-                </Button>
-              </div>
-            </div>
+            <DashboardHeader 
+              activeView={activeView}
+              activeMonth={activeMonth}
+              isRefreshing={isRefreshing}
+              navigateMonth={navigateMonth}
+              handleRefresh={handleRefresh}
+            />
 
             {/* Content Views */}
             <div className="animate-in fade-in slide-in-from-bottom-2 duration-500">
               {activeView === 'dashboard' && (
-                <div className="space-y-8">
-                  <SummaryCards />
-                  <div className="chart-grid">
-                    <ExpensePieChart />
-                    <WeeklyTrendChart />
-                  </div>
-                  <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
-                    <BudgetStatusCard />
-                    <RecurringReminder 
-                      onViewAll={() => setActiveView('recurring')} 
-                      onProcess={(r) => {
-                        setTransaksiToEdit({
-                          id: '', // Kosong agar dideteksi sebagai transaksi baru
-                          tanggal: getToday(),
-                          jenis: r.jenis,
-                          id_sumber_dana: r.id_sumber_dana,
-                          id_kategori: r.id_kategori,
-                          nominal: r.nominal,
-                          label: r.label,
-                          catatan: r.catatan,
-                          id_target_dana: ''
-                        } as any);
-                        setActiveModal('transaksi');
-                      }}
-                    />
-                  </div>
-
-                  <TransactionsTable 
-                    limit={10} 
-                    title="Riwayat Transaksi Terkini" 
-                    description="X transaksi terakhir dalam periode ini"
-                    showEdit
-                    onEdit={(t) => {
-                      setTransaksiToEdit(t);
-                      if (t.jenis === 'Transfer') {
-                        setActiveModal('transfer');
-                      } else {
-                        setActiveModal('transaksi');
-                      }
-                    }}
-                  />
-                </div>
+                <DashboardView
+                  setActiveView={setActiveView}
+                  setActiveModal={setActiveModal}
+                  setTransaksiToEdit={setTransaksiToEdit}
+                />
               )}
 
               {activeView === 'saldo' && (
-                <div className="space-y-6">
-                  <SaldoCards />
-                   <TransactionsTable 
-                     limit={20} 
-                     showDelete 
-                     showEdit
-                     onEdit={(t) => {
-                       setTransaksiToEdit(t);
-                       if (t.jenis === 'Transfer') {
-                         setActiveModal('transfer');
-                       } else {
-                         setActiveModal('transaksi');
-                       }
-                     }}
-                     title="Log Transaksi Akun" 
-                   />
-                </div>
+                <SaldoView
+                  setActiveModal={setActiveModal}
+                  setTransaksiToEdit={setTransaksiToEdit}
+                />
               )}
 
               {activeView === 'transaksi' && (
-                <div className="space-y-6">
-                  <div className="flex justify-end">
-                    <Button 
-                      onClick={() => {
-                        setTransaksiToEdit(null);
-                        setActiveModal('transaksi');
-                      }} 
-                      className="rounded-full px-6"
-                    >
-                      <Plus size={18} className="mr-2" />
-                      Tambah Transaksi
-                    </Button>
-                  </div>
-                  <TransactionsTable 
-                    limit={50} 
-                    showDelete 
-                    showEdit
-                    onEdit={(t: any) => {
-                      setTransaksiToEdit(t);
-                      if (t.jenis === 'Transfer') {
-                        setActiveModal('transfer');
-                      } else {
-                        setActiveModal('transaksi');
-                      }
-                    }}
-                    title="Semua Transaksi" 
-                  />
-                </div>
+                <TransaksiView
+                  setActiveModal={setActiveModal}
+                  setTransaksiToEdit={setTransaksiToEdit}
+                />
               )}
 
               {activeView === 'transfer' && (
-                <div className="space-y-8">
-                  <SaldoCards />
-
-                  {/* Transfer Hero Card */}
-                  <div className="bg-white p-8 sm:p-10 rounded-[2.5rem] shadow-scandi border border-border/40 relative overflow-hidden group transition-all duration-500 hover:shadow-float">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                      <div className="flex items-center gap-5">
-                        <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/50 shadow-sm">
-                          <Sparkles size={24} strokeWidth={2.5} />
-                        </div>
-                        <div>
-                          <h3 className="text-sm font-black uppercase tracking-widest text-foreground">Transfer Antar Akun</h3>
-                          <p className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest mt-1 max-w-md">
-                            Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran
-                          </p>
-                        </div>
-                      </div>
-                      <Button
-                        onClick={() => {
-                          setTransaksiToEdit(null);
-                          setActiveModal('transfer');
-                        }}
-                        className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0"
-                      >
-                        <Plus size={16} className="mr-2" />
-                        Buat Transfer
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Transfer History */}
-                  <TransactionsTable 
-                    limit={30} 
-                    showDelete 
-                    showEdit
-                    filterType="Transfer"
-                    onEdit={(t) => {
-                      setTransaksiToEdit(t);
-                      setActiveModal('transfer');
-                    }}
-                    title="Riwayat Transfer" 
-                    description="Semua mutasi antar akun"
-                  />
-                </div>
+                <TransferView
+                  setActiveModal={setActiveModal}
+                  setTransaksiToEdit={setTransaksiToEdit}
+                />
               )}
 
               {activeView === 'anggaran' && (
-                <div className="space-y-6">
-                  <BudgetManagement 
-                    onAdd={() => {
-                        setBudgetToEdit(null);
-                        setActiveModal('budget');
-                    }}
-                    onEdit={(b: any) => {
-                        setBudgetToEdit(b);
-                        setActiveModal('budget');
-                    }}
-                  />
-                </div>
+                <AnggaranView
+                  setActiveModal={setActiveModal}
+                  setBudgetToEdit={setBudgetToEdit}
+                />
               )}
 
-              {activeView === 'laporan' && (
-                <div className="space-y-6">
-                  <CategoryReport />
-                </div>
-              )}
+              {activeView === 'laporan' && <LaporanView />}
 
               {activeView === 'recurring' && (
-                <div className="space-y-6">
-                  <Card className="border-none shadow-sm">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0">
-                      <div>
-                        <CardTitle className="text-sm uppercase tracking-wider text-muted-foreground">Jadwal Transaksi</CardTitle>
-                        <CardDescription>Kelola tagihan bulanan dan pemasukan rutin otomatis.</CardDescription>
-                      </div>
-                      <Button 
-                        onClick={() => {
-                          setRecurringToEdit(null);
-                          setActiveModal('recurring');
-                        }} 
-                        className="rounded-full px-6"
-                      >
-                        <Plus size={18} className="mr-2" />
-                        Buat Jadwal
-                      </Button>
-                    </CardHeader>
-                  </Card>
-                  <RecurringList 
-                    onEdit={(r: any) => {
-                      setRecurringToEdit(r);
-                      setActiveModal('recurring');
-                    }}
-                  />
-                </div>
+                <RecurringView
+                  setActiveModal={setActiveModal}
+                  setRecurringToEdit={setRecurringToEdit}
+                />
               )}
 
               {activeView === 'master' && (
-                <MasterDataManagement
-                  onAddKategori={() => {
-                    setKategoriToEdit(null);
-                    setActiveModal('kategori');
-                  }}
-                  onEditKategori={(k) => {
-                    setKategoriToEdit(k);
-                    setActiveModal('kategori');
-                  }}
-                  onAddSumberDana={() => {
-                    setSumberDanaToEdit(null);
-                    setActiveModal('sumber_dana');
-                  }}
-                  onEditSumberDana={(s) => {
-                    setSumberDanaToEdit(s);
-                    setActiveModal('sumber_dana');
-                  }}
+                <MasterView
+                  setActiveModal={setActiveModal}
+                  setKategoriToEdit={setKategoriToEdit}
+                  setSumberDanaToEdit={setSumberDanaToEdit}
                 />
               )}
             </div>
@@ -403,65 +170,18 @@ export default function HomePage() {
       </Button>
 
       {/* ======================== MODALS ======================== */}
-      {activeModal === 'transaksi' && (
-        <TransaksiForm 
-          onClose={() => {
-            setActiveModal(null);
-            setTransaksiToEdit(null);
-          }} 
-          transaksiToEdit={transaksiToEdit}
-        />
-      )}
-      {activeModal === 'transfer' && (
-        <TransferForm 
-          onClose={() => {
-            setActiveModal(null);
-            setTransaksiToEdit(null);
-          }} 
-          transferToEdit={transaksiToEdit}
-        />
-      )}
-      {activeModal === 'recurring' && (
-        <RecurringForm 
-          onClose={() => {
-            setActiveModal(null);
-            setRecurringToEdit(null);
-          }} 
-          recurringToEdit={recurringToEdit}
-        />
-      )}
-      {activeModal === 'budget' && (
-        <BudgetForm 
-          onClose={() => {
-            setActiveModal(null);
-            setBudgetToEdit(null);
-          }} 
-          budgetToEdit={budgetToEdit}
-        />
-      )}
-      {activeModal === 'kategori' && (
-        <KategoriForm
-          onClose={() => {
-            setActiveModal(null);
-            setKategoriToEdit(null);
-          }}
-          kategoriToEdit={kategoriToEdit}
-        />
-      )}
-      {activeModal === 'sumber_dana' && (
-        <SumberDanaForm
-          onClose={() => {
-            setActiveModal(null);
-            setSumberDanaToEdit(null);
-          }}
-          sumberDanaToEdit={sumberDanaToEdit}
-        />
-      )}
-      {activeModal === 'cycle_settings' && (
-        <CycleSettingsForm
-          onClose={() => setActiveModal(null)}
-        />
-      )}
+      <ModalOrchestrator 
+        transaksiToEdit={transaksiToEdit}
+        setTransaksiToEdit={setTransaksiToEdit}
+        recurringToEdit={recurringToEdit}
+        setRecurringToEdit={setRecurringToEdit}
+        budgetToEdit={budgetToEdit}
+        setBudgetToEdit={setBudgetToEdit}
+        kategoriToEdit={kategoriToEdit}
+        setKategoriToEdit={setKategoriToEdit}
+        sumberDanaToEdit={sumberDanaToEdit}
+        setSumberDanaToEdit={setSumberDanaToEdit}
+      />
     </div>
   );
 }

@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Geist } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
-import PWAInstallPrompt from "@/components/ui/PWAInstallPrompt";
+import PWAInstallPrompt from "@/shared/ui/PWAInstallPrompt";
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
