@@ -42,6 +42,10 @@ export default function TransactionFilters({
 }: TransactionFiltersProps) {
     const isTransferMode = filterMode === 'transfer';
 
+    const filteredKategori = typeFilter === 'all' 
+        ? kategoriList 
+        : kategoriList.filter(k => k.tipe === typeFilter);
+
     return (
         <div className="px-8 py-5 bg-muted/5 border-b border-border/10">
             <div className={cn(
@@ -75,7 +79,14 @@ export default function TransactionFilters({
                 {!isTransferMode && (
                     <>
                         <div className="col-span-1">
-                            <Select value={typeFilter} onValueChange={(val) => setTypeFilter(val || 'all')} modal={false}>
+                            <Select 
+                                value={typeFilter} 
+                                onValueChange={(val) => {
+                                    setTypeFilter(val || 'all');
+                                    setCategoryFilter('all'); // Reset kategori ketika tipe berubah
+                                }} 
+                                modal={false}
+                            >
                                 <SelectTrigger type="button" className="h-11 w-full text-xs font-black uppercase tracking-widest rounded-2xl bg-muted/20 border-transparent shadow-none hover:bg-muted/30 transition-all">
                                     <SelectValue placeholder="Semua Tipe" />
                                 </SelectTrigger>
@@ -92,7 +103,7 @@ export default function TransactionFilters({
                             <SearchableSelect
                                 options={[
                                     { value: 'all', label: 'SEMUA KATEGORI' },
-                                    ...kategoriList.map(k => ({
+                                    ...filteredKategori.map(k => ({
                                         value: k.id_kategori,
                                         label: k.nama_kategori.toUpperCase()
                                     }))
