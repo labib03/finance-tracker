@@ -66,11 +66,11 @@ export function TransactionDetailDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-[420px] bg-white p-0 rounded-[2.5rem] border-none shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden"
+                className="sm:max-w-[420px] bg-white p-0 rounded-[2.5rem] border-none shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[90vh]"
                 showCloseButton={true}
             >
-                {/* Minimalist Top Header */}
-                <div className="pt-12 pb-8 px-8 flex flex-col items-center">
+                {/* Minimalist Top Header (Fixed) */}
+                <div className="pt-12 pb-8 px-8 flex flex-col items-center shrink-0">
                     {/* Category Minimal Icon */}
                     <div className={cn(
                         "w-16 h-16 rounded-3xl flex items-center justify-center mb-6 transition-colors duration-500",
@@ -99,7 +99,8 @@ export function TransactionDetailDialog({
                     </div>
                 </div>
 
-                <div className="px-8 pb-10 space-y-8">
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto px-8 py-2 space-y-8 scrollbar-thin scrollbar-track-transparent scrollbar-thumb-muted-foreground/10 hover:scrollbar-thumb-muted-foreground/20">
                     {/* Compact Info Grid */}
                     <div className="grid grid-cols-2 gap-4">
                         <div className="bg-muted/30 p-4 rounded-3xl space-y-1">
@@ -159,29 +160,29 @@ export function TransactionDetailDialog({
                             </p>
                         </div>
                     </div>
+                </div>
 
-                    {/* Minimal Action Buttons */}
-                    <div className="flex items-center gap-3 pt-4">
-                        <Button
-                            variant="secondary"
-                            className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest bg-muted/50 hover:bg-muted text-foreground transition-all"
-                            onClick={() => {
-                                onEdit?.(transaksi);
-                                onOpenChange(false);
-                            }}
-                        >
-                            <Pencil size={14} className="mr-2" />
-                            Edit
-                        </Button>
-                        <Button
-                            variant="ghost"
-                            className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-100"
-                            onClick={() => setShowConfirmDelete(true)}
-                        >
-                            <Trash2 size={14} className="mr-2" />
-                            Hapus
-                        </Button>
-                    </div>
+                {/* Minimal Action Buttons (Fixed Footer) */}
+                <div className="flex items-center gap-3 px-8 pt-4 pb-10 bg-white border-t border-muted/20 shrink-0">
+                    <Button
+                        variant="secondary"
+                        className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest bg-muted/50 hover:bg-muted text-foreground transition-all"
+                        onClick={() => {
+                            onEdit?.(transaksi);
+                            onOpenChange(false);
+                        }}
+                    >
+                        <Pencil size={14} className="mr-2" />
+                        Edit
+                    </Button>
+                    <Button
+                        variant="ghost"
+                        className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-100"
+                        onClick={() => setShowConfirmDelete(true)}
+                    >
+                        <Trash2 size={14} className="mr-2" />
+                        Hapus
+                    </Button>
                 </div>
 
                 <ConfirmDialog

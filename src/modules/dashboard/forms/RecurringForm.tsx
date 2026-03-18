@@ -34,6 +34,7 @@ import { SearchableSelect } from '@/shared/ui/SearchableSelect';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import { Tabs, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { Textarea } from '@/shared/ui/textarea';
 
 interface RecurringFormProps {
     onClose: () => void;
@@ -120,11 +121,11 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
     // Update frekuensi whenever multiplier or baseFreq changes
     useEffect(() => {
         let fullFreq = '';
-        const unit = baseFreq === 'Harian' ? 'Hari' : 
-                     baseFreq === 'Mingguan' ? 'Minggu' : 
-                     baseFreq === 'Bulanan' ? 'Bulan' : 
-                     baseFreq === 'Tahunan' ? 'Tahun' : '';
-        
+        const unit = baseFreq === 'Harian' ? 'Hari' :
+            baseFreq === 'Mingguan' ? 'Minggu' :
+                baseFreq === 'Bulanan' ? 'Bulan' :
+                    baseFreq === 'Tahunan' ? 'Tahun' : '';
+
         if (unit) {
             fullFreq = `${multiplier} ${unit}`;
             setValue('frekuensi', fullFreq);
@@ -136,14 +137,14 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
     const onSubmit = async (data: RecurringFormData) => {
         if (recurringToEdit) {
             // Jika tanggal mulai atau frekuensi berubah, hitung ulang tanggal berikutnya
-            const perluUpdateTanggal = 
-                data.tanggal_mulai !== recurringToEdit.tanggal_mulai || 
+            const perluUpdateTanggal =
+                data.tanggal_mulai !== recurringToEdit.tanggal_mulai ||
                 data.frekuensi !== recurringToEdit.frekuensi;
-                
+
             await updateRecurring({
                 ...recurringToEdit,
                 ...data,
-                tanggal_berikutnya: perluUpdateTanggal 
+                tanggal_berikutnya: perluUpdateTanggal
                     ? hitungTanggalBerikutnya(data.tanggal_mulai, data.frekuensi)
                     : recurringToEdit.tanggal_berikutnya
             });
@@ -257,8 +258,8 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                         <div className="space-y-4">
                             <div className="space-y-2">
                                 <Label htmlFor="frekuensi">Periode</Label>
-                                <Select 
-                                    onValueChange={(val: any) => setBaseFreq(val)} 
+                                <Select
+                                    onValueChange={(val: any) => setBaseFreq(val)}
                                     value={baseFreq}
                                 >
                                     <SelectTrigger className="h-11 rounded-2xl bg-muted/20 border-transparent">
@@ -275,10 +276,10 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
 
                             <div className="space-y-2 animate-in slide-in-from-top-2 duration-300">
                                 <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
-                                    Setiap berapa {baseFreq === 'Harian' ? 'hari' : 
-                                                   baseFreq === 'Mingguan' ? 'minggu' : 
-                                                   baseFreq === 'Bulanan' ? 'bulan' : 
-                                                   baseFreq === 'Tahunan' ? 'tahun' : ''}?
+                                    Setiap berapa {baseFreq === 'Harian' ? 'hari' :
+                                        baseFreq === 'Mingguan' ? 'minggu' :
+                                            baseFreq === 'Bulanan' ? 'bulan' :
+                                                baseFreq === 'Tahunan' ? 'tahun' : ''}?
                                 </Label>
                                 <div className="flex items-center gap-3">
                                     <Input
@@ -289,10 +290,10 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                                         className="h-11 rounded-2xl bg-muted/20 border-transparent text-center font-bold"
                                     />
                                     <span className="text-xs font-black uppercase tracking-widest text-foreground/60 shrink-0">
-                                        {baseFreq === 'Harian' ? 'Hari' : 
-                                         baseFreq === 'Mingguan' ? 'Minggu' : 
-                                         baseFreq === 'Bulanan' ? 'Bulan' : 
-                                         baseFreq === 'Tahunan' ? 'Tahun' : ''}
+                                        {baseFreq === 'Harian' ? 'Hari' :
+                                            baseFreq === 'Mingguan' ? 'Minggu' :
+                                                baseFreq === 'Bulanan' ? 'Bulan' :
+                                                    baseFreq === 'Tahunan' ? 'Tahun' : ''}
                                     </span>
                                 </div>
                                 <p className="text-[10px] font-bold text-indigo-600/60 uppercase tracking-tighter">
@@ -316,8 +317,8 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                                         >
                                             <CalendarIcon className="mr-3 h-4 w-4 shrink-0 opacity-40" />
                                             <span className="display-number text-base font-bold">
-                                                {field.value 
-                                                    ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' }) 
+                                                {field.value
+                                                    ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
                                                     : "Pilih tanggal"}
                                             </span>
                                         </PopoverTrigger>
@@ -365,11 +366,12 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                     {/* Catatan (Detail) */}
                     <div className="space-y-2">
                         <Label htmlFor="catatan">Detail (opsional)</Label>
-                        <Input
+                        <Textarea
                             id="catatan"
                             placeholder="Tambah detail atau catatan tambahan..."
                             {...register('catatan')}
-                            className="whitespace-nowrap"
+                            className="resize-none rounded-xl"
+                            rows={3}
                         />
                     </div>
 
