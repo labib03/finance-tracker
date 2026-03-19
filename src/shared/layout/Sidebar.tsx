@@ -305,67 +305,6 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 </TooltipProvider>
             </aside>
 
-            {/* Mobile Header/Menu */}
-            <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-white/80 backdrop-blur-md border-b border-border/40 z-40 px-6 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-600 flex items-center justify-center shadow-lg shadow-indigo-500/20">
-                        <DollarSign size={18} strokeWidth={3} className="text-white" />
-                    </div>
-                    <span className="text-base font-black tracking-widest">Financer.</span>
-                </div>
-
-                <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger render={<Button variant="ghost" size="icon" className="rounded-xl hover:bg-muted/50" />}>
-                        <Menu size={20} strokeWidth={2.5} />
-                    </SheetTrigger>
-                    <SheetContent side="left" className="w-[85%] max-w-[320px] border-r-0 p-0 flex flex-col bg-white overflow-hidden">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-50/50 rounded-full blur-3xl -mr-16 -mt-16 pointer-events-none" />
-
-                        <div className="px-8 pt-10 pb-2">
-                            <Brand className="mb-8" />
-                        </div>
-
-                        <div className="flex-1 overflow-y-auto scrollbar-none px-4">
-                            <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 mb-4 px-4">Menu Utama</p>
-                            <NavLinks
-                                activeView={activeView}
-                                onViewChange={onViewChange}
-                                isSidebarCollapsed={false} // Always expanded in mobile sheet
-                                setOpen={setOpen}
-                                mobile
-                            />
-                        </div>
-
-                        <div className="p-6 mt-auto bg-muted/5 border-t border-border/5 space-y-4">
-                            <button
-                                onClick={() => {
-                                    useFinanceStore.getState().setActiveModal('cycle_settings');
-                                    setOpen(false);
-                                }}
-                                className="w-full flex items-center gap-4 px-4 py-3 rounded-2xl text-muted-foreground hover:text-foreground hover:bg-white hover:shadow-sm border border-transparent hover:border-border/10 transition-all duration-300 text-left"
-                            >
-                                <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-muted/20 shrink-0">
-                                    <CalendarClock size={16} />
-                                </div>
-                                <div className="flex flex-col">
-                                    <span className="text-[10px] font-black uppercase tracking-widest leading-tight">Pengaturan Siklus</span>
-                                    <span className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-0.5">Ubah rentang bulan</span>
-                                </div>
-                            </button>
-                            <div className="flex items-center justify-between px-2 pt-2">
-                                <p className="text-[9px] font-black text-muted-foreground/40 tracking-[0.2em] uppercase">
-                                    v1.2.0 PRO
-                                </p>
-                                <div className="flex gap-1">
-                                    <div className="w-1 h-1 rounded-full bg-indigo-200" />
-                                    <div className="w-1 h-1 rounded-full bg-indigo-300" />
-                                    <div className="w-1 h-1 rounded-full bg-indigo-500" />
-                                </div>
-                            </div>
-                        </div>
-                    </SheetContent>
-                </Sheet>
-            </div>
         </>
     );
 }

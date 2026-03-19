@@ -86,9 +86,9 @@ export default function CategoryReport() {
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             {/* Quick Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {/* Minimalist Total Belanja */}
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 relative overflow-hidden group transition-all duration-500 hover:shadow-float">
+                <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-scandi border border-border/40 relative overflow-hidden group transition-all duration-500 hover:shadow-float">
                     <div className="flex flex-col h-full justify-between">
                         <div>
                             <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Total Konsumsi</p>
@@ -117,7 +117,7 @@ export default function CategoryReport() {
                     </div>
                 </div>
 
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
+                <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
                     <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Rata-rata Harian</p>
                     <h3 className="text-3xl font-black display-number text-foreground tracking-widest">
                         {formatRupiah(totalBulanIni / 30)}
@@ -125,7 +125,7 @@ export default function CategoryReport() {
                     <p className="text-xs font-black uppercase text-muted-foreground/80 mt-3 italic tracking-widest">Berdasarkan siklus 30 hari</p>
                 </div>
 
-                <div className="bg-white p-8 rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
+                <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-scandi border border-border/40 group hover:shadow-float transition-all duration-500">
                     <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Item Transaksi</p>
                     <div className="flex items-center gap-3">
                         <h3 className="text-3xl font-black display-number text-foreground tracking-widest">
@@ -181,7 +181,7 @@ export default function CategoryReport() {
 
                 {/* Trend Analytics Visualization */}
                 <div className="xl:col-span-2 space-y-6">
-                    <div className="bg-white p-8 rounded-[2.5rem] border border-border/40 shadow-scandi h-full">
+                    <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi h-full">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
                                 <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
@@ -262,7 +262,8 @@ export default function CategoryReport() {
                 </div>
 
                 <div className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all">
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left">
                             <thead>
                                 <tr className="border-b border-muted/30">
@@ -273,7 +274,7 @@ export default function CategoryReport() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-muted/10">
-                                {perbandinganData.map((item, idx) => (
+                                {perbandinganData.map((item) => (
                                     <tr key={item.nama_kategori} className="group hover:bg-muted/5 transition-colors">
                                         <td className="pl-8 pr-4 py-5">
                                             <div className="flex items-center gap-4">
@@ -331,13 +332,58 @@ export default function CategoryReport() {
                             </tbody>
                         </table>
                     </div>
+
+                    {/* Mobile Card View */}
+                    <div className="md:hidden divide-y divide-muted/10">
+                        {perbandinganData.map((item) => (
+                            <div key={item.nama_kategori} className="p-6 space-y-5 animate-in fade-in duration-500">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-4">
+                                        <div className="w-11 h-11 rounded-2xl bg-muted/20 flex items-center justify-center text-foreground shadow-xs">
+                                            <CategoryIcon name={item.icon_name} size={20} strokeWidth={2.5} />
+                                        </div>
+                                        <div>
+                                            <p className="text-[11px] font-black uppercase tracking-widest text-foreground">{item.nama_kategori}</p>
+                                            <p className="text-[10px] font-bold text-muted-foreground/60 uppercase mt-0.5 italic">
+                                                {Math.round((item.totalAktif / totalBulanIni) * 100)}% dari total
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <div className={cn(
+                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-xl border transition-all text-[10px] font-black uppercase tracking-tighter",
+                                        item.selisih <= 0 ? "bg-emerald-50 text-emerald-600 border-emerald-100" : "bg-rose-50 text-rose-600 border-rose-100"
+                                    )}>
+                                        {item.selisih > 0 ? (
+                                            <TrendingUp size={12} strokeWidth={3} />
+                                        ) : item.selisih < 0 ? (
+                                            <TrendingDown size={12} strokeWidth={3} />
+                                        ) : (
+                                            <Minus size={12} className="text-muted-foreground" />
+                                        )}
+                                        {Math.abs(item.persentase)}%
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4 pt-2">
+                                    <div className="p-4 bg-muted/5 rounded-2xl border border-transparent">
+                                        <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mb-1.5 leading-none">Bulan Lalu</p>
+                                        <p className="text-xs font-black text-muted-foreground display-number leading-none">{formatRupiah(item.totalLalu)}</p>
+                                    </div>
+                                    <div className="p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100/20">
+                                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 leading-none">Bulan Ini</p>
+                                        <p className="text-xs font-black text-indigo-600 display-number leading-none">{formatRupiah(item.totalAktif)}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </div>
 
             {/* Dialog detail transaksi berdasarkan kategori */}
             <Dialog open={!!selectedCategory} onOpenChange={(open) => !open && setSelectedCategory(null)}>
-                <DialogContent className="sm:max-w-4xl md:max-w-5xl w-[95vw] p-0 overflow-hidden bg-background border-border/40 rounded-3xl">
-                    <DialogHeader className="p-8 pb-0">
+                <DialogContent className="sm:max-w-4xl md:max-w-5xl w-[95vw] p-0 overflow-hidden bg-background border-border/40 rounded-2xl sm:rounded-3xl">
+                    <DialogHeader className="p-6 sm:p-8 pb-0">
                         <DialogTitle className="text-xl font-black uppercase tracking-widest flex flex-col gap-1">
                             Detail Kategori
                             <span className="text-xs font-bold text-muted-foreground/80 italic tracking-normal normal-case">
@@ -345,7 +391,7 @@ export default function CategoryReport() {
                             </span>
                         </DialogTitle>
                     </DialogHeader>
-                    <div className="p-8 pt-4 overflow-y-auto max-h-[70vh] scrollbar-none">
+                    <div className="p-4 sm:p-8 sm:pt-4 overflow-y-auto max-h-[70vh] scrollbar-none">
                         {selectedCategory && (
                             <TransactionsTable
                                 showSearch={false}

@@ -6,6 +6,7 @@ import { getNamaBulan, cn, getToday } from '@/lib/utils';
 
 // Layout
 import Sidebar from '@/shared/layout/Sidebar';
+import BottomNav from '@/shared/layout/BottomNav';
 import LiquidBackground from '@/shared/ui/LiquidBackground';
 import LoadingScreen from '@/shared/ui/LoadingScreen';
 import { Button } from '@/shared/ui/button';
@@ -90,7 +91,7 @@ export default function HomePage() {
           "flex-1 w-full min-w-0 flex flex-col relative z-10 transition-[margin] duration-300 ease-out will-change-[margin] transform-gpu",
           isSidebarCollapsed ? "lg:ml-[76px]" : "lg:ml-[320px]"
       )}>
-        <main className="flex-1 w-full p-5 sm:p-6 lg:p-8 xl:p-10 pt-20 lg:pt-8">
+        <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 xl:p-10 pt-8 pb-32 lg:pb-8">
           <div className="mx-auto w-full max-w-[2000px]">
             {/* Premium Header Bar */}
             <DashboardHeader 
@@ -160,14 +161,7 @@ export default function HomePage() {
         </main>
       </div>
 
-      {/* ======================== FAB (Mobile) ======================== */}
-      <Button
-        className="fixed bottom-6 right-6 lg:hidden z-40 w-14 h-14 rounded-full shadow-lg"
-        onClick={() => setActiveModal('transaksi')}
-        aria-label="Tambah transaksi"
-      >
-        <Plus size={26} />
-      </Button>
+      <BottomNav activeView={activeView} onViewChange={setActiveView} />
 
       {/* ======================== MODALS ======================== */}
       <ModalOrchestrator 

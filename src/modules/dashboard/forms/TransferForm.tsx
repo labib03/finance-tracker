@@ -11,13 +11,7 @@ import type { Transaksi } from '@/lib/types';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/shared/ui/dialog';
+import { ResponsiveModal } from '@/shared/ui/responsive-modal';
 import {
     Popover,
     PopoverContent,
@@ -98,11 +92,12 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
     };
 
     return (
-        <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px]">
-                <DialogHeader>
-                    <DialogTitle>{transferToEdit ? 'Edit Transfer' : 'Transfer Antar Akun'}</DialogTitle>
-                </DialogHeader>
+        <ResponsiveModal
+            open={true}
+            onOpenChange={onClose}
+            title={transferToEdit ? 'Edit Transfer' : 'Transfer Antar Akun'}
+            className="sm:max-w-[425px]"
+        >
 
                 <div className="bg-indigo-50/50 p-4 rounded-xl flex items-center gap-3 mb-2 border border-indigo-100/50">
                     <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
@@ -257,7 +252,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                         />
                     </div>
 
-                    <DialogFooter className="pt-2">
+                    <div className="pt-4 pb-2">
                         <Button
                             type="submit"
                             disabled={isSubmitting}
@@ -266,9 +261,8 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             <ArrowLeftRight size={16} className="mr-2" />
                             {isSubmitting ? 'Memproses...' : 'Transfer Sekarang'}
                         </Button>
-                    </DialogFooter>
+                    </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+        </ResponsiveModal>
     );
 }

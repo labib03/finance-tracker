@@ -48,8 +48,8 @@ export default function ExpensePieChart() {
     }
 
     return (
-        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float transform-gpu backface-hidden">
-            <CardHeader className="flex flex-row items-center justify-between pb-2 pt-8 px-8">
+        <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float transform-gpu backface-hidden">
+            <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 sm:pt-8 px-6 sm:px-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
                         <PieChartIcon size={18} />
@@ -63,9 +63,9 @@ export default function ExpensePieChart() {
                 </div>
             </CardHeader>
 
-            <CardContent className="px-8 pb-8 pt-4">
-                <div className="flex flex-col md:flex-row items-center gap-8">
-                    <div className="w-full md:w-1/2 h-[260px] contain-layout">
+            <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-4">
+                <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
+                    <div className="w-full md:w-1/2 h-[220px] sm:h-[260px] contain-layout">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie

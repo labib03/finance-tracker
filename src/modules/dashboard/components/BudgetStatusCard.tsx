@@ -49,8 +49,8 @@ export default function BudgetStatusCard() {
     };
 
     return (
-        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float lg:min-h-[400px]">
-            <CardHeader className="flex flex-row items-center justify-between pb-4 pt-8 px-8">
+        <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float lg:min-h-[400px]">
+            <CardHeader className="flex flex-row items-center justify-between pb-4 pt-6 sm:pt-8 px-6 sm:px-8">
                 <div className="flex items-center gap-3">
                     <div className="p-2 bg-rose-50 text-rose-600 rounded-lg">
                         <Sparkles size={18} />
@@ -63,7 +63,7 @@ export default function BudgetStatusCard() {
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-8 pt-4 pb-8 px-8">
+            <CardContent className="space-y-6 sm:space-y-8 pt-2 sm:pt-4 pb-6 sm:pb-8 px-6 sm:px-8">
                 {budgetStatus.map((bs) => (
                     <div key={bs.id_kategori} className="group space-y-4">
                         <div className="flex items-center justify-between">

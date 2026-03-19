@@ -92,104 +92,89 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
 
     return (
         <Card className="border-none shadow-sm overflow-hidden flex flex-col h-full bg-background/50 backdrop-blur-sm">
-            <CardHeader className="flex flex-col gap-6 pb-6">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                    <div>
-                        <CardTitle className="text-xl font-bold tracking-tight">Anggaran {getNamaBulan(activeMonth)}</CardTitle>
-                        <CardDescription>
+            <CardHeader className="flex flex-col gap-6 pb-6 pt-6 sm:pt-8 px-6 sm:px-10">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+                    <div className="text-left">
+                        <CardTitle className="text-xl sm:text-2xl font-black uppercase tracking-widest text-foreground">Anggaran {getNamaBulan(activeMonth)}</CardTitle>
+                        <CardDescription className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest mt-1">
                             Tetapkan batas pengeluaran per kategori
                         </CardDescription>
                     </div>
-                    <Button onClick={onAdd} className="shrink-0 rounded-2xl shadow-lg shadow-primary/10 bg-indigo-600 hover:bg-indigo-700">
+                    <Button 
+                        onClick={onAdd} 
+                        className="shrink-0 rounded-2xl h-12 px-6 shadow-lg shadow-indigo-600/20 bg-foreground text-background hover:bg-foreground/90 text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
+                    >
                         <Plus size={18} className="mr-2" />
                         Tambah Anggaran
                     </Button>
                 </div>
 
-                <div className="flex flex-col gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" size={16} />
+                <div className="space-y-4">
+                    <div className="relative group">
+                        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground/60 transition-colors group-focus-within:text-primary" size={16} />
                         <Input
                             placeholder="Cari kategori anggaran..."
-                            className="pl-9 rounded-xl bg-muted/50 border-none h-10 text-sm"
+                            className="pl-11 rounded-2xl bg-white border border-border/40 h-11 text-xs font-medium tracking-wide shadow-scandi focus-visible:ring-primary/20"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                         {search && (
                             <button
                                 onClick={() => setSearch('')}
-                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1"
                             >
                                 <X size={14} />
                             </button>
                         )}
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-1.5 p-1 bg-muted/30 rounded-2xl w-fit">
-                        <button
-                            onClick={() => setStatusFilter('all')}
-                            className={cn(
-                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
-                                statusFilter === 'all' ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
-                            )}
-                        >
-                            Semua
-                        </button>
-                        <button
-                            onClick={() => setStatusFilter('aman')}
-                            className={cn(
-                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
-                                statusFilter === 'aman' ? "bg-white shadow-sm text-emerald-600" : "text-muted-foreground hover:text-emerald-600"
-                            )}
-                        >
-                            Aman
-                        </button>
-                        <button
-                            onClick={() => setStatusFilter('peringatan')}
-                            className={cn(
-                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
-                                statusFilter === 'peringatan' ? "bg-white shadow-sm text-amber-600" : "text-muted-foreground hover:text-amber-600"
-                            )}
-                        >
-                            Waspada
-                        </button>
-                        <button
-                            onClick={() => setStatusFilter('bahaya')}
-                            className={cn(
-                                "px-4 py-1.5 text-xs font-bold rounded-xl transition-all",
-                                statusFilter === 'bahaya' ? "bg-white shadow-sm text-red-600" : "text-muted-foreground hover:text-red-600"
-                            )}
-                        >
-                            Bahaya
-                        </button>
+                    <div className="flex items-center gap-1.5 p-1.5 bg-muted/20 border border-border/40 rounded-2xl w-full sm:w-fit overflow-x-auto scrollbar-none">
+                        {[
+                            { id: 'all', label: 'Semua', color: 'text-foreground' },
+                            { id: 'aman', label: 'Aman', color: 'text-emerald-600' },
+                            { id: 'peringatan', label: 'Waspada', color: 'text-amber-600' },
+                            { id: 'bahaya', label: 'Bahaya', color: 'text-red-600' }
+                        ].map((f) => (
+                            <button
+                                key={f.id}
+                                onClick={() => setStatusFilter(f.id as any)}
+                                className={cn(
+                                    "px-4 py-2 text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-xl transition-all flex-1 sm:flex-none whitespace-nowrap",
+                                    statusFilter === f.id ? "bg-white shadow-scandi " + f.color + " scale-[1.02]" : "text-muted-foreground/60 hover:text-foreground"
+                                )}
+                            >
+                                {f.label}
+                            </button>
+                        ))}
                     </div>
                 </div>
             </CardHeader>
             <CardContent className="p-0">
-                <div className="px-6 mb-6">
-                    <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100/50 flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center text-indigo-600">
-                            <Search size={20} />
+                <div className="px-6 sm:px-10 mb-8 sm:mb-10">
+                    <div className="bg-white/50 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 sm:p-6 border border-primary/10 shadow-scandi flex sm:items-center gap-5 sm:gap-6 relative group overflow-hidden">
+                        <div className="absolute top-0 left-0 w-1 h-full bg-primary/40 group-hover:bg-primary transition-colors" />
+                        <div className="w-12 h-12 rounded-2xl bg-primary/5 text-primary flex items-center justify-center shrink-0 border border-primary/10 transition-transform group-hover:scale-110 duration-500">
+                            <Target size={24} strokeWidth={2.5} />
                         </div>
-                        <div className="flex-1">
-                            <p className="text-xs font-bold uppercase tracking-widest leading-none mb-1 text-primary">Status Pencarian</p>
-                            <p className="text-[11px] text-indigo-700/80 font-medium">
+                        <div className="flex-1 min-w-0">
+                            <p className="text-[11px] font-black uppercase tracking-widest leading-none mb-1.5 text-primary">Status Pencarian</p>
+                            <p className="text-[10px] sm:text-xs text-muted-foreground font-medium uppercase tracking-wide leading-relaxed">
                                 {search || statusFilter !== 'all'
-                                    ? `Menampilkan anggaran yang sesuai dengan filter Anda.`
-                                    : "Batas anggaran membantu Anda mengontrol pengeluaran agar tidak over-budget."}
+                                    ? `Ditemukan ${activeBudgets.length} kategori yang sesuai dengan kriteria filter Anda.`
+                                    : "Klik tambah anggaran untuk menetapkan batas pengeluaran bulanan agar keuangan tetap terkendali."}
                             </p>
                         </div>
                         {(search || statusFilter !== 'all') && (
                             <Button
                                 variant="ghost"
                                 size="sm"
-                                className="h-7 text-xs font-bold text-indigo-600 hover:bg-indigo-100 rounded-lg"
+                                className="h-9 px-4 text-[10px] font-black uppercase tracking-widest text-primary hover:bg-primary/5 rounded-xl self-center"
                                 onClick={() => {
                                     setSearch('');
                                     setStatusFilter('all');
                                 }}
                             >
-                                Reset Filter
+                                Reset
                             </Button>
                         )}
                     </div>
@@ -211,111 +196,201 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                             </p>
                         </div>
                     ) : (
-                        <div className="overflow-x-auto">
-                            <Table>
-                                <TableHeader className="bg-muted/30">
-                                    <TableRow className="hover:bg-transparent border-none">
-                                        <TableHead className="font-bold uppercase tracking-wider h-11 px-6">Kategori</TableHead>
-                                        <TableHead className="text-right font-bold uppercase tracking-wider h-11 px-6">Limit Anggaran</TableHead>
-                                        <TableHead className="w-24 text-center font-bold uppercase tracking-wider h-11 pr-6">Aksi</TableHead>
-                                    </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                    {activeBudgets.map((b) => {
-                                        const katName = getKategoriName(b.id_kategori);
-                                        const status = budgetStatusMap.get(b.id_kategori);
+                        <div className="px-6 sm:px-10 pb-10">
+                            <div className="hidden md:block overflow-hidden rounded-3xl border border-border/40 shadow-scandi bg-white">
+                                <Table>
+                                    <TableHeader className="bg-muted/10">
+                                        <TableRow className="hover:bg-transparent border-none">
+                                            <TableHead className="font-black h-14 px-8 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">Kategori</TableHead>
+                                            <TableHead className="text-right font-black h-14 px-8 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">Status & Progress</TableHead>
+                                            <TableHead className="text-right font-black h-14 px-8 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">Limit Anggaran</TableHead>
+                                            <TableHead className="w-24 text-center font-black h-14 pr-8 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">Opsi</TableHead>
+                                        </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                        {activeBudgets.map((b) => {
+                                            const katName = getKategoriName(b.id_kategori);
+                                            const status = budgetStatusMap.get(b.id_kategori);
 
-                                        return (
-                                            <TableRow key={b.id_anggaran} className="group hover:bg-muted/30 transition-colors border-none">
-                                                <TableCell className="px-6 py-4">
-                                                    <div className="flex items-center gap-3 mb-3">
-                                                        <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 shadow-sm border border-indigo-100/30">
-                                                            <Target size={18} />
+                                            return (
+                                                <TableRow key={b.id_anggaran} className="group hover:bg-muted/5 transition-all border-b border-border/10 cursor-pointer" onClick={() => onEdit?.(b)}>
+                                                    <TableCell className="px-8 py-6">
+                                                        <div className="flex items-center gap-4">
+                                                            <div className="w-12 h-12 rounded-2xl bg-indigo-50/50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/20 group-hover:scale-110 transition-transform duration-500">
+                                                                <Target size={20} strokeWidth={2.5} />
+                                                            </div>
+                                                            <div>
+                                                                <p className="text-[11px] font-black text-foreground uppercase tracking-widest">
+                                                                    {katName}
+                                                                </p>
+                                                                <p className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-tighter mt-1">
+                                                                    Bulan {getNamaBulan(activeMonth)}
+                                                                </p>
+                                                            </div>
                                                         </div>
-                                                        <div>
-                                                            <p className="text-sm font-bold text-foreground leading-tight">
+                                                    </TableCell>
+                                                    <TableCell className="px-8 py-6">
+                                                        <div className="flex flex-col gap-2 min-w-[150px]">
+                                                            <div className="flex items-center justify-between">
+                                                                <div className="flex items-center gap-1.5">
+                                                                    {status?.status === 'aman' && <CheckCircle size={12} className="text-emerald-500" />}
+                                                                    {status?.status === 'peringatan' && <AlertTriangle size={12} className="text-amber-500" />}
+                                                                    {status?.status === 'bahaya' && <XCircle size={12} className="text-red-500" />}
+                                                                    <span className={cn(
+                                                                        "text-[10px] font-black uppercase tracking-widest",
+                                                                        status?.status === 'aman' ? 'text-emerald-600' :
+                                                                            status?.status === 'peringatan' ? 'text-amber-600' : 'text-red-600'
+                                                                    )}>
+                                                                        {status?.status === 'peringatan' ? 'Waspada' : status?.status || 'Active'}
+                                                                    </span>
+                                                                </div>
+                                                                <span className="text-[10px] font-black tracking-widest text-foreground">{status?.persentase || 0}%</span>
+                                                            </div>
+                                                            <Progress 
+                                                                value={Math.min(status?.persentase || 0, 100)} 
+                                                                className={cn(
+                                                                    "h-1.5 rounded-full bg-muted/30",
+                                                                    status?.status === 'aman' ? '*:data-[slot=progress-indicator]:bg-emerald-500' :
+                                                                        status?.status === 'peringatan' ? '*:data-[slot=progress-indicator]:bg-amber-500' : '*:data-[slot=progress-indicator]:bg-red-500'
+                                                                )}
+                                                            />
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="px-8 py-6 text-right">
+                                                        <div className="flex flex-col items-end gap-1">
+                                                            <span className="display-number text-sm font-black text-foreground tracking-widest">
+                                                                {formatRupiah(status?.terpakai || 0)}
+                                                            </span>
+                                                            <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">
+                                                                TOTAL DARI {formatRupiah(b.nominal_limit)}
+                                                            </span>
+                                                        </div>
+                                                    </TableCell>
+                                                    <TableCell className="pr-8 py-6">
+                                                        <div className="flex items-center justify-end gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon-xs"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    onEdit?.(b);
+                                                                }}
+                                                                className="h-8 w-8 text-indigo-600 hover:bg-indigo-50 rounded-xl"
+                                                            >
+                                                                <Pencil size={14} strokeWidth={2.5} />
+                                                            </Button>
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon-xs"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    handleDelete(b.id_anggaran, katName);
+                                                                }}
+                                                                className="h-8 w-8 text-rose-500 hover:bg-rose-50 rounded-xl"
+                                                            >
+                                                                <Trash2 size={14} strokeWidth={2.5} />
+                                                            </Button>
+                                                        </div>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            </div>
+
+                            {/* Mobile Grid Layout */}
+                            <div className="grid grid-cols-1 gap-4 md:hidden">
+                                {activeBudgets.map((b) => {
+                                    const katName = getKategoriName(b.id_kategori);
+                                    const status = budgetStatusMap.get(b.id_kategori);
+
+                                    return (
+                                        <Card key={b.id_anggaran} className="group overflow-hidden bg-white rounded-[1.75rem] border border-border/40 shadow-scandi hover:shadow-float transition-all duration-300 active:scale-[0.98]" onClick={() => onEdit?.(b)}>
+                                            <CardContent className="p-5 flex flex-col gap-5">
+                                                <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-3.5">
+                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-50/50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/20 group-hover:scale-110 transition-transform duration-500">
+                                                            <Target size={22} strokeWidth={2.5} />
+                                                        </div>
+                                                        <div className="flex flex-col min-w-0">
+                                                            <span className="text-[11px] font-black text-foreground uppercase tracking-widest truncate">
                                                                 {katName}
-                                                            </p>
+                                                            </span>
                                                             <div className="flex items-center gap-1.5 mt-1">
-                                                                {status?.status === 'aman' && <CheckCircle size={12} className="text-emerald-500" />}
-                                                                {status?.status === 'peringatan' && <AlertTriangle size={12} className="text-amber-500" />}
-                                                                {status?.status === 'bahaya' && <XCircle size={12} className="text-red-500" />}
+                                                                {status?.status === 'aman' && <CheckCircle size={10} className="text-emerald-500" />}
+                                                                {status?.status === 'peringatan' && <AlertTriangle size={10} className="text-amber-500" />}
+                                                                {status?.status === 'bahaya' && <XCircle size={10} className="text-red-500" />}
                                                                 <span className={cn(
-                                                                    "text-xs font-bold uppercase tracking-wider",
+                                                                    "text-[9px] font-black uppercase tracking-widest",
                                                                     status?.status === 'aman' ? 'text-emerald-600' :
                                                                         status?.status === 'peringatan' ? 'text-amber-600' : 'text-red-600'
                                                                 )}>
-                                                                    {status?.status || 'Active'}
+                                                                    {status?.status === 'peringatan' ? 'WASPADA' : status?.status?.toUpperCase() || 'ACTIVE'}
                                                                 </span>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <div className="flex items-center gap-1 opacity-60">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-xs"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                onEdit?.(b);
+                                                            }}
+                                                            className="h-8 w-8 text-primary hover:bg-primary/5 rounded-xl"
+                                                        >
+                                                            <Pencil size={14} strokeWidth={2.5} />
+                                                        </Button>
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="icon-xs"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                handleDelete(b.id_anggaran, katName);
+                                                            }}
+                                                            className="h-8 w-8 text-rose-500 hover:bg-rose-50 rounded-xl"
+                                                        >
+                                                            <Trash2 size={14} strokeWidth={2.5} />
+                                                        </Button>
+                                                    </div>
+                                                </div>
 
-                                                    {status && (
-                                                        <div className="max-w-[200px]">
-                                                            <Progress
-                                                                value={Math.min(status.persentase, 100)}
-                                                                className={cn(
-                                                                    "h-1.5",
-                                                                    status.status === 'aman' ? '*:data-[slot=progress-indicator]:bg-emerald-500' :
-                                                                        status.status === 'peringatan' ? '*:data-[slot=progress-indicator]:bg-amber-500' : '*:data-[slot=progress-indicator]:bg-red-500'
-                                                                )}
-                                                            />
-                                                        </div>
-                                                    )}
-                                                </TableCell>
-                                                <TableCell className="px-6 text-right">
-                                                    <div className="flex flex-col items-end gap-1">
-                                                        <div className="flex flex-col items-end">
-                                                            <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Terpakai</span>
-                                                            <span className="display-number text-sm font-bold text-foreground">
-                                                                {formatRupiah(status?.terpakai || 0)}
-                                                            </span>
-                                                        </div>
-                                                        <div className="flex flex-col items-end pt-1 border-t border-border/50 w-24">
-                                                            <span className="text-xs text-muted-foreground font-bold uppercase tracking-widest">Limit</span>
-                                                            <span className="display-number text-xs font-medium text-indigo-600/80">
-                                                                {formatRupiah(b.nominal_limit)}
-                                                            </span>
-                                                        </div>
-                                                        {status && (
-                                                            <Badge variant="outline" className={cn(
-                                                                "mt-1 px-1.5 py-0 h-4 text-xs font-black border-none",
-                                                                status.status === 'aman' ? 'bg-emerald-50 text-emerald-700' :
-                                                                    status.status === 'peringatan' ? 'bg-amber-50 text-amber-700' : 'bg-red-50 text-red-700'
-                                                            )}>
-                                                                {status.persentase}%
-                                                            </Badge>
+                                                <div className="space-y-2">
+                                                    <div className="flex items-center justify-between">
+                                                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest">Progress Pemakaian</span>
+                                                        <span className="text-[11px] font-black tracking-widest text-foreground">{status?.persentase || 0}%</span>
+                                                    </div>
+                                                    <Progress 
+                                                        value={Math.min(status?.persentase || 0, 100)} 
+                                                        className={cn(
+                                                            "h-2 rounded-full bg-muted/30",
+                                                            status?.status === 'aman' ? '*:data-[slot=progress-indicator]:bg-emerald-500' :
+                                                                status?.status === 'peringatan' ? '*:data-[slot=progress-indicator]:bg-amber-500' : '*:data-[slot=progress-indicator]:bg-red-500'
                                                         )}
+                                                    />
+                                                </div>
+
+                                                <div className="flex items-center justify-between pt-1 border-t border-border/10">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest leading-none mb-1.5">Terpakai</span>
+                                                        <span className="display-number text-xs font-black text-foreground tracking-widest leading-none">
+                                                            {formatRupiah(status?.terpakai || 0)}
+                                                        </span>
                                                     </div>
-                                                </TableCell>
-                                                <TableCell className="pr-6">
-                                                    <div className="flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon-xs"
-                                                            onClick={() => onEdit?.(b)}
-                                                            className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10"
-                                                            title="Edit Anggaran"
-                                                        >
-                                                            <Pencil size={14} />
-                                                        </Button>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon-xs"
-                                                            onClick={() => handleDelete(b.id_anggaran, katName)}
-                                                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                            title="Hapus Anggaran"
-                                                        >
-                                                            <Trash2 size={14} />
-                                                        </Button>
+                                                    <div className="flex flex-col items-end">
+                                                        <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest leading-none mb-1.5 text-right">Limit</span>
+                                                        <span className="display-number text-xs font-black text-indigo-600 tracking-widest leading-none text-right">
+                                                            {formatRupiah(b.nominal_limit)}
+                                                        </span>
                                                     </div>
-                                                </TableCell>
-                                            </TableRow>
-                                        );
-                                    })}
-                                </TableBody>
-                            </Table>
+                                                </div>
+                                            </CardContent>
+                                        </Card>
+                                    );
+                                })}
+                            </div>
                         </div>
                     )}
                 </div>

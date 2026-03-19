@@ -215,7 +215,7 @@ export default function TransactionsTable({
                 />
             )}
             <CardContent className="p-0">
-                <Table>
+                <Table className="hidden md:table">
                     <TableHeader className="bg-muted/10">
                         <TableRow className="hover:bg-transparent border-none">
                             <TableHead className="w-[80px] px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Info</TableHead>
@@ -389,10 +389,88 @@ export default function TransactionsTable({
                     </TableBody>
                 </Table>
 
+                {/* Mobile ListView - Card Based */}
+                <div className="md:hidden flex flex-col gap-4 p-4 bg-muted/5">
+                    {filteredTransaksi.length === 0 ? (
+                        <div className="py-24 text-center px-4">
+                            <div className="flex flex-col items-center justify-center">
+                                <div className="w-16 h-16 rounded-[2rem] bg-muted/20 flex items-center justify-center text-muted-foreground/80 mb-6">
+                                    <Filter size={32} />
+                                </div>
+                                <p className="text-sm font-black uppercase tracking-widest text-foreground">Tidak ada transaksi</p>
+                                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mt-1 text-center">Coba sesuaikan filter</p>
+                            </div>
+                        </div>
+                    ) : (
+                        paginatedTransaksi.map((t) => {
+                            const isIncome = t.jenis === 'Pemasukan';
+                            const isTransfer = t.jenis === 'Transfer';
+                            
+                            return (
+                                <Card
+                                    key={t.id}
+                                    className="group overflow-hidden bg-white rounded-2xl border border-border/40 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                                    onClick={() => setSelectedDetail(t)}
+                                >
+                                    <div className="p-4 flex items-center justify-between">
+                                        <div className="flex items-center gap-4 min-w-0">
+                                            <div className={cn(
+                                                "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500",
+                                                isTransfer
+                                                    ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+                                                    : isIncome
+                                                        ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                                                        : "bg-rose-50 text-rose-600 border-rose-100"
+                                            )}>
+                                                {isTransfer ? (
+                                                    <ArrowLeftRight size={18} strokeWidth={2.5} />
+                                                ) : (
+                                                    <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={18} strokeWidth={2.5} />
+                                                )}
+                                            </div>
+                                            <div className="flex flex-col min-w-0">
+                                                <span className="text-[11px] font-black text-foreground uppercase tracking-widest truncate">
+                                                    {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
+                                                </span>
+                                                <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
+                                                    <span className="text-[10px] font-bold text-muted-foreground/60 truncate uppercase tracking-tighter">
+                                                        {getSumberDanaName(t.id_sumber_dana)}
+                                                        {isTransfer && t.id_target_dana && ` → ${getSumberDanaName(t.id_target_dana)}`}
+                                                    </span>
+                                                </div>
+                                                {t.label && (
+                                                    <span className="text-[10px] font-bold text-foreground/80 truncate mt-0.5 italic lowercase">
+                                                        {t.label}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </div>
+                                        <div className="flex flex-col items-end shrink-0 pl-3">
+                                            <span className={cn(
+                                                "display-number text-sm font-black tracking-widest leading-none",
+                                                isTransfer
+                                                    ? "text-indigo-600"
+                                                    : isIncome
+                                                        ? "text-emerald-600"
+                                                        : "text-orange-600"
+                                            )}>
+                                                {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
+                                            </span>
+                                            <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] mt-2">
+                                                {formatTanggalPendek(t.tanggal)}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </Card>
+                            );
+                        })
+                    )}
+                </div>
+
                 {filteredTransaksi.length > 0 && (
-                    <div className="flex items-center justify-between px-8 py-5 border-t border-border/20 bg-muted/5">
-                        <div className="flex items-center gap-3">
-                            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Baris per halaman:</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-8 py-5 border-t border-border/20 bg-muted/5 gap-4">
+                        <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
+                            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Baris:</span>
                             <Select
                                 value={itemsPerPage.toString()}
                                 onValueChange={(val) => {
@@ -411,9 +489,9 @@ export default function TransactionsTable({
                                 </SelectContent>
                             </Select>
                         </div>
-                        <div className="flex items-center gap-6">
-                            <div className="text-xs font-black uppercase tracking-widest text-muted-foreground">
-                                Halaman <span className="text-foreground">{currentPage}</span> dari <span className="text-foreground">{totalPages}</span>
+                        <div className="flex items-center justify-between sm:justify-end gap-6 w-full sm:w-auto">
+                            <div className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-muted-foreground">
+                                Hal <span className="text-foreground">{currentPage}</span> / <span className="text-foreground">{totalPages}</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button

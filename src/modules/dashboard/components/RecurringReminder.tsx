@@ -49,11 +49,11 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
         kategoriList.find((k) => k.id_kategori === id)?.nama_kategori || 'Kategori';
 
     return (
-        <Card className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float relative group min-h-[400px]">
+        <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float relative group min-h-[400px]">
             {/* Minimalist Background Accent */}
             <div className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-indigo-50/50 rounded-full blur-2xl pointer-events-none group-hover:bg-indigo-100/50 transition-all duration-1000" />
 
-            <CardHeader className="pb-4 pt-8 px-8 relative z-10">
+            <CardHeader className="pb-4 pt-6 sm:pt-8 px-6 sm:px-8 relative z-10">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-500 flex items-center justify-center border border-indigo-100 shadow-xs">
@@ -68,7 +68,7 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
                     </div>
                 </div>
             </CardHeader>
-            <CardContent className="space-y-4 pt-2 pb-8 px-8 relative z-10">
+            <CardContent className="space-y-4 pt-2 pb-6 sm:pb-8 px-6 sm:px-8 relative z-10">
                 {upcomingReminders.length > 0 ? (
                     upcomingReminders.map((r) => {
                         const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);

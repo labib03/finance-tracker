@@ -68,15 +68,15 @@ export default function SummaryCards() {
     ];
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {cards.map((card, idx) => {
                 const Icon = card.icon;
                 return (
                     <div 
                         key={card.label} 
                         className={cn(
-                            "group relative overflow-hidden bg-white p-8 rounded-[2.5rem] border border-border/40 shadow-scandi transition-all duration-500 hover:shadow-float hover:-translate-y-1",
-                            idx === 0 ? "md:col-span-1" : ""
+                            "group relative overflow-hidden bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi transition-all duration-500 hover:shadow-float hover:-translate-y-1",
+                            idx === 0 ? "sm:col-span-2 lg:col-span-1" : ""
                         )}
                     >
                         {/* Soft Accent Background Blur */}
@@ -110,7 +110,7 @@ export default function SummaryCards() {
                                 <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">
                                     {card.label}
                                 </p>
-                                <h3 className="text-3xl font-black text-foreground display-number tracking-widest">
+                                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground display-number tracking-widest truncate">
                                     {formatRupiah(card.value)}
                                 </h3>
                             </div>

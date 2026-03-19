@@ -477,12 +477,41 @@ export const CHART_COLORS = [
  */
 export function getNamaBulan(bulan: string): string {
   if (!bulan) return "";
-  const [year, month] = bulan.split("-");
-  const date = new Date(parseInt(year), parseInt(month) - 1, 1);
-  return new Intl.DateTimeFormat("id-ID", {
-    month: "long",
-    year: "numeric",
-  }).format(date);
+  
+  try {
+    let date: Date;
+    
+    if (bulan.includes("-")) {
+      const parts = bulan.split("-");
+      if (parts.length >= 2) {
+        // Handle YYYY-MM or YYYY-MM-DD
+        const year = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        date = new Date(year, month - 1, 1);
+      } else {
+        // Fallback for single part with hyphen (unlikely but safe)
+        date = new Date();
+      }
+    } else {
+      // Handle single number as month (1-12)
+      const monthNum = parseInt(bulan);
+      if (!isNaN(monthNum) && monthNum >= 1 && monthNum <= 12) {
+        date = new Date(new Date().getFullYear(), monthNum - 1, 1);
+      } else {
+        // Final fallback
+        return bulan;
+      }
+    }
+
+    if (isNaN(date.getTime())) return bulan;
+
+    return new Intl.DateTimeFormat("id-ID", {
+      month: "long",
+      year: "numeric",
+    }).format(date);
+  } catch (e) {
+    return bulan;
+  }
 }
 
 export const hitungTanggalBerikutnya = (tanggal: string, frekuensi: string) => {

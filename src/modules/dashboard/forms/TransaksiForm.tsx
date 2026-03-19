@@ -11,13 +11,7 @@ import { Save, CalendarIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
-import {
-    Dialog,
-    DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from '@/shared/ui/dialog';
+import { ResponsiveModal } from '@/shared/ui/responsive-modal';
 import {
     Popover,
     PopoverContent,
@@ -143,11 +137,12 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     };
 
     return (
-        <Dialog open={true} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-md">
-                <DialogHeader className="mb-2">
-                    <DialogTitle>{transaksiToEdit ? 'Edit Transaksi' : 'Tambah Transaksi'}</DialogTitle>
-                </DialogHeader>
+        <ResponsiveModal
+            open={true}
+            onOpenChange={onClose}
+            title={transaksiToEdit ? 'Edit Transaksi' : 'Tambah Transaksi'}
+            className="sm:max-w-md"
+        >
 
                 {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
                 <form onSubmit={handleSubmit(onSubmit as any)} className="space-y-6 pt-2">
@@ -356,7 +351,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                         </div>
                     )}
 
-                    <DialogFooter>
+                    <div className="pt-4 flex flex-col sm:flex-row sm:justify-end gap-2">
                         <Button
                             type="submit"
                             disabled={isSubmitting}
@@ -365,9 +360,8 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                             <Save size={18} className="mr-2" />
                             {isSubmitting ? 'Menyimpan...' : (transaksiToEdit ? 'Simpan Perubahan' : 'Tambah Transaksi')}
                         </Button>
-                    </DialogFooter>
+                    </div>
                 </form>
-            </DialogContent>
-        </Dialog>
+        </ResponsiveModal>
     );
 }
