@@ -35,7 +35,7 @@ import {
   tambahTitipan,
   updateTitipan,
 } from "@/lib/actions";
-import { getCurrentMonth, generateId } from "@/lib/utils";
+import { getCurrentMonth, generateId, formatRupiah } from "@/lib/utils";
 
 // ---------- Store Types ----------
 interface FinanceState {
@@ -104,6 +104,9 @@ interface FinanceState {
   // Actions - Titipan CRUD
   addTitipan: (data: Titipan) => Promise<void>;
   updateTitipanStatus: (id: string, status: "aktif" | "selesai") => Promise<void>;
+  archiveTitipan: (id: string) => Promise<boolean>;
+  titipanToEdit: any;
+  setTitipanToEdit: (val: any) => void;
 
   // Actions - UI
   setActiveModal: (modal: string | null) => void;
@@ -111,6 +114,8 @@ interface FinanceState {
   setSidebarCollapsed: (collapsed: boolean) => void;
 
   // Derived Getters (Titipan)
+  getTitipanAktif: () => Titipan[];
+  getTitipanSelesai: () => Titipan[];
   getSisaSaldoTitipan: (id_titipan: string) => number;
   getTotalSaldoTitipanAktif: () => number;
   getPersonalTransactions: () => Transaksi[];
@@ -131,6 +136,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   activeMonth: "", 
   activeModal: null,
   isSidebarCollapsed: false,
+  titipanToEdit: null,
 
   // ======================== Data Fetching ========================
 
@@ -705,6 +711,21 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
   },
 
+  archiveTitipan: async (id) => {
+    const sisa = get().getSisaSaldoTitipan(id);
+    if (sisa !== 0) {
+      toast.error(`Saldo harus Rp 0 untuk diarsipkan. Saldo saat ini: ${formatRupiah(sisa)}`);
+      return false;
+    }
+
+    try {
+      await get().updateTitipanStatus(id, "selesai");
+      return true;
+    } catch (error) {
+      return false;
+    }
+  },
+
   // ======================== UI State ========================
 
   setActiveModal: (modal) => set({ activeModal: modal }),
@@ -726,7 +747,17 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
   },
 
+  setTitipanToEdit: (val) => set({ titipanToEdit: val }),
+
   // ======================== Titipan Getters ========================
+
+  getTitipanAktif: () => {
+    return get().titipanList.filter((t) => t.status === "aktif");
+  },
+
+  getTitipanSelesai: () => {
+    return get().titipanList.filter((t) => t.status === "selesai");
+  },
 
   getSisaSaldoTitipan: (id_titipan) => {
     return get().transaksiList

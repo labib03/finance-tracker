@@ -36,7 +36,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     const budgetList = useFinanceStore((s) => s.budgetList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
-    const titipanList = useFinanceStore((s) => s.titipanList);
+    const getTitipanAktif = useFinanceStore((s) => s.getTitipanAktif);
 
     const [activeJenis, setActiveJenis] = useState<'Pengeluaran' | 'Pemasukan'>(
         (transaksiToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran') as 'Pengeluaran' | 'Pemasukan'
@@ -304,8 +304,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                                     <SearchableSelect
                                         options={[
                                             { value: '', label: 'Bukan Uang Titipan (Pribadi)' },
-                                            ...titipanList
-                                                .filter((t: Titipan) => t.status === 'aktif')
+                                            ...getTitipanAktif()
                                                 .map((t: Titipan) => ({
                                                     value: t.id_titipan,
                                                     label: `👤 ${t.nama_konteks}`

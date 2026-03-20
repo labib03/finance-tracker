@@ -23,6 +23,12 @@ import {
     DropdownMenuItem, 
     DropdownMenuTrigger 
 } from '@/shared/ui/dropdown-menu';
+import { 
+    Dialog, 
+    DialogContent, 
+    DialogHeader, 
+    DialogTitle 
+} from '@/shared/ui/dialog';
 
 interface TitipanSummaryProps {
     onAddClick?: () => void;
@@ -30,17 +36,16 @@ interface TitipanSummaryProps {
 }
 
 export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSummaryProps) {
-    const titipanList = useFinanceStore((s) => s.titipanList);
+    const getTitipanAktif = useFinanceStore((s) => s.getTitipanAktif);
     const getSisaSaldoTitipan = useFinanceStore((s) => s.getSisaSaldoTitipan);
-    const updateTitipanStatus = useFinanceStore((s) => s.updateTitipanStatus);
+    const archiveTitipan = useFinanceStore((s) => s.archiveTitipan);
     const getTotalSaldoTitipanAktif = useFinanceStore((s) => s.getTotalSaldoTitipanAktif);
     const setActiveModal = useFinanceStore((s) => s.setActiveModal);
 
     const [detailId, setDetailId] = useState<string | null>(null);
+    const [showArchive, setShowArchive] = useState(false);
 
-    const activeTitipan = useMemo(() => 
-        titipanList.filter(t => t.status === 'aktif'),
-    [titipanList]);
+    const activeTitipan = useMemo(() => getTitipanAktif(), [getTitipanAktif]);
 
     const totalSaldo = useMemo(() => getTotalSaldoTitipanAktif(), [getTotalSaldoTitipanAktif]);
 
@@ -185,13 +190,13 @@ export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSumma
                                                             </DropdownMenuItem>
                                                             <DropdownMenuItem 
                                                                 disabled={!isZero}
-                                                                onClick={() => updateTitipanStatus(t.id_titipan, 'selesai')}
+                                                                onClick={() => archiveTitipan(t.id_titipan)}
                                                                 className={cn(
                                                                     "rounded-lg flex items-center gap-3 p-2.5 font-bold text-xs",
-                                                                    isZero ? "text-[#374151] hover:bg-[#F9FAFB] cursor-pointer" : "text-[#D1D5DB] cursor-not-allowed"
+                                                                    isZero ? "text-red-500 hover:bg-red-50 cursor-pointer" : "text-[#D1D5DB] cursor-not-allowed"
                                                                 )}
                                                             >
-                                                                <CheckCircle2 size={16} className={isZero ? "text-[#D9AA69]" : "text-[#E5E7EB]"} />
+                                                                <CheckCircle2 size={16} className={isZero ? "text-red-500" : "text-[#E5E7EB]"} />
                                                                 Tutup Amplop
                                                             </DropdownMenuItem>
                                                         </DropdownMenuContent>
@@ -205,6 +210,34 @@ export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSumma
                         </AnimatePresence>
                     </div>
                 </CardContent>
+                <div className="px-8 pb-8 mt-auto shrink-0 relative z-20">
+                    <div className="pt-6 border-t border-[#F3F4F6]">
+                        <button 
+                            onClick={() => setShowArchive(true)}
+                            className="w-full group/archive relative flex items-center justify-between p-4 rounded-2xl bg-[#F9FAFB] hover:bg-[#F3F4F6] transition-all duration-300 border border-transparent hover:border-[#E5E7EB]"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-lg bg-white flex items-center justify-center shadow-sm text-[#9CA3AF] group-hover/archive:text-[#D9AA69] transition-colors">
+                                    <History size={16} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-[#9CA3AF] group-hover/archive:text-[#6B7280] leading-none mb-1">
+                                        Penyimpanan
+                                    </p>
+                                    <p className="text-xs font-bold text-[#4B5563] group-hover/archive:text-[#374151]">
+                                        Lihat Riwayat Arsip
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <div className="px-2 py-1 rounded-md bg-white border border-[#F3F4F6] text-[10px] font-black text-[#D9AA69]">
+                                    {useFinanceStore.getState().getTitipanSelesai().length}
+                                </div>
+                                <Plus size={14} className="text-[#D1D5DB] group-hover/archive:text-[#9CA3AF] rotate-45" />
+                            </div>
+                        </button>
+                    </div>
+                </div>
             </Card>
 
             <TitipanDetailPanel 
@@ -213,6 +246,72 @@ export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSumma
                 onOpenChange={(open) => !open && setDetailId(null)}
                 onAddTransaction={handleAddTransactionFromDetail}
             />
+
+            <TitipanArchiveModal 
+                open={showArchive}
+                onOpenChange={setShowArchive}
+                onSelect={(id) => {
+                    setShowArchive(false);
+                    setDetailId(id);
+                }}
+            />
         </>
+    );
+}
+
+function TitipanArchiveModal({ open, onOpenChange, onSelect }: { open: boolean, onOpenChange: (open: boolean) => void, onSelect: (id: string) => void }) {
+    const getTitipanSelesai = useFinanceStore((s) => s.getTitipanSelesai);
+    const archivedList = useMemo(() => getTitipanSelesai(), [getTitipanSelesai]);
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="max-w-md p-0 overflow-hidden border-none bg-white shadow-2xl rounded-[2.5rem] flex flex-col max-h-[80vh]">
+                <DialogHeader className="p-8 pb-4">
+                    <div className="flex items-center gap-3">
+                        <div className="p-2 bg-muted rounded-xl">
+                            <History size={18} className="text-muted-foreground" />
+                        </div>
+                        <div>
+                            <DialogTitle className="text-lg font-black text-[#374151]">Ruang Arsip</DialogTitle>
+                            <CardDescription className="text-xs font-medium">Daftar amplop yang telah diselesaikan</CardDescription>
+                        </div>
+                    </div>
+                </DialogHeader>
+
+                <div className="flex-1 overflow-y-auto p-6 pt-2 space-y-3 custom-scrollbar">
+                    {archivedList.length === 0 ? (
+                        <div className="text-center py-12 opacity-40">
+                             <PackageCheck size={40} className="mx-auto mb-3 opacity-20" />
+                             <p className="text-xs font-bold italic">Belum ada arsip</p>
+                        </div>
+                    ) : (
+                        archivedList.map((t) => (
+                            <div 
+                                key={t.id_titipan}
+                                onClick={() => onSelect(t.id_titipan)}
+                                className="flex items-center justify-between p-4 bg-[#F9FAFB] hover:bg-[#F3F4F6] rounded-2xl border border-transparent transition-all cursor-pointer group"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <div className="p-2 bg-white rounded-lg shadow-sm">
+                                        <User size={16} className="text-[#9CA3AF]" />
+                                    </div>
+                                    <span className="text-sm font-bold text-[#4B5563]">{t.nama_konteks}</span>
+                                </div>
+                                <LayoutList size={16} className="text-[#D1D5DB] group-hover:text-[#374151] transition-colors" />
+                            </div>
+                        ))
+                    )}
+                </div>
+                <div className="p-6 bg-[#F9FAFB] border-t border-[#F3F4F6]">
+                    <Button 
+                        variant="ghost" 
+                        onClick={() => onOpenChange(false)}
+                        className="w-full text-xs font-black uppercase tracking-widest text-[#9CA3AF] hover:text-[#374151]"
+                    >
+                        Tutup
+                    </Button>
+                </div>
+            </DialogContent>
+        </Dialog>
     );
 }

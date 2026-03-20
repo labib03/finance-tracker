@@ -105,8 +105,13 @@ export default function TitipanDetailPanel({
                     <div className="absolute top-0 left-0 w-full h-full bg-amber-500/5 -z-10 blur-3xl opacity-50" />
                     <div className="flex flex-col gap-2">
                         <div>
-                            <Badge variant="outline" className="bg-amber-50 text-amber-600 border-amber-100 rounded-lg px-2 py-0 font-black text-[10px] uppercase tracking-wider">
-                                Active Envelope
+                            <Badge variant="outline" className={cn(
+                                "rounded-lg px-2 py-0 font-black text-[10px] uppercase tracking-wider",
+                                titipan.status === 'aktif' 
+                                    ? "bg-amber-50 text-amber-600 border-amber-100" 
+                                    : "bg-gray-100 text-gray-500 border-gray-200"
+                            )}>
+                                {titipan.status === 'aktif' ? 'Active Envelope' : 'Selesai / Diarsipkan'}
                             </Badge>
                         </div>
                         <DialogTitle className="text-3xl font-black text-foreground tracking-tight">
@@ -174,18 +179,20 @@ export default function TitipanDetailPanel({
                     </div>
                 </div>
 
-                <div className="p-8 border-t border-border/40 shrink-0 bg-white/50 backdrop-blur-md">
-                    <Button
-                        onClick={() => {
-                            onOpenChange(false);
-                            onAddTransaction(titipanId!);
-                        }}
-                        className="w-full h-14 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black uppercase tracking-widest text-xs gap-3 shadow-[0_10px_30px_-10px_rgba(217,119,6,0.5)] transition-all hover:scale-[1.02] active:scale-95"
-                    >
-                        <Plus size={20} strokeWidth={3} />
-                        Tambah Transaksi Terkait
-                    </Button>
-                </div>
+                {titipan.status === 'aktif' && (
+                    <div className="p-8 border-t border-border/40 shrink-0 bg-white/50 backdrop-blur-md">
+                        <Button
+                            onClick={() => {
+                                onOpenChange(false);
+                                onAddTransaction(titipanId!);
+                            }}
+                            className="w-full h-14 rounded-2xl bg-amber-600 hover:bg-amber-700 text-white font-black uppercase tracking-widest text-xs gap-3 shadow-[0_10px_30px_-10px_rgba(217,119,6,0.5)] transition-all hover:scale-[1.02] active:scale-95"
+                        >
+                            <Plus size={20} strokeWidth={3} />
+                            Tambah Transaksi Terkait
+                        </Button>
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     );
