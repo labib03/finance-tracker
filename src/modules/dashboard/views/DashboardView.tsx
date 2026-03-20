@@ -3,7 +3,7 @@ import SummaryCards from '@/modules/dashboard/components/SummaryCards';
 import ExpensePieChart from '@/modules/dashboard/components/ExpensePieChart';
 import WeeklyTrendChart from '@/modules/dashboard/components/WeeklyTrendChart';
 import BudgetStatusCard from '@/modules/dashboard/components/BudgetStatusCard';
-import RecurringReminder from '@/modules/dashboard/components/RecurringReminder';
+import ProyeksiKasCard from '@/modules/dashboard/components/ProyeksiKasCard';
 import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 import { getToday } from '@/lib/utils';
@@ -26,9 +26,9 @@ export default function DashboardView({
         <ExpensePieChart />
         <WeeklyTrendChart />
       </div>
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 items-start">
         <BudgetStatusCard />
-        <RecurringReminder 
+        <ProyeksiKasCard 
           onViewAll={() => setActiveView('recurring')} 
           onProcess={(r) => {
             setTransaksiToEdit({

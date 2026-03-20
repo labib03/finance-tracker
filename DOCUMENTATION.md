@@ -9,9 +9,14 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
 ### 📊 Dashboard & Ringkasan
 - **Ringkasan Saldo**: Menampilkan total saldo dari seluruh akun/sumber dana.
 - **Tambah Akun Cepat**: Tombol "+ Tambah Akun" di halaman Saldo untuk input rekening/dompet baru secara instan.
-- **Kartu Arus Kas**: Menampilkan total pemasukan dan pengeluaran dalam siklus bulan berjalan.
+- **Kartu Proyeksi Kas (Zero-Based Budgeting)**: Kartu terpadu yang menggabungkan peramalan arus kas dan jadwal tagihan.
+    - **Indikator Visual**: Progress bar tiga warna (Terpakai, Tagihan Mendatang, Sisa Aman).
+    - **Sistem Peringatan**: Alert merah otomatis jika total tagihan melebihi sisa dana pribadi.
+    - **Manajemen Tagihan**: Daftar tagihan rutin dalam siklus (25 hingga 24) dengan tombol "Catat Sekarang" untuk eksekusi cepat.
+- **Status Anggaran Berbasis Kartu**: Pemantauan real-time pengeluaran per kategori terhadap limit bulanan.
 - **Pantauan Titipan (Digital Envelope)**: Menampilkan saldo dana titipan (uang orang lain) yang sedang Anda pegang dengan pemisahan konteks (per orang/proyek).
 - **Grafik Tren**: Visualisasi pengeluaran dan pemasukan mingguan serta distribusi pengeluaran per kategori (Pie Chart).
+- **Aesthetic & UX**: Desain *Scandi-Minimal* premium dengan kartu setinggi 750px dan sistem internal scrolling untuk akses data yang luas tanpa merusak layout.
 
 ### 💸 Manajemen Transaksi
 - **Pencatatan Pemasukan & Pengeluaran**: Mencatat transaksi dengan kategori, sumber dana, tanggal, dan catatan detail.
@@ -119,8 +124,10 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 ## 4. Logika Perhitungan Penting
 
 1.  **Siklus Keuangan**: Aplikasi mendukung pengaturan tanggal mulai siklus (default: tanggal 25). Seluruh ringkasan bulanan akan dihitung sejak tanggal tersebut hingga hari sebelum tanggal tersebut di bulan berikutnya.
-2.  **Saldo Riil**: Saldo setiap akun dihitung dengan rumus:
+2.  **Zero-Based Budgeting (ZBB)**: Logika proyeksi kas menggunakan prinsip ZBB: `Sisa Aman = Pemasukan Aktual - (Pengeluaran Aktual + Semua Tagihan Rutin Siklus)`. Ini memastikan setiap rupiah memiliki "pekerjaan" dan pengguna tahu persis berapa uang yang benar-benar bebas digunakan.
+3.  **Saldo Riil**: Saldo setiap akun dihitung dengan rumus:
     `Saldo Awal + (Total Pemasukan & Transfer Masuk) - (Total Pengeluaran & Transfer Keluar)`
-3.  **Dana Titipan**: Sisa dana titipan dihitung secara khusus dari akumulasi transaksi bertipe `is_titipan` untuk membantu pengguna mengetahui berapa banyak uang orang lain yang masih tersimpan di dompet elektroniknya.
-4.  **Aturan Pengarsipan**: Sebuah amplop titipan baru bisa diubah statusnya menjadi `selesai` (archive) jika sisa saldonya tepat Rp 0. Ini memastikan tidak ada dana yang "terlupakan" di dalam arsip.
-5.  **Filter Transaksi**: Transaksi baru hanya dapat ditautkan ke amplop titipan dengan status `aktif`. Amplop yang sudah diarsipkan bersifat *read-only*.
+4.  **Dana Titipan**: Sisa dana titipan dihitung secara khusus dari akumulasi transaksi bertipe `is_titipan` untuk membantu pengguna mengetahui berapa banyak uang orang lain yang masih tersimpan di dompet elektroniknya.
+5.  **Aturan Pengarsipan**: Sebuah amplop titipan baru bisa diubah statusnya menjadi `selesai` (archive) jika sisa saldonya tepat Rp 0. Ini memastikan tidak ada dana yang "terlupakan" di dalam arsip.
+6.  **Filter Transaksi**: Transaksi baru hanya dapat ditautkan ke amplop titipan dengan status `aktif`. Amplop yang sudah diarsipkan bersifat *read-only*.
+7.  **Layout Dinamis**: Komponen Dashboard menggunakan tinggi tetap (750px) dengan `overflow-y-auto` dan kustom scrollbar. Ini memungkinkan daftar yang panjang (seperti tagihan rutin atau kategori budget) tetap dapat diakses tanpa memperpanjang halaman secara keseluruhan.

@@ -35,7 +35,7 @@ import {
   tambahTitipan,
   updateTitipan,
 } from "@/lib/actions";
-import { getCurrentMonth, generateId, formatRupiah } from "@/lib/utils";
+import { getCurrentMonth, generateId, formatRupiah, hitungSaldoAkun } from "@/lib/utils";
 
 // ---------- Store Types ----------
 interface FinanceState {
@@ -116,9 +116,22 @@ interface FinanceState {
   // Derived Getters (Titipan)
   getTitipanAktif: () => Titipan[];
   getTitipanSelesai: () => Titipan[];
-  getSisaSaldoTitipan: (id_titipan: string) => number;
+  getSisaSaldoTitipan: (id: string) => number;
   getTotalSaldoTitipanAktif: () => number;
   getPersonalTransactions: () => Transaksi[];
+
+  // Cashflow Forecasting
+  getCurrentCycleDates: () => { startDate: Date; endDate: Date };
+  getUpcomingRecurringExpenses: () => { items: RecurringTransaction[]; total: number };
+  getPersonalIncomeThisCycle: () => number;
+  getPersonalExpenseThisCycle: () => number;
+  getProyeksiKas: () => { 
+    pemasukanSiklus: number;
+    pengeluaranSiklus: number;
+    upcomingBills: number; 
+    sisaBersih: number;
+    upcomingItems: RecurringTransaction[];
+  };
 }
 
 // ---------- Create Store ----------
@@ -759,7 +772,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     return get().titipanList.filter((t) => t.status === "selesai");
   },
 
-  getSisaSaldoTitipan: (id_titipan) => {
+  getSisaSaldoTitipan: (id_titipan: string) => {
     return get().transaksiList
       .filter((t) => t.is_titipan === id_titipan)
       .reduce((acc, t) => {
@@ -785,5 +798,84 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   getPersonalTransactions: () => {
     return get().transaksiList.filter((t) => !t.is_titipan);
+  },
+
+  // ======================== Cashflow Forecasting ========================
+
+  getCurrentCycleDates: () => {
+    const cycleStartDay = get().cycleStartDay;
+    const now = new Date();
+    let year = now.getFullYear();
+    let month = now.getMonth(); // 0-indexed
+
+    let startDate: Date;
+    let endDate: Date;
+
+    if (now.getDate() >= cycleStartDay) {
+      // We are in the current cycle that started this month
+      startDate = new Date(year, month, cycleStartDay);
+      endDate = new Date(year, month + 1, cycleStartDay - 1, 23, 59, 59);
+    } else {
+      // We are in the cycle that started last month
+      startDate = new Date(year, month - 1, cycleStartDay);
+      endDate = new Date(year, month, cycleStartDay - 1, 23, 59, 59);
+    }
+
+    return { startDate, endDate };
+  },
+
+  getUpcomingRecurringExpenses: () => {
+    const { endDate } = get().getCurrentCycleDates();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const items = get().recurringList.filter((r) => {
+      if (!r.aktif || r.jenis !== "Pengeluaran") return false;
+      
+      const nextDate = new Date(r.tanggal_berikutnya);
+      return nextDate >= today && nextDate <= endDate;
+    });
+
+    const total = items.reduce((acc, item) => acc + item.nominal, 0);
+    return { items, total };
+  },
+
+  getPersonalIncomeThisCycle: () => {
+    const { startDate, endDate } = get().getCurrentCycleDates();
+    return get().transaksiList
+      .filter((t) => {
+        const d = new Date(t.tanggal);
+        return t.jenis === "Pemasukan" && !t.is_titipan && d >= startDate && d <= endDate;
+      })
+      .reduce((acc, t) => acc + t.nominal, 0);
+  },
+
+  getPersonalExpenseThisCycle: () => {
+    const { startDate, endDate } = get().getCurrentCycleDates();
+    return get().transaksiList
+      .filter((t) => {
+        const d = new Date(t.tanggal);
+        return t.jenis === "Pengeluaran" && !t.is_titipan && d >= startDate && d <= endDate;
+      })
+      .reduce((acc, t) => acc + t.nominal, 0);
+  },
+
+  getProyeksiKas: () => {
+    const state = get();
+    
+    const pemasukanSiklus = state.getPersonalIncomeThisCycle();
+    const pengeluaranSiklus = state.getPersonalExpenseThisCycle();
+    const { items: upcomingItems, total: upcomingBills } = state.getUpcomingRecurringExpenses();
+
+    // Sisa Bersih = Pemasukan Siklus Ini - Pengeluaran Siklus Ini (berjalan) - Tagihan Mendatang
+    const sisaBersih = pemasukanSiklus - pengeluaranSiklus - upcomingBills;
+
+    return {
+      pemasukanSiklus,
+      pengeluaranSiklus,
+      upcomingBills,
+      sisaBersih,
+      upcomingItems
+    };
   },
 }));
