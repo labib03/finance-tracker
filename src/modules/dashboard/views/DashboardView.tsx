@@ -4,22 +4,25 @@ import ExpensePieChart from '@/modules/dashboard/components/ExpensePieChart';
 import WeeklyTrendChart from '@/modules/dashboard/components/WeeklyTrendChart';
 import BudgetStatusCard from '@/modules/dashboard/components/BudgetStatusCard';
 import RecurringReminder from '@/modules/dashboard/components/RecurringReminder';
+import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 import { getToday } from '@/lib/utils';
 
 export default function DashboardView({
   setActiveView,
   setActiveModal,
-  setTransaksiToEdit
+  setTransaksiToEdit,
+  setTitipanToEdit
 }: {
   setActiveView: (view: string) => void;
   setActiveModal: (modal: string) => void;
   setTransaksiToEdit: (t: any) => void;
+  setTitipanToEdit: (t: any) => void;
 }) {
   return (
     <div className="space-y-8">
       <SummaryCards />
-      <div className="chart-grid">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <ExpensePieChart />
         <WeeklyTrendChart />
       </div>

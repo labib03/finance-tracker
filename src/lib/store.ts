@@ -6,6 +6,7 @@ import type {
   SumberDana,
   RecurringTransaction,
   Budget,
+  Titipan,
 } from "@/lib/types";
 import {
   fetchKategori,
@@ -30,6 +31,9 @@ import {
   updateRecurring as updateRecurringAction,
   hapusRecurring as hapusRecurringAction,
   prosesRecurring,
+  fetchTitipan,
+  tambahTitipan,
+  updateTitipan,
 } from "@/lib/actions";
 import { getCurrentMonth, generateId } from "@/lib/utils";
 
@@ -41,6 +45,7 @@ interface FinanceState {
   transaksiList: Transaksi[];
   recurringList: RecurringTransaction[];
   budgetList: Budget[];
+  titipanList: Titipan[];
 
   // UI State
   isLoading: boolean;
@@ -67,6 +72,7 @@ interface FinanceState {
     catatan: string,
     tanggal: string,
     biaya_admin?: number,
+    is_titipan?: string | null,
   ) => Promise<void>;
   updateTransfer: (
     data: Transaksi,
@@ -95,10 +101,19 @@ interface FinanceState {
   updateSumberDana: (data: SumberDana) => Promise<void>;
   removeSumberDana: (id: string) => Promise<void>;
 
+  // Actions - Titipan CRUD
+  addTitipan: (data: Titipan) => Promise<void>;
+  updateTitipanStatus: (id: string, status: "aktif" | "selesai") => Promise<void>;
+
   // Actions - UI
   setActiveModal: (modal: string | null) => void;
   setCycleStartDay: (day: number) => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
+
+  // Derived Getters (Titipan)
+  getSisaSaldoTitipan: (id_titipan: string) => number;
+  getTotalSaldoTitipanAktif: () => number;
+  getPersonalTransactions: () => Transaksi[];
 }
 
 // ---------- Create Store ----------
@@ -109,6 +124,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   transaksiList: [],
   recurringList: [],
   budgetList: [],
+  titipanList: [],
   isLoading: true,
   isInitialized: false,
   cycleStartDay: 25, // Default
@@ -139,13 +155,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       activeMonth: getCurrentMonth(savedDay)
     });
     try {
-      const [kategori, sumberDana, transaksi, recurring, budgets] =
+      const [kategori, sumberDana, transaksi, recurring, budgets, titipan] =
         await Promise.all([
           fetchKategori(),
           fetchSumberDana(),
           fetchTransaksi(),
           fetchRecurring(),
           fetchBudgets(),
+          fetchTitipan(),
         ]);
 
       set({
@@ -154,6 +171,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         transaksiList: transaksi,
         recurringList: recurring,
         budgetList: budgets,
+        titipanList: titipan,
         isLoading: false,
         isInitialized: true,
       });
@@ -169,13 +187,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   refreshData: async () => {
     try {
-      const [transaksi, recurring, budgets, kategori, sumberDana] =
+      const [transaksi, recurring, budgets, kategori, sumberDana, titipan] =
         await Promise.all([
           fetchTransaksi(),
           fetchRecurring(),
           fetchBudgets(),
           fetchKategori(),
           fetchSumberDana(),
+          fetchTitipan(),
         ]);
 
       set({
@@ -184,6 +203,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         budgetList: budgets,
         kategoriList: kategori,
         sumberDanaList: sumberDana,
+        titipanList: titipan,
       });
     } catch (error) {
       console.error("Failed to refresh:", error);
@@ -243,13 +263,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   addTransfer: async (
-    id_sumber_dana_asal,
-    id_target_dana,
-    nominal,
-    label,
-    catatan,
-    tanggal,
+    id_sumber_dana_asal: string,
+    id_target_dana: string,
+    nominal: number,
+    label: string,
+    catatan: string,
+    tanggal: string,
     biaya_admin = 0,
+    is_titipan = null,
   ) => {
     const id = generateId();
     const transferTx: Transaksi = {
@@ -262,6 +283,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       nominal,
       label,
       catatan,
+      is_titipan,
     };
 
     const newTransactions = [transferTx];
@@ -646,6 +668,43 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
   },
 
+  // ======================== Titipan CRUD ========================
+
+  addTitipan: async (data) => {
+    set((state) => ({
+      titipanList: [...state.titipanList, data],
+    }));
+
+    toast.success("Amplop Titipan berhasil dibuat!");
+
+    const success = await tambahTitipan(data);
+    if (!success) {
+      set((state) => ({
+        titipanList: state.titipanList.filter((t) => t.id_titipan !== data.id_titipan),
+      }));
+      toast.error("Gagal menyimpan amplop titipan.");
+    }
+  },
+
+  updateTitipanStatus: async (id, status) => {
+    const prev = get().titipanList;
+    const target = prev.find((t) => t.id_titipan === id);
+    if (!target) return;
+
+    const updated = { ...target, status };
+    set((state) => ({
+      titipanList: state.titipanList.map((t) => (t.id_titipan === id ? updated : t)),
+    }));
+
+    toast.success(`Status Titipan diubah menjadi ${status}`);
+
+    const success = await updateTitipan(updated);
+    if (!success) {
+      set({ titipanList: prev });
+      toast.error("Gagal mengupdate status titipan.");
+    }
+  },
+
   // ======================== UI State ========================
 
   setActiveModal: (modal) => set({ activeModal: modal }),
@@ -665,5 +724,35 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     if (typeof window !== 'undefined') {
       localStorage.setItem('sidebar_collapsed', collapsed.toString());
     }
+  },
+
+  // ======================== Titipan Getters ========================
+
+  getSisaSaldoTitipan: (id_titipan) => {
+    return get().transaksiList
+      .filter((t) => t.is_titipan === id_titipan)
+      .reduce((acc, t) => {
+        if (t.jenis === "Pemasukan") return acc + t.nominal;
+        if (t.jenis === "Pengeluaran") return acc - t.nominal;
+        return acc;
+      }, 0);
+  },
+
+  getTotalSaldoTitipanAktif: () => {
+    const activeTitipanIds = get()
+      .titipanList.filter((t) => t.status === "aktif")
+      .map((t) => t.id_titipan);
+
+    return get().transaksiList
+      .filter((t) => t.is_titipan && activeTitipanIds.includes(t.is_titipan))
+      .reduce((acc, t) => {
+        if (t.jenis === "Pemasukan") return acc + t.nominal;
+        if (t.jenis === "Pengeluaran") return acc - t.nominal;
+        return acc;
+      }, 0);
+  },
+
+  getPersonalTransactions: () => {
+    return get().transaksiList.filter((t) => !t.is_titipan);
   },
 }));

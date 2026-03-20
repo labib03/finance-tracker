@@ -16,6 +16,7 @@ export const transaksiSchema = z.object({
     .positive("Nominal harus lebih dari 0"),
   label: z.string().min(1, "Judul/Label wajib diisi"),
   catatan: z.string().optional().default(""),
+  is_titipan: z.string().nullable().optional().default(null),
 });
 
 export const transferSchema = z
@@ -28,6 +29,7 @@ export const transferSchema = z
       .positive("Nominal harus lebih dari 0"),
     label: z.string().min(1, "Judul/Label wajib diisi"),
     catatan: z.string().optional().default(""),
+    is_titipan: z.string().nullable().optional().default(null),
   })
   .refine((data) => data.id_sumber_dana_asal !== data.id_target_dana, {
     message: "Sumber dana asal dan tujuan tidak boleh sama",
@@ -83,9 +85,17 @@ export const sumberDanaSchema = z.object({
     .min(0, "Saldo awal tidak boleh negatif"),
 });
 
+export const titipanSchema = z.object({
+  id_titipan: z.string().min(1, "ID Titipan wajib diisi"),
+  nama_konteks: z.string().min(1, "Nama konteks wajib diisi (e.g. Nama orang)"),
+  tanggal_dibuat: z.string().min(1, "Tanggal dibuat wajib diisi"),
+  status: z.enum(["aktif", "selesai"]).default("aktif"),
+});
+
 export type TransaksiFormData = z.infer<typeof transaksiSchema>;
 export type TransferFormData = z.infer<typeof transferSchema>;
 export type RecurringFormData = z.infer<typeof recurringSchema>;
 export type BudgetFormData = z.infer<typeof budgetSchema>;
 export type KategoriFormData = z.infer<typeof kategoriSchema>;
 export type SumberDanaFormData = z.infer<typeof sumberDanaSchema>;
+export type TitipanFormData = z.infer<typeof titipanSchema>;

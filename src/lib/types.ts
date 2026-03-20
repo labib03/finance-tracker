@@ -11,6 +11,14 @@ export interface Kategori {
   icon_name: string;
 }
 
+// ---------- Master_Titipan Sheet ----------
+export interface Titipan {
+  id_titipan: string;
+  nama_konteks: string;
+  tanggal_dibuat: string; // YYYY-MM-DD
+  status: "aktif" | "selesai";
+}
+
 // ---------- Master_Sumber_Dana Sheet ----------
 export interface SumberDana {
   id_sumber_dana: string;
@@ -30,6 +38,7 @@ export interface Transaksi {
   catatan: string;
   // Transfer fields (optional)
   id_target_dana?: string;
+  is_titipan?: string | null;
 }
 
 // ---------- Recurring Transaction ----------
@@ -101,6 +110,7 @@ export interface TransaksiFormInput {
   nominal: number;
   label: string;
   catatan: string;
+  is_titipan?: string | null;
 }
 
 export interface TransferFormInput {
@@ -110,6 +120,7 @@ export interface TransferFormInput {
   nominal: number;
   label: string;
   catatan: string;
+  is_titipan?: string | null; // Changed from boolean to string | null based on Zod schema
 }
 
 export interface RecurringFormInput {

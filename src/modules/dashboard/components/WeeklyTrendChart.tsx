@@ -73,29 +73,29 @@ export default function WeeklyTrendChart() {
             </CardHeader>
 
             <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-4">
-                <div className="h-[200px] sm:h-[280px] w-full mt-4 contain-layout -ml-2 sm:ml-0">
+                <div className="h-[280px] sm:h-[320px] w-full mt-4 contain-layout -ml-2 sm:ml-0 overflow-hidden relative">
                     <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={data} barGap={8} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                            <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="hsl(var(--muted))" opacity={0.3} />
+                        <BarChart data={data} barGap={8} margin={{ top: 10, right: 0, left: -20, bottom: 20 }}>
+                            <CartesianGrid strokeDasharray="0" vertical={false} stroke="#F1F5F9" strokeOpacity={0.8} />
                             <XAxis
                                 dataKey="minggu"
-                                tick={{ fontSize: 10, fontWeight: 900, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+                                tick={{ fontSize: 10, fontWeight: 900, fill: '#94A3B8', opacity: 0.8 }}
                                 axisLine={false}
                                 tickLine={false}
-                                dy={10}
+                                dy={15}
                             />
                             <YAxis
-                                tick={{ fontSize: 10, fontWeight: 900, fill: 'hsl(var(--muted-foreground))', opacity: 0.6 }}
+                                tick={{ fontSize: 10, fontWeight: 900, fill: '#94A3B8', opacity: 0.8 }}
                                 axisLine={false}
                                 tickLine={false}
                                 tickFormatter={(value) => {
-                                    if (value >= 1000000) return `${(value / 1000000).toFixed(0)}Jt`;
-                                    if (value >= 1000) return `${(value / 1000).toFixed(0)}Rb`;
-                                    return value;
+                                     if (value >= 1000000) return `${(value / 1000000).toFixed(0)}Jt`;
+                                     if (value >= 1000) return `${(value / 1000).toFixed(0)}Rb`;
+                                     return value;
                                 }}
                             />
                             <Tooltip
-                                cursor={{ fill: 'hsl(var(--muted))', opacity: 0.1 }}
+                                cursor={{ fill: '#F1F5F9', opacity: 0.4 }}
                                 content={({ active, payload }) => {
                                     if (active && payload && payload.length) {
                                         return (

@@ -12,6 +12,7 @@ import type {
   SumberDana,
   RecurringTransaction,
   Budget,
+  Titipan,
 } from "@/lib/types";
 
 // ---------- Google Sheets Auth Setup ----------
@@ -140,12 +141,33 @@ export async function fetchSumberDana(): Promise<SumberDana[]> {
   }
 }
 
+export async function fetchTitipan(): Promise<Titipan[]> {
+  try {
+    const sheets = getSheets();
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: "Master_Titipan!A2:D",
+    });
+
+    const rows = response.data.values || [];
+    return rows.map((row) => ({
+      id_titipan: row[0] || "",
+      nama_konteks: row[1] || "",
+      tanggal_dibuat: row[2] || "",
+      status: (row[3] as Titipan["status"]) || "aktif",
+    }));
+  } catch (error) {
+    console.error("Error fetching titipan:", error);
+    return [];
+  }
+}
+
 export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
   try {
     const sheets = getSheets();
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Transaksi!A2:I",
+      range: "Transaksi!A2:J",
     });
 
     const rows = response.data.values || [];
@@ -159,6 +181,7 @@ export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
       catatan: row[6] || "",
       id_target_dana: row[7] || undefined,
       label: row[8] || "",
+      is_titipan: row[9] || null,
     }));
 
     if (bulan) {
@@ -230,7 +253,7 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
     const sheets = getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Transaksi!A:I",
+      range: "Transaksi!A:J",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -244,6 +267,7 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
             transaksi.catatan,
             transaksi.id_target_dana || "",
             transaksi.label,
+            transaksi.is_titipan || "",
           ],
         ],
       },
@@ -265,7 +289,7 @@ export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Transaksi!A${rowIndex + 1}:I${rowIndex + 1}`,
+      range: `Transaksi!A${rowIndex + 1}:J${rowIndex + 1}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -279,6 +303,7 @@ export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
             transaksi.catatan,
             transaksi.id_target_dana || "",
             transaksi.label,
+            transaksi.is_titipan || "",
           ],
         ],
       },
@@ -504,7 +529,7 @@ export async function prosesRecurring(): Promise<boolean> {
     if (newTransactions.length > 0) {
       await sheets.spreadsheets.values.append({
         spreadsheetId: SPREADSHEET_ID,
-        range: "Transaksi!A:I",
+        range: "Transaksi!A:J",
         valueInputOption: "USER_ENTERED",
         requestBody: {
           values: newTransactions.map((t) => [
@@ -517,6 +542,7 @@ export async function prosesRecurring(): Promise<boolean> {
             t.catatan,
             t.id_target_dana || "",
             t.label,
+            t.is_titipan || "",
           ]),
         },
       });
@@ -668,4 +694,63 @@ export async function hapusSumberDana(
   id_sumber_dana: string,
 ): Promise<boolean> {
   return deleteRowByIdFromSheet("Master_Sumber_Dana", id_sumber_dana);
+}
+
+// ============================================================
+// TITIPAN CRUD
+// ============================================================
+
+export async function tambahTitipan(titipan: Titipan): Promise<boolean> {
+  try {
+    const sheets = getSheets();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: "Master_Titipan!A:D",
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            titipan.id_titipan,
+            titipan.nama_konteks,
+            titipan.tanggal_dibuat,
+            titipan.status,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error adding titipan:", error);
+    return false;
+  }
+}
+
+export async function updateTitipan(titipan: Titipan): Promise<boolean> {
+  try {
+    const result = await findRowAndGetSheetId("Master_Titipan", titipan.id_titipan);
+    if (!result) return false;
+
+    const { rowIndex } = result;
+    const sheets = getSheets();
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Master_Titipan!A${rowIndex + 1}:D${rowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            titipan.id_titipan,
+            titipan.nama_konteks,
+            titipan.tanggal_dibuat,
+            titipan.status,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating titipan:", error);
+    return false;
+  }
 }

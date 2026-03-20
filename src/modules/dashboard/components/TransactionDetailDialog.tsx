@@ -96,6 +96,14 @@ export function TransactionDetailDialog({
                                 {kategori?.nama_kategori || 'Tanpa Kategori'}
                             </p>
                         )}
+                        {transaksi.is_titipan && (
+                            <div className="mt-4 flex justify-center">
+                                <Badge variant="secondary" className="bg-amber-100 text-amber-700 border-amber-200 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest flex items-center gap-1.5 shadow-sm">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                                    Uang Titipan
+                                </Badge>
+                            </div>
+                        )}
                     </div>
                 </div>
 

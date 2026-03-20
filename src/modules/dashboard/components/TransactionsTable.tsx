@@ -12,6 +12,7 @@ import {
     ChevronLeft,
     ChevronRight,
     CalendarIcon,
+    UserCircle2,
 } from 'lucide-react';
 import type { Transaksi } from '@/lib/types';
 import { CategoryIcon } from '@/shared/ui/CategoryIcon';
@@ -317,17 +318,27 @@ export default function TransactionsTable({
                                             </div>
                                         </TableCell>
                                         <TableCell className="px-4 py-5 text-right">
-                                            <span className={cn(
-                                                "display-number text-[13px] font-black tracking-widest",
-                                                isTransfer
-                                                    ? "text-indigo-600"
-                                                    : isIncome
-                                                        ? "text-emerald-600"
-                                                        : "text-orange-600"
-                                            )}>
-                                                {isIncome ? '+' : isTransfer ? '' : '-'}
-                                                {formatRupiah(t.nominal)}
-                                            </span>
+                                            <div className="flex flex-col items-end">
+                                                <div className="flex items-center gap-1.5">
+                                                    {t.is_titipan && (
+                                                        <span className="flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100">
+                                                            <UserCircle2 size={10} strokeWidth={3} />
+                                                            <span className="text-[8px] font-black uppercase tracking-tighter">Titipan</span>
+                                                        </span>
+                                                    )}
+                                                    <span className={cn(
+                                                        "display-number text-[13px] font-black tracking-widest",
+                                                        isTransfer
+                                                            ? "text-indigo-600"
+                                                            : isIncome
+                                                                ? "text-emerald-600"
+                                                                : "text-orange-600"
+                                                    )}>
+                                                        {isIncome ? '+' : isTransfer ? '' : '-'}
+                                                        {formatRupiah(t.nominal)}
+                                                    </span>
+                                                </div>
+                                            </div>
                                         </TableCell>
                                         <TableCell className="px-4 py-5 text-right">
                                             <div className="flex flex-col items-end gap-1">
@@ -446,16 +457,30 @@ export default function TransactionsTable({
                                             </div>
                                         </div>
                                         <div className="flex flex-col items-end shrink-0 pl-3">
-                                            <span className={cn(
-                                                "display-number text-sm font-black tracking-widest leading-none",
-                                                isTransfer
-                                                    ? "text-indigo-600"
-                                                    : isIncome
-                                                        ? "text-emerald-600"
-                                                        : "text-orange-600"
-                                            )}>
-                                                {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
-                                            </span>
+                                            <div className="flex items-center gap-1">
+                                                <span className={cn(
+                                                    "display-number text-sm font-black tracking-widest leading-none",
+                                                    isTransfer
+                                                        ? "text-indigo-600"
+                                                        : isIncome
+                                                            ? "text-emerald-600"
+                                                            : "text-orange-600"
+                                                )}>
+                                                    {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
+                                                </span>
+                                            </div>
+                                            <p className="flex items-center gap-1 mt-2">
+                                                {t.catatan && (
+                                                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] truncate">
+                                                        {t.catatan}
+                                                    </span>
+                                                )}
+                                                {t.is_titipan && (
+                                                    <span className="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-black uppercase tracking-tighter">
+                                                        <UserCircle2 size={10} strokeWidth={3} /> Titipan
+                                                    </span>
+                                                )}
+                                            </p>
                                             <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] mt-2">
                                                 {formatTanggalPendek(t.tanggal)}
                                             </span>

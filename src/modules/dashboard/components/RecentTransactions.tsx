@@ -8,6 +8,7 @@ import {
     ArrowDownRight,
     ArrowLeftRight,
     Trash2,
+    UserCircle2,
 } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -101,6 +102,11 @@ export default function RecentTransactions({
                                             t.id_target_dana &&
                                             ` → ${getSumberDanaName(t.id_target_dana)}`}
                                         {t.catatan && ` · ${t.catatan}`}
+                                        {t.is_titipan && (
+                                            <span className="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-black uppercase tracking-tighter">
+                                                <UserCircle2 size={10} strokeWidth={3} /> Titipan
+                                            </span>
+                                        )}
                                     </p>
                                 </div>
 

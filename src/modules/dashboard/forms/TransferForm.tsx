@@ -5,9 +5,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { transferSchema, type TransferFormData } from '@/lib/schemas';
 import { getToday, cn } from '@/lib/utils';
-import { ArrowLeftRight, CalendarIcon } from 'lucide-react';
 import { useEffect } from 'react';
-import type { Transaksi } from '@/lib/types';
+import type { Transaksi, Titipan } from '@/lib/types';
+import { UserCircle2 } from 'lucide-react';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
@@ -21,6 +21,7 @@ import { Calendar } from '@/shared/ui/calendar';
 import { SearchableSelect } from '@/shared/ui/SearchableSelect';
 import { Textarea } from '@/shared/ui/textarea';
 import { Label } from '@/shared/ui/label';
+import { ArrowLeftRight, CalendarIcon } from 'lucide-react';
 
 interface TransferFormProps {
     onClose: () => void;
@@ -32,6 +33,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const addTransfer = useFinanceStore((s) => s.addTransfer);
     const updateTransfer = useFinanceStore((s) => s.updateTransfer);
+    const titipanList = useFinanceStore((s) => s.titipanList);
 
     const {
         register,
@@ -50,6 +52,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
             nominal: transferToEdit?.nominal || 0,
             label: transferToEdit?.label || 'Transfer Saldo',
             catatan: transferToEdit?.catatan || '',
+            is_titipan: transferToEdit?.is_titipan || null,
         },
     });
 
@@ -63,6 +66,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 nominal: transferToEdit.nominal,
                 label: transferToEdit.label,
                 catatan: transferToEdit.catatan,
+                is_titipan: transferToEdit.is_titipan || null,
             });
         }
     }, [transferToEdit, reset, transaksiList]);
@@ -77,6 +81,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 nominal: data.nominal,
                 label: data.label,
                 catatan: data.catatan || '',
+                is_titipan: data.is_titipan,
             }, 0);
         } else {
             await addTransfer(
@@ -85,7 +90,9 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 data.nominal,
                 data.label,
                 data.catatan || '',
-                data.tanggal
+                data.tanggal,
+                0, // biaya_admin
+                data.is_titipan
             );
         }
         onClose();
@@ -238,6 +245,39 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                         {errors.label && (
                             <p className="text-xs font-medium text-destructive">{errors.label.message}</p>
                         )}
+                    </div>
+
+                    {/* Link to Titipan Context */}
+                    <div className="space-y-2 pb-2">
+                        <Label className="text-amber-800 font-bold flex items-center gap-2">
+                            <UserCircle2 size={16} />
+                            Tautkan ke Titipan (Digital Envelope)
+                        </Label>
+                        <Controller
+                            name="is_titipan"
+                            control={control}
+                            render={({ field }) => (
+                                <SearchableSelect
+                                    options={[
+                                        { value: '', label: 'Bukan Uang Titipan (Pribadi)' },
+                                        ...titipanList
+                                            .filter((t: Titipan) => t.status === 'aktif')
+                                            .map((t: Titipan) => ({
+                                                value: t.id_titipan,
+                                                label: `👤 ${t.nama_konteks}`
+                                            }))
+                                    ]}
+                                    value={field.value || ''}
+                                    onValueChange={(val) => field.onChange(val || null)}
+                                    placeholder="Pilih konteks titipan..."
+                                    searchPlaceholder="Cari nama penitip..."
+                                    className={cn(
+                                        "border-amber-200 focus:ring-amber-100",
+                                        field.value && "bg-amber-50/50"
+                                    )}
+                                />
+                            )}
+                        />
                     </div>
 
                     {/* Catatan (Detail) */}

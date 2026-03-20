@@ -187,8 +187,10 @@ export function hitungRingkasanBulanan(
   let total_pengeluaran = 0;
 
   filtered.forEach((t) => {
-    if (t.jenis === "Pemasukan") total_pemasukan += t.nominal;
-    if (t.jenis === "Pengeluaran") total_pengeluaran += t.nominal;
+    if (!t.is_titipan) {
+      if (t.jenis === "Pemasukan") total_pemasukan += t.nominal;
+      if (t.jenis === "Pengeluaran") total_pengeluaran += t.nominal;
+    }
   });
 
   return {
@@ -210,6 +212,7 @@ export function hitungPengeluaranPerKategori(
   const filtered = transaksiList.filter(
     (t) =>
       t.jenis === "Pengeluaran" &&
+      !t.is_titipan &&
       isInCustomMonth(t.tanggal, bulan, cycleStartDay),
   );
 
@@ -265,9 +268,9 @@ export function hitungTrenMingguan(
     const weekIndex = Math.min(Math.floor(diffDays / 7), 4);
 
     if (weekIndex >= 0) {
-      if (t.jenis === "Pemasukan") {
+      if (t.jenis === "Pemasukan" && !t.is_titipan) {
         weeks[weekIndex].pemasukan += t.nominal;
-      } else if (t.jenis === "Pengeluaran") {
+      } else if (t.jenis === "Pengeluaran" && !t.is_titipan) {
         weeks[weekIndex].pengeluaran += t.nominal;
       }
     }
@@ -611,4 +614,17 @@ export function evaluateMathExpression(expr: string): number | null {
     return null;
   }
   return null;
+}
+
+/**
+ * Calculate total entrusted money (titipan) remaining
+ */
+export function hitungTotalTitipan(transaksiList: Transaksi[]): number {
+  return transaksiList.reduce((acc, t) => {
+    if (!t.is_titipan) return acc;
+    if (t.jenis === "Pemasukan") return acc + t.nominal;
+    if (t.jenis === "Pengeluaran") return acc - t.nominal;
+    // Transfer doesn't affect total balance, only distribution
+    return acc;
+  }, 0);
 }

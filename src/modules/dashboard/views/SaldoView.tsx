@@ -1,17 +1,34 @@
 import React from 'react';
 import SaldoCards from '@/modules/dashboard/components/SaldoCards';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
+import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
 
 export default function SaldoView({
   setActiveModal,
-  setTransaksiToEdit
+  setTransaksiToEdit,
+  setTitipanToEdit
 }: {
   setActiveModal: (modal: string) => void;
   setTransaksiToEdit: (t: any) => void;
+  setTitipanToEdit: (t: any) => void;
 }) {
   return (
-    <div className="space-y-6">
-      <SaldoCards />
+    <div className="space-y-8">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+        <div className="md:col-span-8 flex flex-col gap-8">
+          <SaldoCards onAddAccount={() => setActiveModal('sumber_dana')} />
+        </div>
+        <div className="md:col-span-4 h-full">
+           <TitipanSummary 
+              onAddClick={() => setActiveModal('titipan')} 
+              onEditClick={(t) => {
+                setTitipanToEdit(t);
+                setActiveModal('titipan');
+              }}
+           />
+        </div>
+      </div>
+
       <TransactionsTable 
         limit={20} 
         showDelete 

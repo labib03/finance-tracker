@@ -64,8 +64,8 @@ export default function ExpensePieChart() {
             </CardHeader>
 
             <CardContent className="px-6 sm:px-8 pb-6 sm:pb-8 pt-4">
-                <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8">
-                    <div className="w-full md:w-1/2 h-[220px] sm:h-[260px] contain-layout">
+                <div className="flex flex-col md:flex-row items-center gap-6 sm:gap-8 min-h-[300px]">
+                    <div className="w-full md:w-1/2 h-[220px] sm:h-[260px] contain-layout relative">
                         <ResponsiveContainer width="100%" height="100%">
                             <PieChart>
                                 <Pie

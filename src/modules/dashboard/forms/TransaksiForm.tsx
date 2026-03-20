@@ -5,9 +5,9 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
-import type { Transaksi } from '@/lib/types';
+import type { Transaksi, Titipan } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
-import { Save, CalendarIcon, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Save, CalendarIcon, AlertCircle, CheckCircle2, UserCircle2 } from 'lucide-react';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
@@ -36,6 +36,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     const budgetList = useFinanceStore((s) => s.budgetList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const titipanList = useFinanceStore((s) => s.titipanList);
 
     const [activeJenis, setActiveJenis] = useState<'Pengeluaran' | 'Pemasukan'>(
         (transaksiToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran') as 'Pengeluaran' | 'Pemasukan'
@@ -59,6 +60,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
             nominal: transaksiToEdit?.nominal || 0,
             label: transaksiToEdit?.label || '',
             catatan: transaksiToEdit?.catatan || '',
+            is_titipan: transaksiToEdit?.is_titipan || null,
         },
     });
 
@@ -72,6 +74,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                 nominal: transaksiToEdit.nominal,
                 label: transaksiToEdit.label,
                 catatan: transaksiToEdit.catatan,
+                is_titipan: transaksiToEdit.is_titipan || null,
             });
             // eslint-disable-next-line react-hooks/set-state-in-effect
             setActiveJenis(transaksiToEdit.jenis as 'Pengeluaran' | 'Pemasukan');
@@ -271,20 +274,58 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                     />
 
                     {/* Label/Judul */}
-                    <div className="space-y-2">
-                        <Label htmlFor="label">Judul Transaksi</Label>
-                        <Input
-                            id="label"
-                            placeholder="Contoh: Makan Siang, Gaji, dll."
-                            {...register('label')}
-                            className={cn(
-                                "h-11 rounded-xl whitespace-nowrap",
-                                errors.label && "border-destructive"
+                    <div className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="label">Judul Transaksi</Label>
+                            <Input
+                                id="label"
+                                placeholder="Contoh: Makan Siang, Gaji, dll."
+                                {...register('label')}
+                                className={cn(
+                                    "h-11 rounded-xl whitespace-nowrap",
+                                    errors.label && "border-destructive"
+                                )}
+                            />
+                            {errors.label && (
+                                <p className="text-xs font-medium text-destructive">{errors.label.message}</p>
                             )}
-                        />
-                        {errors.label && (
-                            <p className="text-xs font-medium text-destructive">{errors.label.message}</p>
-                        )}
+                        </div>
+
+                        {/* Link to Titipan Context */}
+                        <div className="space-y-2">
+                            <Label className="text-amber-800 font-bold flex items-center gap-2">
+                                <UserCircle2 size={16} />
+                                Tautkan ke Titipan (Digital Envelope)
+                            </Label>
+                            <Controller
+                                name="is_titipan"
+                                control={control}
+                                render={({ field }) => (
+                                    <SearchableSelect
+                                        options={[
+                                            { value: '', label: 'Bukan Uang Titipan (Pribadi)' },
+                                            ...titipanList
+                                                .filter((t: Titipan) => t.status === 'aktif')
+                                                .map((t: Titipan) => ({
+                                                    value: t.id_titipan,
+                                                    label: `👤 ${t.nama_konteks}`
+                                                }))
+                                        ]}
+                                        value={field.value || ''}
+                                        onValueChange={(val) => field.onChange(val || null)}
+                                        placeholder="Pilih konteks titipan..."
+                                        searchPlaceholder="Cari nama penitip..."
+                                        className={cn(
+                                            "border-amber-200 focus:ring-amber-100",
+                                            field.value && "bg-amber-50/50"
+                                        )}
+                                    />
+                                )}
+                            />
+                            <p className="text-[10px] text-amber-600 font-medium">
+                                Melacak sisa uang titipan secara terpisah dari analitik pribadi.
+                            </p>
+                        </div>
                     </div>
 
                     {/* Catatan (Detail) */}

@@ -55,6 +55,7 @@ export default function HomePage() {
   const [transaksiToEdit, setTransaksiToEdit] = useState<any>(null);
   const [recurringToEdit, setRecurringToEdit] = useState<any>(null);
   const [budgetToEdit, setBudgetToEdit] = useState<any>(null);
+  const [titipanToEdit, setTitipanToEdit] = useState<any>(null);
 
   useEffect(() => {
     initialize();
@@ -109,6 +110,7 @@ export default function HomePage() {
                   setActiveView={setActiveView}
                   setActiveModal={setActiveModal}
                   setTransaksiToEdit={setTransaksiToEdit}
+                  setTitipanToEdit={setTitipanToEdit}
                 />
               )}
 
@@ -116,6 +118,7 @@ export default function HomePage() {
                 <SaldoView
                   setActiveModal={setActiveModal}
                   setTransaksiToEdit={setTransaksiToEdit}
+                  setTitipanToEdit={setTitipanToEdit}
                 />
               )}
 
@@ -175,6 +178,8 @@ export default function HomePage() {
         setKategoriToEdit={setKategoriToEdit}
         sumberDanaToEdit={sumberDanaToEdit}
         setSumberDanaToEdit={setSumberDanaToEdit}
+        titipanToEdit={titipanToEdit}
+        setTitipanToEdit={setTitipanToEdit}
       />
     </div>
   );

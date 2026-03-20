@@ -5,6 +5,7 @@ import {
     formatRupiah,
     hitungRingkasanBulanan,
     hitungSaldoAkun,
+    hitungTotalTitipan,
     getNamaBulan,
     cn
 } from '@/lib/utils';
@@ -14,6 +15,7 @@ import {
     Wallet,
     ArrowUpRight,
     ArrowDownRight,
+    UserCircle2,
 } from 'lucide-react';
 
 export default function SummaryCards() {
@@ -35,6 +37,11 @@ export default function SummaryCards() {
     const totalSaldo = useMemo(
         () => saldoAkun.reduce((sum: number, s) => sum + s.saldo, 0),
         [saldoAkun]
+    );
+
+    const totalTitipan = useMemo(
+        () => hitungTotalTitipan(transaksiList),
+        [transaksiList]
     );
 
     const cards = [
@@ -65,10 +72,19 @@ export default function SummaryCards() {
             trend: 'down' as const,
             subtitle: 'Bulan ini',
         },
+        {
+            label: 'Uang Titipan',
+            value: totalTitipan,
+            icon: UserCircle2,
+            iconBg: 'bg-amber-50',
+            iconColor: 'text-amber-600',
+            trend: null,
+            subtitle: 'Sisa titipan',
+        },
     ];
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
             {cards.map((card, idx) => {
                 const Icon = card.icon;
                 return (
@@ -76,7 +92,7 @@ export default function SummaryCards() {
                         key={card.label} 
                         className={cn(
                             "group relative overflow-hidden bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi transition-all duration-500 hover:shadow-float hover:-translate-y-1",
-                            idx === 0 ? "sm:col-span-2 lg:col-span-1" : ""
+                            idx === 0 ? "sm:col-span-2 xl:col-span-1" : ""
                         )}
                     >
                         {/* Soft Accent Background Blur */}
