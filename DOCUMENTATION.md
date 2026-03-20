@@ -14,6 +14,8 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
     - **Sistem Peringatan**: Alert merah otomatis jika total tagihan melebihi sisa dana pribadi.
     - **Manajemen Tagihan**: Daftar tagihan rutin dalam siklus (25 hingga 24) dengan tombol "Catat Sekarang" untuk eksekusi cepat.
 - **Status Anggaran Berbasis Kartu**: Pemantauan real-time pengeluaran per kategori terhadap limit bulanan.
+- **Fitur Expand (Detail View)**: Setiap kartu kartu utama memiliki ikon "Expand/Perbesar" di pojok kanan atas untuk membuka **Modal Dialog (Radix UI)**.
+    - **Detail Modal**: Menampilkan rincian fungsional lebih mendalam dan area yang disiapkan untuk visualisasi grafik atau tabel transaksi penuh.
 - **Pantauan Titipan (Digital Envelope)**: Menampilkan saldo dana titipan (uang orang lain) yang sedang Anda pegang dengan pemisahan konteks (per orang/proyek).
 - **Grafik Tren**: Visualisasi pengeluaran dan pemasukan mingguan serta distribusi pengeluaran per kategori (Pie Chart).
 - **Aesthetic & UX**: Desain *Scandi-Minimal* premium dengan kartu setinggi 750px dan sistem internal scrolling untuk akses data yang luas tanpa merusak layout.
