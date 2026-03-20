@@ -67,7 +67,15 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
         const cycleBills = activeRecurring.filter(r => {
             const nextDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
             const nextDate = new Date(nextDateStr + 'T00:00:00');
-            return nextDate >= startDate && nextDate <= endDate;
+
+            // Cek apakah sudah dibayar (ada transaksi dengan label, tanggal, dan nominal yang sama)
+            const isAlreadyPaid = transaksiSiklus.some(t => 
+                t.label === r.label && 
+                t.nominal === r.nominal && 
+                t.tanggal === nextDateStr
+            );
+
+            return nextDate >= startDate && nextDate <= endDate && !isAlreadyPaid;
         }).sort((a, b) => {
             const dateA = new Date(getJadwalTerdekat(a.tanggal_mulai, a.tanggal_berikutnya)).getTime();
             const dateB = new Date(getJadwalTerdekat(b.tanggal_mulai, b.tanggal_berikutnya)).getTime();

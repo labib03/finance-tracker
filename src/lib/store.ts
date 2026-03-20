@@ -35,7 +35,7 @@ import {
   tambahTitipan,
   updateTitipan,
 } from "@/lib/actions";
-import { getCurrentMonth, generateId, formatRupiah, hitungSaldoAkun } from "@/lib/utils";
+import { getCurrentMonth, generateId, formatRupiah, hitungSaldoAkun, getJadwalTerdekat } from "@/lib/utils";
 
 // ---------- Store Types ----------
 interface FinanceState {
@@ -832,8 +832,18 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const items = get().recurringList.filter((r) => {
       if (!r.aktif || r.jenis !== "Pengeluaran") return false;
       
-      const nextDate = new Date(r.tanggal_berikutnya);
-      return nextDate >= today && nextDate <= endDate;
+      const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
+      const nextDate = new Date(effectiveDateStr + 'T00:00:00');
+
+      // Cek apakah sudah ada transaksi yang dicatat untuk jadwal ini
+      const isAlreadyRecorded = get().transaksiList.some(t => 
+        t.label === r.label && 
+        t.nominal === r.nominal && 
+        t.tanggal === effectiveDateStr &&
+        t.jenis === r.jenis
+      );
+
+      return nextDate >= today && nextDate <= endDate && !isAlreadyRecorded;
     });
 
     const total = items.reduce((acc, item) => acc + item.nominal, 0);
