@@ -18,11 +18,12 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
     - **Detail Modal**: Menampilkan rincian fungsional lebih mendalam dan area yang disiapkan untuk visualisasi grafik atau tabel transaksi penuh.
 - **Pantauan Titipan (Digital Envelope)**: Menampilkan saldo dana titipan (uang orang lain) yang sedang Anda pegang dengan pemisahan konteks (per orang/proyek).
 - **Grafik Tren**: Visualisasi pengeluaran dan pemasukan mingguan serta distribusi pengeluaran per kategori (Pie Chart).
-- **Aesthetic & UX**: Desain *Scandi-Minimal* premium dengan kartu setinggi 750px dan sistem internal scrolling untuk akses data yang luas tanpa merusak layout.
+- **Aesthetic & UX**: Desain *Scandi-Minimal* premium dengan kartu setinggi 750px dan sistem internal scrolling. 
+- **Modern Input Forms**: Form input (khususnya Transfer) menggunakan layout *High-Contrast* dengan input nominal gajah (besar) untuk fokus utama, grouping akun yang intuitif, serta input biaya admin yang bersih tanpa gangguan fitur kalkulator.
 
 ### 💸 Manajemen Transaksi
 - **Pencatatan Pemasukan & Pengeluaran**: Mencatat transaksi dengan kategori, sumber dana, tanggal, dan catatan detail.
-- **Transfer Antar Akun**: Memungkinkan pemindahan saldo dari satu akun ke akun lain (misal: dari ATM ke Cash) tanpa dianggap sebagai pengeluaran/pemasukan pribadi.
+- **Transfer Antar Akun**: Memungkinkan pemindahan saldo antar akun tanpa memengaruhi statistik pengeluaran pribadi. Kini mendukung pencatatan **Biaya Admin** otomatis yang terhubung (linked) dengan transaksi transfer induknya.
 - **Fitur Titipan (Entrusted Money)**: Menandai transaksi tertentu sebagai "Titipan" ke dalam amplop digital tertentu. Dana ini akan dihitung dalam saldo akun tetapi dikecualikan dari statistik pengeluaran/pemasukan pribadi Anda.
 - **Mekanisme Arsip (Soft Delete)**: Amplop titipan yang sudah selesai (saldo Rp 0) dapat diarsipkan untuk menjaga daftar utama tetap bersih. Data arsip tetap dapat diakses di "Ruang Arsip".
 
@@ -132,4 +133,5 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 4.  **Dana Titipan**: Sisa dana titipan dihitung secara khusus dari akumulasi transaksi bertipe `is_titipan` untuk membantu pengguna mengetahui berapa banyak uang orang lain yang masih tersimpan di dompet elektroniknya.
 5.  **Aturan Pengarsipan**: Sebuah amplop titipan baru bisa diubah statusnya menjadi `selesai` (archive) jika sisa saldonya tepat Rp 0. Ini memastikan tidak ada dana yang "terlupakan" di dalam arsip.
 6.  **Filter Transaksi**: Transaksi baru hanya dapat ditautkan ke amplop titipan dengan status `aktif`. Amplop yang sudah diarsipkan bersifat *read-only*.
-7.  **Layout Dinamis**: Komponen Dashboard menggunakan tinggi tetap (750px) dengan `overflow-y-auto` dan kustom scrollbar. Ini memungkinkan daftar yang panjang (seperti tagihan rutin atau kategori budget) tetap dapat diakses tanpa memperpanjang halaman secara keseluruhan.
+7.  **Biaya Admin Transfer (Linked Transactions)**: Jika sebuah transfer menyertakan biaya admin, sistem akan membuat transaksi pengeluaran otomatis di kategori "Biaya Admin". Transaksi ini ditandai dengan tag `[ADMIN_FEE:ID_TRANSFER]` di catatan. Jika transaksi transfer utama diubah atau dihapus, biaya admin terkait akan tersinkronisasi secara otomatis.
+8.  **Layout Dinamis**: Komponen Dashboard menggunakan tinggi tetap (750px) dengan `overflow-y-auto` dan kustom scrollbar. Ini memungkinkan daftar yang panjang tetap dapat diakses tanpa memperpanjang halaman secara keseluruhan.

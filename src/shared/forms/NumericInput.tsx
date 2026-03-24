@@ -14,6 +14,7 @@ import { Button } from '@/shared/ui/button';
 type Props = NumericFormatProps & UseControllerProps<any> & {
     label?: string;
     error?: string;
+    hideCalculator?: boolean;
 };
 
 export default function NumericInput({
@@ -25,6 +26,7 @@ export default function NumericInput({
     label,
     error,
     className,
+    hideCalculator,
     ...inputProps
 }: Props) {
     const {
@@ -112,10 +114,11 @@ export default function NumericInput({
         <div className="w-full space-y-2">
             <div className="flex items-center justify-between">
                 {label && <Label className="text-sm font-medium">{label}</Label>}
-                <Popover open={isCalcOpen} onOpenChange={(open) => {
-                    setIsCalcOpen(open);
-                    if (!open) clearCalc();
-                }}>
+                {!hideCalculator && (
+                    <Popover open={isCalcOpen} onOpenChange={(open) => {
+                        setIsCalcOpen(open);
+                        if (!open) clearCalc();
+                    }}>
                     <PopoverTrigger className="flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full border border-indigo-100/50 hover:bg-indigo-100 transition-colors cursor-pointer outline-none">
                         <Calculator size={10} />
                         Kalkulator
@@ -177,6 +180,7 @@ export default function NumericInput({
                         </div>
                     </PopoverContent>
                 </Popover>
+                )}
             </div>
             <NumericFormat
                 {...inputProps}

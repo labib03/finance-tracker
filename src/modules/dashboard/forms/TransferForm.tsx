@@ -52,6 +52,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
             nominal: transferToEdit?.nominal || 0,
             label: transferToEdit?.label || 'Transfer Saldo',
             catatan: transferToEdit?.catatan || '',
+            biaya_admin: 0,
             is_titipan: transferToEdit?.is_titipan || null,
         },
     });
@@ -66,6 +67,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 nominal: transferToEdit.nominal,
                 label: transferToEdit.label,
                 catatan: transferToEdit.catatan,
+                biaya_admin: linkedAdminFee ? linkedAdminFee.nominal : 0,
                 is_titipan: transferToEdit.is_titipan || null,
             });
         }
@@ -82,7 +84,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 label: data.label,
                 catatan: data.catatan || '',
                 is_titipan: data.is_titipan,
-            }, 0);
+            }, data.biaya_admin || 0);
         } else {
             await addTransfer(
                 data.id_sumber_dana_asal,
@@ -91,7 +93,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                 data.label,
                 data.catatan || '',
                 data.tanggal,
-                0, // biaya_admin
+                data.biaya_admin || 0, // biaya_admin
                 data.is_titipan
             );
         }
@@ -161,73 +163,92 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                         )}
                     </div>
 
-                    {/* Sumber Asal */}
-                    <div className="space-y-2">
-                        <Label htmlFor="sumber-asal">Dari Akun</Label>
-                        <Controller
-                            name="id_sumber_dana_asal"
-                            control={control}
-                            render={({ field }) => (
-                                <SearchableSelect
-                                    options={sumberDanaList.map(s => ({
-                                        value: s.id_sumber_dana,
-                                        label: s.nama_sumber
-                                    }))}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Pilih akun asal..."
-                                    searchPlaceholder="Cari akun..."
-                                    error={!!errors.id_sumber_dana_asal}
-                                />
-                            )}
-                        />
-                        {errors.id_sumber_dana_asal && (
-                            <p className="text-xs font-medium text-destructive">{errors.id_sumber_dana_asal.message}</p>
-                        )}
-                    </div>
-
-                    {/* Arrow indicator */}
-                    <div className="flex justify-center -my-2 relative z-10">
-                        <div className="w-8 h-8 rounded-full bg-background border flex items-center justify-center shadow-sm">
-                            <ArrowLeftRight size={16} className="text-muted-foreground rotate-90" />
-                        </div>
-                    </div>
-
-                    {/* Sumber Tujuan */}
-                    <div className="space-y-2">
-                        <Label htmlFor="sumber-tujuan">Ke Akun</Label>
-                        <Controller
-                            name="id_target_dana"
-                            control={control}
-                            render={({ field }) => (
-                                <SearchableSelect
-                                    options={sumberDanaList
-                                        .filter(s => s.id_sumber_dana !== watch('id_sumber_dana_asal'))
-                                        .map(s => ({
+                    {/* Accounts Section */}
+                    <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 flex flex-col gap-3">
+                        {/* Sumber Asal */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="sumber-asal" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Dari Akun</Label>
+                            <Controller
+                                name="id_sumber_dana_asal"
+                                control={control}
+                                render={({ field }) => (
+                                    <SearchableSelect
+                                        options={sumberDanaList.map(s => ({
                                             value: s.id_sumber_dana,
                                             label: s.nama_sumber
                                         }))}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Pilih akun tujuan..."
-                                    searchPlaceholder="Cari akun..."
-                                    error={!!errors.id_target_dana}
-                                />
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder="Pilih akun asal..."
+                                        searchPlaceholder="Cari akun..."
+                                        error={!!errors.id_sumber_dana_asal}
+                                    />
+                                )}
+                            />
+                            {errors.id_sumber_dana_asal && (
+                                <p className="text-xs font-medium text-destructive">{errors.id_sumber_dana_asal.message}</p>
                             )}
-                        />
-                        {errors.id_target_dana && (
-                            <p className="text-xs font-medium text-destructive">{errors.id_target_dana.message}</p>
-                        )}
+                        </div>
+
+                        {/* Arrow indicator separator */}
+                        <div className="flex items-center gap-4 py-1">
+                             <div className="flex-1 h-px bg-slate-200"></div>
+                             <div className="w-8 h-8 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm text-slate-400 z-10 shrink-0">
+                                 <ArrowLeftRight size={14} className="rotate-90" />
+                             </div>
+                             <div className="flex-1 h-px bg-slate-200"></div>
+                        </div>
+
+                        {/* Sumber Tujuan */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="sumber-tujuan" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Ke Akun</Label>
+                            <Controller
+                                name="id_target_dana"
+                                control={control}
+                                render={({ field }) => (
+                                    <SearchableSelect
+                                        options={sumberDanaList
+                                            .filter(s => s.id_sumber_dana !== watch('id_sumber_dana_asal'))
+                                            .map(s => ({
+                                                value: s.id_sumber_dana,
+                                                label: s.nama_sumber
+                                            }))}
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder="Pilih akun tujuan..."
+                                        searchPlaceholder="Cari akun..."
+                                        error={!!errors.id_target_dana}
+                                    />
+                                )}
+                            />
+                            {errors.id_target_dana && (
+                                <p className="text-xs font-medium text-destructive">{errors.id_target_dana.message}</p>
+                            )}
+                        </div>
                     </div>
 
-                    {/* Nominal */}
-                    <div className="grid grid-cols-1 gap-4">
-                        <NumericInput
-                            label="Nominal Transfer"
-                            name="nominal"
-                            control={control}
-                            error={errors.nominal?.message}
-                        />
+                    {/* Nominal & Biaya Admin */}
+                    <div className="space-y-4 pt-2">
+                        <div className="flex flex-col space-y-2 bg-indigo-50/40 p-5 rounded-2xl border border-indigo-100/60">
+                            <NumericInput
+                                label="Nominal Transfer"
+                                name="nominal"
+                                control={control}
+                                error={errors.nominal?.message}
+                                className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-indigo-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-indigo-950"
+                            />
+                        </div>
+
+                        <div className="bg-slate-50 p-4 rounded-xl border border-slate-100/80">
+                            <NumericInput
+                                label="Biaya Admin (Opsional)"
+                                name="biaya_admin"
+                                control={control}
+                                hideCalculator={true}
+                                error={errors.biaya_admin?.message}
+                                className="text-lg font-bold h-12 bg-white"
+                            />
+                        </div>
                     </div>
 
                     {/* Label/Judul */}
