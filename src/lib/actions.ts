@@ -13,6 +13,7 @@ import type {
   RecurringTransaction,
   Budget,
   Titipan,
+  Tabungan,
 } from "@/lib/types";
 
 // ---------- Google Sheets Auth Setup ----------
@@ -162,12 +163,36 @@ export async function fetchTitipan(): Promise<Titipan[]> {
   }
 }
 
+export async function fetchTabungan(): Promise<Tabungan[]> {
+  try {
+    const sheets = getSheets();
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: "Master_Tabungan!A2:G",
+    });
+
+    const rows = response.data.values || [];
+    return rows.map((row) => ({
+      id_tabungan: row[0] || "",
+      nama_tujuan: row[1] || "",
+      target_nominal: parseFloat(row[2]) || 0,
+      tanggal_target: row[3] || "",
+      icon: row[4] || "Target",
+      status: (row[5] as Tabungan["status"]) || "aktif",
+      tanggal_dibuat: row[6] || "",
+    }));
+  } catch (error) {
+    console.error("Error fetching tabungan:", error);
+    return [];
+  }
+}
+
 export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
   try {
     const sheets = getSheets();
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Transaksi!A2:J",
+      range: "Transaksi!A2:K",
     });
 
     const rows = response.data.values || [];
@@ -182,6 +207,7 @@ export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
       id_target_dana: row[7] || undefined,
       label: row[8] || "",
       is_titipan: row[9] || null,
+      id_tabungan: row[10] || null,
     }));
 
     if (bulan) {
@@ -253,7 +279,7 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
     const sheets = getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Transaksi!A:J",
+      range: "Transaksi!A:K",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -268,6 +294,7 @@ export async function tambahTransaksi(transaksi: Transaksi): Promise<boolean> {
             transaksi.id_target_dana || "",
             transaksi.label,
             transaksi.is_titipan || "",
+            transaksi.id_tabungan || "",
           ],
         ],
       },
@@ -289,7 +316,7 @@ export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Transaksi!A${rowIndex + 1}:J${rowIndex + 1}`,
+      range: `Transaksi!A${rowIndex + 1}:K${rowIndex + 1}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -304,6 +331,7 @@ export async function updateTransaksi(transaksi: Transaksi): Promise<boolean> {
             transaksi.id_target_dana || "",
             transaksi.label,
             transaksi.is_titipan || "",
+            transaksi.id_tabungan || "",
           ],
         ],
       },
@@ -751,6 +779,71 @@ export async function updateTitipan(titipan: Titipan): Promise<boolean> {
     return true;
   } catch (error) {
     console.error("Error updating titipan:", error);
+    return false;
+  }
+}
+
+// ============================================================
+// TABUNGAN CRUD
+// ============================================================
+
+export async function tambahTabungan(tabungan: Tabungan): Promise<boolean> {
+  try {
+    const sheets = getSheets();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: "Master_Tabungan!A:G",
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            tabungan.id_tabungan,
+            tabungan.nama_tujuan,
+            tabungan.target_nominal,
+            tabungan.tanggal_target,
+            tabungan.icon,
+            tabungan.status,
+            tabungan.tanggal_dibuat,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error adding tabungan:", error);
+    return false;
+  }
+}
+
+export async function updateTabungan(tabungan: Tabungan): Promise<boolean> {
+  try {
+    const result = await findRowAndGetSheetId("Master_Tabungan", tabungan.id_tabungan);
+    if (!result) return false;
+
+    const { rowIndex } = result;
+    const sheets = getSheets();
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Master_Tabungan!A${rowIndex + 1}:G${rowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            tabungan.id_tabungan,
+            tabungan.nama_tujuan,
+            tabungan.target_nominal,
+            tabungan.tanggal_target,
+            tabungan.icon,
+            tabungan.status,
+            tabungan.tanggal_dibuat,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating tabungan:", error);
     return false;
   }
 }

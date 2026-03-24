@@ -6,6 +6,7 @@ import KategoriForm from '@/shared/forms/KategoriForm';
 import SumberDanaForm from '@/shared/forms/SumberDanaForm';
 import CycleSettingsForm from '@/shared/forms/CycleSettingsForm';
 import TitipanForm from '@/modules/dashboard/forms/TitipanForm';
+import TabunganForm from '@/modules/dashboard/forms/TabunganForm';
 import { useFinanceStore } from '@/lib/store';
 
 interface ModalOrchestratorProps {
@@ -21,6 +22,8 @@ interface ModalOrchestratorProps {
   setSumberDanaToEdit: (val: any) => void;
   titipanToEdit: any;
   setTitipanToEdit: (val: any) => void;
+  tabunganToEdit: any;
+  setTabunganToEdit: (val: any) => void;
 }
 
 export default function ModalOrchestrator({
@@ -36,6 +39,8 @@ export default function ModalOrchestrator({
   setSumberDanaToEdit,
   titipanToEdit,
   setTitipanToEdit,
+  tabunganToEdit,
+  setTabunganToEdit,
 }: ModalOrchestratorProps) {
   const activeModal = useFinanceStore((s) => s.activeModal);
   const setActiveModal = useFinanceStore((s) => s.setActiveModal);
@@ -106,6 +111,15 @@ export default function ModalOrchestrator({
             setTitipanToEdit(null);
           }} 
           titipanToEdit={titipanToEdit}
+        />
+      )}
+      {activeModal === 'tabungan' && (
+        <TabunganForm 
+          onClose={() => {
+            setActiveModal(null);
+            setTabunganToEdit(null);
+          }} 
+          dataToEdit={tabunganToEdit}
         />
       )}
     </>

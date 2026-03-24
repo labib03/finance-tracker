@@ -22,6 +22,7 @@ import AnggaranView from '@/modules/dashboard/views/AnggaranView';
 import LaporanView from '@/modules/dashboard/views/LaporanView';
 import RecurringView from '@/modules/dashboard/views/RecurringView';
 import MasterView from '@/modules/dashboard/views/MasterView';
+import TabunganView from '@/modules/dashboard/views/TabunganView';
 
 // Forms & Modals
 import ModalOrchestrator from '@/modules/dashboard/components/ModalOrchestrator';
@@ -56,6 +57,7 @@ export default function HomePage() {
   const [recurringToEdit, setRecurringToEdit] = useState<any>(null);
   const [budgetToEdit, setBudgetToEdit] = useState<any>(null);
   const [titipanToEdit, setTitipanToEdit] = useState<any>(null);
+  const [tabunganToEdit, setTabunganToEdit] = useState<any>(null);
 
   useEffect(() => {
     initialize();
@@ -143,6 +145,8 @@ export default function HomePage() {
                 />
               )}
 
+              {activeView === 'tabungan' && <TabunganView />}
+
               {activeView === 'laporan' && <LaporanView />}
 
               {activeView === 'recurring' && (
@@ -180,6 +184,8 @@ export default function HomePage() {
         setSumberDanaToEdit={setSumberDanaToEdit}
         titipanToEdit={titipanToEdit}
         setTitipanToEdit={setTitipanToEdit}
+        tabunganToEdit={tabunganToEdit}
+        setTabunganToEdit={setTabunganToEdit}
       />
     </div>
   );

@@ -13,6 +13,7 @@ import {
     X,
     DollarSign,
     Settings2,
+    PiggyBank,
     ChevronRight,
     PanelLeftClose,
     PanelLeftOpen
@@ -41,6 +42,7 @@ const navItems = [
     { id: 'transaksi', label: 'Riwayat Transaksi', icon: ReceiptText, description: 'Catat transaksi' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
     { id: 'anggaran', label: 'Target Budget', icon: Target, description: 'Batas hemat' },
+    { id: 'tabungan', label: 'Sinking Funds', icon: PiggyBank, description: 'Virtual sub-ledger' },
     { id: 'laporan', label: 'Analitik', icon: BarChart3, description: 'Statistik kategori' },
     { id: 'recurring', label: 'Tagihan Rutin', icon: CalendarClock, description: 'Biaya langganan' },
     { id: 'master', label: 'Master Data', icon: Settings2, description: 'Kategori & sumber' },

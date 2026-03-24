@@ -14,7 +14,8 @@ import {
     CalendarClock, 
     AlertTriangle,
     Plus,
-    Maximize2
+    Maximize2,
+    Coffee
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
@@ -35,6 +36,8 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const recurringList = useFinanceStore((s) => s.recurringList);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+    const getRemainingDaysInCycle = useFinanceStore((s) => s.getRemainingDaysInCycle);
+    const getDailySafeLimit = useFinanceStore((s) => s.getDailySafeLimit);
 
     const { sisaBersih, pemasukanSiklus, totalTagihanMendatang, upcomingItems, pengeluaranSiklus } = useMemo(() => {
         const today = new Date();
@@ -98,10 +101,14 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     }, [transaksiList, recurringList, cycleStartDay]);
 
     const isNegative = sisaBersih < 0;
+    const isBudgetExhausted = sisaBersih <= 0;
     const totalCap = Math.max(pemasukanSiklus, 1);
     const terpakaiWidth = (pengeluaranSiklus / totalCap) * 100;
     const tagihanWidth = (totalTagihanMendatang / totalCap) * 100;
     const sisaWidth = Math.max(0, (sisaBersih / totalCap) * 100);
+
+    const dailyLimit = getDailySafeLimit();
+    const daysLeft = getRemainingDaysInCycle();
 
     return (
         <Dialog>
@@ -164,6 +171,45 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                     <div className="w-2 rounded-full h-2 bg-blue-500/30" />
                                     <span className="text-[9px] font-black text-[#9CA3AF] uppercase tracking-wider">Sisa Aman {formatRupiah(Math.max(0, sisaBersih))}</span>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Daily Pacing Indicator */}
+                        <div className={cn(
+                            "flex items-start sm:items-center gap-4 p-4 rounded-[1.25rem] border transition-all duration-300",
+                            isBudgetExhausted 
+                                ? "bg-red-50/50 border-red-100" 
+                                : "bg-emerald-50/30 border-emerald-100/50"
+                        )}>
+                            <div className={cn(
+                                "w-10 h-10 shrink-0 rounded-[0.85rem] flex items-center justify-center border shadow-xs transition-colors",
+                                isBudgetExhausted
+                                    ? "bg-white text-rose-500 border-rose-100/80"
+                                    : "bg-white text-emerald-500 border-emerald-100/80 hover:scale-105"
+                            )}>
+                                {isBudgetExhausted ? <AlertTriangle size={18} strokeWidth={2.5} /> : <Coffee size={18} strokeWidth={2.5} className="text-emerald-500/90" />}
+                            </div>
+                            <div className="flex flex-col">
+                                <span className={cn(
+                                    "text-[10px] font-black uppercase tracking-widest",
+                                    isBudgetExhausted ? "text-rose-500" : "text-[#9CA3AF]"
+                                )}>
+                                    Limit Harian Anda
+                                </span>
+                                <span className={cn(
+                                    "text-lg sm:text-xl font-black display-number tracking-tight leading-tight mt-0.5",
+                                    isBudgetExhausted ? "text-rose-600" : "text-slate-800"
+                                )}>
+                                    {formatRupiah(dailyLimit)}
+                                </span>
+                                <span className={cn(
+                                    "text-[10px] font-bold mt-1 leading-relaxed max-w-[90%]",
+                                    isBudgetExhausted ? "text-rose-600/80" : "text-[#6B7280]"
+                                )}>
+                                    {isBudgetExhausted 
+                                        ? "Anggaran bulan ini sudah habis. Tunda pengeluaran non-esensial." 
+                                        : `Aman untuk dibelanjakan hari ini. Tersisa ${daysLeft} hari dalam siklus.`}
+                                </span>
                             </div>
                         </div>
 

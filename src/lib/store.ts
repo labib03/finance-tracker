@@ -7,6 +7,7 @@ import type {
   RecurringTransaction,
   Budget,
   Titipan,
+  Tabungan,
 } from "@/lib/types";
 import {
   fetchKategori,
@@ -34,6 +35,9 @@ import {
   fetchTitipan,
   tambahTitipan,
   updateTitipan,
+  fetchTabungan,
+  tambahTabungan,
+  updateTabungan
 } from "@/lib/actions";
 import { getCurrentMonth, generateId, formatRupiah, hitungSaldoAkun, getJadwalTerdekat } from "@/lib/utils";
 
@@ -46,6 +50,7 @@ interface FinanceState {
   recurringList: RecurringTransaction[];
   budgetList: Budget[];
   titipanList: Titipan[];
+  tabunganList: Tabungan[];
 
   // UI State
   isLoading: boolean;
@@ -108,6 +113,12 @@ interface FinanceState {
   titipanToEdit: any;
   setTitipanToEdit: (val: any) => void;
 
+  // Actions - Tabungan CRUD
+  addTabungan: (data: Tabungan) => Promise<void>;
+  updateTabungan: (data: Tabungan) => Promise<void>;
+  tabunganToEdit: any;
+  setTabunganToEdit: (val: any) => void;
+
   // Actions - UI
   setActiveModal: (modal: string | null) => void;
   setCycleStartDay: (day: number) => void;
@@ -119,6 +130,10 @@ interface FinanceState {
   getSisaSaldoTitipan: (id: string) => number;
   getTotalSaldoTitipanAktif: () => number;
   getPersonalTransactions: () => Transaksi[];
+
+  // Derived Getters (Tabungan)
+  getSaldoTabungan: (id_tabungan: string) => number;
+  getProgresTabungan: (id_tabungan: string) => number;
 
   // Cashflow Forecasting
   getCurrentCycleDates: () => { startDate: Date; endDate: Date };
@@ -132,6 +147,8 @@ interface FinanceState {
     sisaBersih: number;
     upcomingItems: RecurringTransaction[];
   };
+  getRemainingDaysInCycle: () => number;
+  getDailySafeLimit: () => number;
 }
 
 // ---------- Create Store ----------
@@ -143,6 +160,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   recurringList: [],
   budgetList: [],
   titipanList: [],
+  tabunganList: [],
   isLoading: true,
   isInitialized: false,
   cycleStartDay: 25, // Default
@@ -150,6 +168,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   activeModal: null,
   isSidebarCollapsed: false,
   titipanToEdit: null,
+  tabunganToEdit: null,
 
   // ======================== Data Fetching ========================
 
@@ -174,7 +193,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       activeMonth: getCurrentMonth(savedDay)
     });
     try {
-      const [kategori, sumberDana, transaksi, recurring, budgets, titipan] =
+      const [kategori, sumberDana, transaksi, recurring, budgets, titipan, tabungan] =
         await Promise.all([
           fetchKategori(),
           fetchSumberDana(),
@@ -182,6 +201,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           fetchRecurring(),
           fetchBudgets(),
           fetchTitipan(),
+          fetchTabungan(),
         ]);
 
       set({
@@ -191,6 +211,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         recurringList: recurring,
         budgetList: budgets,
         titipanList: titipan,
+        tabunganList: tabungan,
         isLoading: false,
         isInitialized: true,
       });
@@ -206,7 +227,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   refreshData: async () => {
     try {
-      const [transaksi, recurring, budgets, kategori, sumberDana, titipan] =
+      const [transaksi, recurring, budgets, kategori, sumberDana, titipan, tabungan] =
         await Promise.all([
           fetchTransaksi(),
           fetchRecurring(),
@@ -214,6 +235,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           fetchKategori(),
           fetchSumberDana(),
           fetchTitipan(),
+          fetchTabungan(),
         ]);
 
       set({
@@ -223,6 +245,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         kategoriList: kategori,
         sumberDanaList: sumberDana,
         titipanList: titipan,
+        tabunganList: tabungan,
       });
     } catch (error) {
       console.error("Failed to refresh:", error);
@@ -739,6 +762,39 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
   },
 
+  // ======================== Tabungan CRUD ========================
+
+  addTabungan: async (data) => {
+    set((state) => ({
+      tabunganList: [...state.tabunganList, data],
+    }));
+
+    toast.success("Tujuan Tabungan berhasil dibuat!");
+
+    const success = await tambahTabungan(data);
+    if (!success) {
+      set((state) => ({
+        tabunganList: state.tabunganList.filter((t) => t.id_tabungan !== data.id_tabungan),
+      }));
+      toast.error("Gagal menyimpan tujuan tabungan.");
+    }
+  },
+
+  updateTabungan: async (data) => {
+    const prev = get().tabunganList;
+    set((state) => ({
+      tabunganList: state.tabunganList.map((t) => (t.id_tabungan === data.id_tabungan ? data : t)),
+    }));
+
+    toast.success("Tujuan Tabungan berhasil diupdate!");
+
+    const success = await updateTabungan(data);
+    if (!success) {
+      set({ tabunganList: prev });
+      toast.error("Gagal mengupdate tujuan tabungan.");
+    }
+  },
+
   // ======================== UI State ========================
 
   setActiveModal: (modal) => set({ activeModal: modal }),
@@ -761,6 +817,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   setTitipanToEdit: (val) => set({ titipanToEdit: val }),
+  setTabunganToEdit: (val) => set({ tabunganToEdit: val }),
 
   // ======================== Titipan Getters ========================
 
@@ -870,6 +927,25 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       .reduce((acc, t) => acc + t.nominal, 0);
   },
 
+  // ======================== Tabungan Getters ========================
+  getSaldoTabungan: (id_tabungan: string) => {
+    return get().transaksiList
+      .filter((t) => t.id_tabungan === id_tabungan)
+      .reduce((acc, t) => {
+        if (t.jenis === "alokasi_tabungan") return acc + t.nominal;
+        if (t.jenis === "tarik_tabungan") return acc - t.nominal;
+        if (t.jenis === "eksekusi_tabungan") return acc - t.nominal;
+        return acc;
+      }, 0);
+  },
+
+  getProgresTabungan: (id_tabungan: string) => {
+    const tabungan = get().tabunganList.find(t => t.id_tabungan === id_tabungan);
+    if (!tabungan || tabungan.target_nominal <= 0) return 0;
+    const saldo = get().getSaldoTabungan(id_tabungan);
+    return Math.min(100, Math.max(0, (saldo / tabungan.target_nominal) * 100));
+  },
+
   getProyeksiKas: () => {
     const state = get();
     
@@ -877,8 +953,17 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const pengeluaranSiklus = state.getPersonalExpenseThisCycle();
     const { items: upcomingItems, total: upcomingBills } = state.getUpcomingRecurringExpenses();
 
-    // Sisa Bersih = Pemasukan Siklus Ini - Pengeluaran Siklus Ini (berjalan) - Tagihan Mendatang
-    const sisaBersih = pemasukanSiklus - pengeluaranSiklus - upcomingBills;
+    // Kalkulasi flow tabungan (alokasi & tarik) pada siklus berjalan
+    const { startDate, endDate } = state.getCurrentCycleDates();
+    const tabunganFlows = state.transaksiList.filter((t) => {
+      const d = new Date(t.tanggal);
+      return d >= startDate && d <= endDate && (t.jenis === "alokasi_tabungan" || t.jenis === "tarik_tabungan");
+    });
+    const alokasiSiklus = tabunganFlows.filter(t => t.jenis === "alokasi_tabungan").reduce((acc, t) => acc + t.nominal, 0);
+    const tarikSiklus = tabunganFlows.filter(t => t.jenis === "tarik_tabungan").reduce((acc, t) => acc + t.nominal, 0);
+
+    // Sisa Bersih = Pemasukan - Pengeluaran (berjalan) - Tagihan Mendatang - Alokasi Tabungan + Tarik Darurat
+    const sisaBersih = pemasukanSiklus - pengeluaranSiklus - upcomingBills - alokasiSiklus + tarikSiklus;
 
     return {
       pemasukanSiklus,
@@ -887,5 +972,31 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       sisaBersih,
       upcomingItems
     };
+  },
+
+  getRemainingDaysInCycle: () => {
+    const { endDate } = get().getCurrentCycleDates();
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    // Calculate difference in milliseconds
+    const diffTime = endDate.getTime() - today.getTime();
+    
+    // Convert to days
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    // EDGE CASE 2: Minimum returned value should be 1
+    // (If diffDays is <= 0 e.g. it's the very last day or beyond, return 1 to avoid division by zero)
+    return Math.max(1, diffDays);
+  },
+
+  getDailySafeLimit: () => {
+    const { sisaBersih } = get().getProyeksiKas();
+    
+    // EDGE CASE 3: If sisaBersih <= 0, return 0
+    if (sisaBersih <= 0) return 0;
+    
+    const daysLeft = get().getRemainingDaysInCycle();
+    return Math.floor(sisaBersih / daysLeft);
   },
 }));

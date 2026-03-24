@@ -147,7 +147,7 @@ export function hitungSaldoAkun(
       if (t.id_sumber_dana === sd.id_sumber_dana) {
         if (t.jenis === "Pemasukan") {
           saldo += t.nominal;
-        } else if (t.jenis === "Pengeluaran") {
+        } else if (t.jenis === "Pengeluaran" || t.jenis === "eksekusi_tabungan") {
           saldo -= t.nominal;
         } else if (t.jenis === "Transfer") {
           // Source account loses money in transfer

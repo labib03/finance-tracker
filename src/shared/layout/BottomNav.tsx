@@ -9,7 +9,8 @@ import {
     Settings2,
     Plus,
     CalendarDays,
-    Menu as HamburgerIcon
+    Menu as HamburgerIcon,
+    PiggyBank
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFinanceStore } from '@/lib/store';
@@ -119,6 +120,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                                 {/* Extra items from Sidebar's navItems */}
                                 {[
                                     { id: 'anggaran', label: 'Budget', icon: Target, type: 'view' },
+                                    { id: 'tabungan', label: 'Sinking', icon: PiggyBank, type: 'view' },
                                     { id: 'transfer', label: 'Transfer', icon: ArrowLeftRight, type: 'view' },
                                     { id: 'laporan', label: 'Analitik', icon: BarChart3, type: 'view' },
                                     { id: 'recurring', label: 'Tagihan', icon: CalendarClock, type: 'view' },

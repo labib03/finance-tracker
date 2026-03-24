@@ -5,6 +5,7 @@ import WeeklyTrendChart from '@/modules/dashboard/components/WeeklyTrendChart';
 import BudgetStatusCard from '@/modules/dashboard/components/BudgetStatusCard';
 import ProyeksiKasCard from '@/modules/dashboard/components/ProyeksiKasCard';
 import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
+import SinkingFundsSummary from '@/modules/dashboard/components/SinkingFundsSummary';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 import { getToday } from '@/lib/utils';
 
@@ -46,6 +47,9 @@ export default function DashboardView({
           }}
         />
       </div>
+
+      {/* Sinking Funds Summary */}
+      <SinkingFundsSummary onViewAll={() => setActiveView('tabungan')} />
 
       <TransactionsTable 
         limit={10} 

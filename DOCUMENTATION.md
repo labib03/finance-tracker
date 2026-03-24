@@ -28,12 +28,17 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
     - Fokus pada keterbacaan label utama dan nominal.
     - Penggunaan ikon kategori yang konsisten dan detail akun yang ringkas.
     - Efek interaksi mikro (`active:scale`) untuk umpan balik sentuhan yang lebih baik.
-- **Pro Max Recurring Widget**: Widget pengingat tagihan dengan desain kartu terisolasi (*enclosed cards*) yang bersih, indikator urgensi berwarna (Hari Ini, Besok, Terlewati), dan aksi cepat "Bayar" langsung dari dashboard.
+- **Pro Max Recurring Widget**: Widget pengingat tagihan dengan desain kartu teralokasi (*enclosed cards*) yang bersih, indikator urgensi berwarna (Hari Ini, Besok, Terlewati), dan aksi cepat "Bayar" langsung dari dashboard.
+- **Sinking Funds (Tabungan Tujuan)**: Mengelola "amplop digital" untuk tujuan tabungan tertentu (dana darurat, liburan, gadget) menggunakan pendekatan *Virtual Sub-Ledger*.
+    - **Aksi Terpadu**: Mendukung Alokasi Dana (pencatatan virtual), Tarik Darurat (pencatatan virtual), dan Eksekusi Pembelian (transaksi riil yang mengurangi saldo akun fisik).
+    - **Visualisasi Progres**: Indikator persentase pencapaian target dengan ikon kustom yang intuitif (Target, PiggyBank, Car, Home, Plane, dll).
+    - **Dashboard Summary**: Widget ringkasan total dana terkumpul dan progres per individu di halaman utama.
 
 ### 💸 Manajemen Transaksi
 - **Pencatatan Pemasukan & Pengeluaran**: Mencatat transaksi dengan kategori, sumber dana, tanggal, dan catatan detail.
 - **Transfer Antar Akun**: Memungkinkan pemindahan saldo antar akun tanpa memengaruhi statistik pengeluaran pribadi. Kini mendukung pencatatan **Biaya Admin** otomatis yang terhubung (linked) dengan transaksi transfer induknya.
 - **Fitur Titipan (Entrusted Money)**: Menandai transaksi tertentu sebagai "Titipan" ke dalam amplop digital tertentu. Dana ini akan dihitung dalam saldo akun tetapi dikecualikan dari statistik pengeluaran/pemasukan pribadi Anda.
+- **Fitur Sinking Funds (Savings Allocation)**: Melokasikan sebagian saldo akun fisik ke dalam tabungan tujuan tanpa mengeluarkannya secara riil dari bank hingga barang/tujuan tersebut dibeli.
 - **Mekanisme Arsip (Soft Delete)**: Amplop titipan yang sudah selesai (saldo Rp 0) dapat diarsipkan untuk menjaga daftar utama tetap bersih. Data arsip tetap dapat diakses di "Ruang Arsip".
 
 ### 🔄 Transaksi Berulang (Recurring)
@@ -49,6 +54,7 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
 ### ⚙️ Manajemen Data Master
 - **Kelola Kategori**: Menambahkan kategori kustom dengan ikon dan tipe yang berbeda.
 - **Kelola Sumber Dana**: Menambahkan akun keuangan (Bank, E-Wallet, Cash) beserta saldo awal.
+- **Kelola Sinking Funds**: Menambahkan tujuan tabungan dengan target nominal, tanggal target, dan ikon pilihan.
 
 ---
 
@@ -75,14 +81,15 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 |-------|------------|-----------|
 | A | ID | Unique ID transaksi (UUID/Generated) |
 | B | Tanggal | Format YYYY-MM-DD |
-| C | Jenis | Pemasukan, Pengeluaran, atau Transfer |
+| C | Jenis | Pemasukan, Pengeluaran, Transfer, alokasi_tabungan, tarik_tabungan, eksekusi_tabungan |
 | D | ID Sumber Dana | Referensi ke akun asal |
 | E | ID Kategori | Referensi ke kategori |
 | F | Nominal | Nilai angka transaksi |
 | G | Catatan | Detail atau keterangan tambahan |
 | H | ID Target | (Khusus Transfer) ID Akun tujuan |
 | I | Label | Judul singkat transaksi |
-| J | Is Titipan | Status Boolean (TRUE/FALSE) |
+| J | Is Titipan | ID Titipan (jika berlaku) |
+| K | ID Tabungan | ID Tabungan (Sinking Fund) jika berlaku |
 
 ### B. Lembar `Recurring` (Master Transaksi Rutin)
 | Kolom | Nama Field | Deskripsi |
@@ -122,7 +129,6 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 | C | Bulan | Angka bulan (1-12) |
 | D | Tahun | Angka tahun |
 | E | Nominal Limit | Batas maksimal pengeluaran |
-| F | Tahun | Angka tahun |
 
 ### F. Lembar `Master_Titipan` (Konteks Titipan)
 | Kolom | Nama Field | Deskripsi |
@@ -132,6 +138,17 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 | C | Status | `aktif` atau `selesai` (arsipkan) |
 | D | Created At | Tanggal pembuatan |
 
+### G. Lembar `Master_Tabungan` (Sinking Funds)
+| Kolom | Nama Field | Deskripsi |
+|-------|------------|-----------|
+| A | ID Tabungan | Kunci unik |
+| B | Nama Tujuan | Nama target tabungan |
+| C | Nominal Target | Target nilai uang yang ingin dicapai |
+| D | Tanggal Target | Estimasi waktu target tercapai |
+| E | Icon | Nama ikon (Lucide React) |
+| F | Status | `aktif` atau `tercapai` |
+| G | Created At | Tanggal pembuatan |
+
 ---
 
 ## 4. Logika Perhitungan Penting
@@ -139,9 +156,13 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 1.  **Siklus Keuangan**: Aplikasi mendukung pengaturan tanggal mulai siklus (default: tanggal 25). Seluruh ringkasan bulanan akan dihitung sejak tanggal tersebut hingga hari sebelum tanggal tersebut di bulan berikutnya.
 2.  **Zero-Based Budgeting (ZBB)**: Logika proyeksi kas menggunakan prinsip ZBB: `Sisa Aman = Pemasukan Aktual - (Pengeluaran Aktual + Semua Tagihan Rutin Siklus)`. Ini memastikan setiap rupiah memiliki "pekerjaan" dan pengguna tahu persis berapa uang yang benar-benar bebas digunakan.
 3.  **Saldo Riil**: Saldo setiap akun dihitung dengan rumus:
-    `Saldo Awal + (Total Pemasukan & Transfer Masuk) - (Total Pengeluaran & Transfer Keluar)`
+    `Saldo Awal + (Total Pemasukan & Transfer Masuk) - (Total Pengeluaran & Transfer Keluar + Total Eksekusi Tabungan)`
 4.  **Dana Titipan**: Sisa dana titipan dihitung secara khusus dari akumulasi transaksi bertipe `is_titipan` untuk membantu pengguna mengetahui berapa banyak uang orang lain yang masih tersimpan di dompet elektroniknya.
-5.  **Aturan Pengarsipan**: Sebuah amplop titipan baru bisa diubah statusnya menjadi `selesai` (archive) jika sisa saldonya tepat Rp 0. Ini memastikan tidak ada dana yang "terlupakan" di dalam arsip.
-6.  **Filter Transaksi**: Transaksi baru hanya dapat ditautkan ke amplop titipan dengan status `aktif`. Amplop yang sudah diarsipkan bersifat *read-only*.
-7.  **Biaya Admin Transfer (Linked Transactions)**: Jika sebuah transfer menyertakan biaya admin, sistem akan membuat transaksi pengeluaran otomatis di kategori "Biaya Admin". Transaksi ini ditandai dengan tag `[ADMIN_FEE:ID_TRANSFER]` di catatan. Jika transaksi transfer utama diubah atau dihapus, biaya admin terkait akan tersinkronisasi secara otomatis.
-8.  **Layout Dinamis**: Komponen Dashboard menggunakan tinggi tetap (750px) dengan `overflow-y-auto` dan kustom scrollbar. Ini memungkinkan daftar yang panjang tetap dapat diakses tanpa memperpanjang halaman secara keseluruhan.
+5.  **Logika Sinking Funds (Virtual Sub-Ledger)**: 
+    - Transaksi bertipe `alokasi_tabungan` dan `tarik_tabungan` bersifat virtual; mereka memisahkan saldo di dalam dompet yang sama tanpa mengurangi `Saldo Riil` akun fisik.
+    - Transaksi bertipe `eksekusi_tabungan` adalah transaksi rill yang memotong saldo fisik akun (saat barang/tujuan benar-benar dibeli).
+    - `Saldo Tabungan = Total Alokasi - Total Tarik - Total Eksekusi`.
+6.  **Aturan Pengarsipan**: Sebuah amplop titipan baru bisa diubah statusnya menjadi `selesai` (archive) jika sisa saldonya tepat Rp 0. Ini memastikan tidak ada dana yang "terlupakan" di dalam arsip.
+7.  **Filter Transaksi**: Transaksi baru hanya dapat ditautkan ke amplop titipan atau tabungan dengan status `aktif`.
+8.  **Biaya Admin Transfer (Linked Transactions)**: Jika sebuah transfer menyertakan biaya admin, sistem akan membuat transaksi pengeluaran otomatis di kategori "Biaya Admin". Transaksi ini ditandai dengan tag `[ADMIN_FEE:ID_TRANSFER]` di catatan.
+9.  **Layout Dinamis**: Komponen Dashboard menggunakan tinggi tetap (750px) dengan `overflow-y-auto` dan kustom scrollbar. Ini memungkinkan daftar yang panjang tetap dapat diakses tanpa memperpanjang halaman secara keseluruhan.

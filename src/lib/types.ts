@@ -19,6 +19,17 @@ export interface Titipan {
   status: "aktif" | "selesai";
 }
 
+// ---------- Master_Tabungan Sheet ----------
+export interface Tabungan {
+  id_tabungan: string;
+  nama_tujuan: string;
+  target_nominal: number;
+  tanggal_target: string;
+  icon: string;
+  status: "aktif" | "tercapai";
+  tanggal_dibuat: string;
+}
+
 // ---------- Master_Sumber_Dana Sheet ----------
 export interface SumberDana {
   id_sumber_dana: string;
@@ -30,7 +41,7 @@ export interface SumberDana {
 export interface Transaksi {
   id: string;
   tanggal: string; // ISO date string YYYY-MM-DD
-  jenis: "Pengeluaran" | "Pemasukan" | "Transfer";
+  jenis: "Pengeluaran" | "Pemasukan" | "Transfer" | "alokasi_tabungan" | "tarik_tabungan" | "eksekusi_tabungan";
   id_sumber_dana: string;
   id_kategori: string;
   nominal: number;
@@ -39,6 +50,7 @@ export interface Transaksi {
   // Transfer fields (optional)
   id_target_dana?: string;
   is_titipan?: string | null;
+  id_tabungan?: string | null;
 }
 
 // ---------- Recurring Transaction ----------
