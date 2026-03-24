@@ -107,16 +107,17 @@ export default function SumberDanaForm({ onClose, sumberDanaToEdit }: SumberDana
                     </div>
 
                     {/* Saldo Awal */}
-                    <div className="space-y-2">
+                    <div className="flex flex-col space-y-2 bg-primary/5 p-5 rounded-2xl border border-primary/10 transition-all">
                         <NumericInput
                             label="Saldo Awal"
                             name="saldo_awal"
                             control={control}
                             error={errors.saldo_awal?.message}
                             disabled={!!sumberDanaToEdit}
+                            className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-primary/20 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-primary"
                         />
                         {sumberDanaToEdit && (
-                            <p className="text-xs text-muted-foreground italic">
+                            <p className="text-[11px] text-muted-foreground italic text-center pt-2 font-medium opacity-80">
                                 * Saldo awal tidak dapat diubah setelah akun dibuat.
                             </p>
                         )}

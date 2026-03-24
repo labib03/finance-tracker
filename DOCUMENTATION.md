@@ -20,6 +20,15 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
 - **Grafik Tren**: Visualisasi pengeluaran dan pemasukan mingguan serta distribusi pengeluaran per kategori (Pie Chart).
 - **Aesthetic & UX**: Desain *Scandi-Minimal* premium dengan kartu setinggi 750px dan sistem internal scrolling. 
 - **Modern Input Forms**: Form input (khususnya Transfer) menggunakan layout *High-Contrast* dengan input nominal gajah (besar) untuk fokus utama, grouping akun yang intuitif, serta input biaya admin yang bersih tanpa gangguan fitur kalkulator.
+- **Smart Adaptive Calculator**: Komponen `NumericInput` dilengkapi dengan kalkulator pintar yang adaptif:
+    - **Desktop**: Tampil sebagai floating popover yang elegan.
+    - **Mobile**: Berubah secara otomatis menjadi *Full-screen Bottom Sheet* (drawer) untuk pengalaman sentuhan yang maksimal (Native-like).
+    - **Fitur**: Riwayat perhitungan real-time, tombol "Batal" untuk pembersihan state, dan tombol "Terapkan" yang menonjol untuk alur kerja cepat.
+- **Responsive Mobile List View**: Daftar transaksi dan tabel pada perangkat mobile telah dioptimalkan dengan tata letak *Apple Wallet Style*:
+    - Fokus pada keterbacaan label utama dan nominal.
+    - Penggunaan ikon kategori yang konsisten dan detail akun yang ringkas.
+    - Efek interaksi mikro (`active:scale`) untuk umpan balik sentuhan yang lebih baik.
+- **Pro Max Recurring Widget**: Widget pengingat tagihan dengan desain kartu terisolasi (*enclosed cards*) yang bersih, indikator urgensi berwarna (Hari Ini, Besok, Terlewati), dan aksi cepat "Bayar" langsung dari dashboard.
 
 ### 💸 Manajemen Transaksi
 - **Pencatatan Pemasukan & Pengeluaran**: Mencatat transaksi dengan kategori, sumber dana, tanggal, dan catatan detail.
@@ -30,6 +39,7 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
 ### 🔄 Transaksi Berulang (Recurring)
 - Mengotomatisasi transaksi rutin (seperti tagihan, gaji, atau langganan).
 - Mendukung berbagai frekuensi (Harian, Mingguan, Bulanan, Tahunan, atau kustom setiap X bulan).
+- **Pro Max List Interface**: Pengelolaan daftar tagihan rutin menggunakan card-based layout yang modern dengan kontrol cepat (Play/Pause, Edit, Hapus) yang terorganisir di sisi kanan untuk aksesibilitas tinggi.
 - Sistem secara otomatis akan men-generate transaksi riil saat tanggal jatuh tempo tiba.
 
 ### 📅 Anggaran (Budgeting)

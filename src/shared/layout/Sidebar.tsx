@@ -4,14 +4,15 @@ import { useState, useRef, useEffect } from 'react';
 import {
     LayoutDashboard,
     Wallet,
-    PlusCircle,
+    ReceiptText,
     ArrowLeftRight,
-    PieChart,
+    Target,
+    BarChart3,
     CalendarClock,
     Menu,
     X,
     DollarSign,
-    Database,
+    Settings2,
     ChevronRight,
     PanelLeftClose,
     PanelLeftOpen
@@ -37,12 +38,12 @@ import {
 const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Ringkasan finansial' },
     { id: 'saldo', label: 'Dompet Kontrol', icon: Wallet, description: 'Manajemen akun' },
-    { id: 'transaksi', label: 'Riwayat Transaksi', icon: PlusCircle, description: 'Catat transaksi' },
+    { id: 'transaksi', label: 'Riwayat Transaksi', icon: ReceiptText, description: 'Catat transaksi' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
-    { id: 'anggaran', label: 'Target Budget', icon: PieChart, description: 'Batas hemat' },
-    { id: 'laporan', label: 'Analitik Keuangan', icon: PieChart, description: 'Statistik kategori' },
+    { id: 'anggaran', label: 'Target Budget', icon: Target, description: 'Batas hemat' },
+    { id: 'laporan', label: 'Analitik', icon: BarChart3, description: 'Statistik kategori' },
     { id: 'recurring', label: 'Tagihan Rutin', icon: CalendarClock, description: 'Biaya langganan' },
-    { id: 'master', label: 'Master Data', icon: Database, description: 'Kategori & sumber' },
+    { id: 'master', label: 'Master Data', icon: Settings2, description: 'Kategori & sumber' },
 ];
 
 interface NavLinksProps {

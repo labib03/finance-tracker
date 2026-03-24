@@ -5,7 +5,8 @@ import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, hitungSaldoAkun } from '@/lib/utils';
 import { Banknote, CreditCard, Smartphone, Wallet, Plus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, typeof Wallet> = {
     Cash: Banknote,
@@ -27,63 +28,94 @@ export default function SaldoCards({ onAddAccount }: SaldoCardsProps) {
         [sumberDanaList, transaksiList]
     );
 
+    const totalSaldo = useMemo(() => {
+        return saldoAkun.reduce((total, akun) => total + akun.saldo, 0);
+    }, [saldoAkun]);
+
     return (
-        <div className="space-y-8">
-            <div className="flex items-center justify-between px-2">
-                <div className="flex items-center gap-3">
-                    <div className="w-1.5 h-1.5 rounded-full bg-[#10b981] animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
-                    <h2 className="text-[11px] font-black uppercase tracking-widest text-[#6B7280]">
-                        Status Saldo Likuid
-                    </h2>
+        <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col h-full min-h-[500px] max-h-[600px] relative">
+            <CardHeader className="p-8 pb-6 shrink-0 relative z-20 border-b border-slate-100">
+                <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-[1rem] bg-slate-100 flex items-center justify-center border border-slate-200/50 text-slate-900 shadow-sm relative">
+                            <Wallet size={24} strokeWidth={2.5} />
+                            <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
+                        </div>
+                        <div>
+                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 leading-none mb-2">
+                                Status Saldo Likuid
+                            </p>
+                            <CardTitle className="text-3xl font-black display-number text-slate-950 tracking-tight leading-none">
+                                {formatRupiah(totalSaldo)}
+                            </CardTitle>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
-                {saldoAkun.map((akun) => {
-                    const Icon = iconMap[akun.nama_sumber] || Wallet;
-
-                    return (
-                        <Card 
-                            key={akun.id_sumber_dana}
-                            className="group relative transition-all duration-500 hover:-translate-y-2 rounded-[2.5rem] border border-[#E5E7EB] bg-white shadow-[0_10px_30px_-10px_rgba(0,0,0,0.05)] hover:shadow-[0_40px_80px_-20px_rgba(0,0,0,0.1)] overflow-hidden"
-                        >
-                            <div className="absolute top-0 right-0 -mr-8 -mt-8 w-32 h-32 bg-[#10b981]/5 rounded-full blur-3xl group-hover:bg-[#10b981]/10 transition-colors duration-700" />
-                            
-                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-8 pb-4 relative z-10">
-                                <div className="w-14 h-14 rounded-2xl bg-[#F9FAFB] flex items-center justify-center border border-[#F3F4F6] transition-all duration-500 group-hover:scale-110 group-hover:rotate-3">
-                                    <Icon size={24} strokeWidth={2.5} className="text-[#10b981]" />
-                                </div>
-                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-[#9CA3AF]">
-                                    {akun.nama_sumber}
-                                </span>
-                            </CardHeader>
-                            
-                            <CardContent className="px-8 pb-8 pt-2 relative z-10">
-                                <p className="text-[11px] font-bold uppercase tracking-widest text-[#6B7280]/60 mb-2">Tersedia</p>
-                                <p className="text-3xl font-black tracking-tighter text-[#1F2937] display-number truncate leading-none">
-                                    {formatRupiah(akun.saldo)}
-                                </p>
-                            </CardContent>
-                            
-                            <div className="absolute bottom-0 left-0 w-full h-1.5 bg-[#F9FAFB]">
-                                <div className="h-full bg-[#10b981]/40 w-full" />
+            </CardHeader>
+            
+            <CardContent className="p-4 flex-1 overflow-y-auto overflow-x-hidden relative z-10 scroll-smooth custom-scrollbar">
+                {saldoAkun.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
+                            <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-dashed border-slate-200">
+                            <Wallet size={24} className="text-slate-300" />
                             </div>
-                        </Card>
-                    );
-                })}
+                            <p className="text-sm font-bold text-slate-400">Belum ada akun dompet</p>
+                    </div>
+                ) : (
+                    <div className="space-y-3 pb-2">
+                        {saldoAkun.map((akun) => {
+                            const Icon = iconMap[akun.nama_sumber] || Wallet;
+                            return (
+                                <div 
+                                    key={akun.id_sumber_dana}
+                                    className="group relative p-4 rounded-[1.5rem] bg-slate-50 border border-slate-100/50 hover:bg-slate-100 hover:border-slate-200 transition-all duration-300 flex items-center justify-between gap-4"
+                                >
+                                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm bg-white border border-slate-100 text-slate-600 group-hover:text-slate-900">
+                                            <Icon size={18} strokeWidth={2.5} />
+                                        </div>
+                                        <span className="text-sm font-bold truncate text-slate-800 transition-colors">
+                                            {akun.nama_sumber}
+                                        </span>
+                                    </div>
 
+                                    <div className="flex items-center shrink-0 pr-2">
+                                        <p className="text-base font-black display-number text-slate-900 transition-colors">
+                                            {formatRupiah(akun.saldo)}
+                                        </p>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </CardContent>
+
+            <div className="p-4 shrink-0 relative z-20 border-t border-slate-100 bg-white">
                 <button 
                     onClick={onAddAccount}
-                    className="group relative flex flex-col items-center justify-center gap-4 p-8 rounded-[2.5rem] border-2 border-dashed border-[#E5E7EB] hover:border-[#10b981]/40 hover:bg-[#FDF8F3]/30 transition-all duration-500 cursor-pointer h-full min-h-[160px]"
+                    className="w-full group/add relative flex items-center justify-between p-4 rounded-[1.5rem] bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98]"
                 >
-                    <div className="w-12 h-12 rounded-full bg-[#F3F4F6] group-hover:bg-[#10b981]/10 flex items-center justify-center text-[#9CA3AF] group-hover:text-[#10b981] transition-all">
-                        <Plus size={24} strokeWidth={3} />
+                    <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shadow-sm text-white group-hover/add:bg-white/20 transition-colors border border-white/5">
+                            <Plus size={18} strokeWidth={2.5} />
+                        </div>
+                        <div className="text-left">
+                            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 group-hover/add:text-slate-300 leading-none mb-1.5">
+                                Aksi Baru
+                            </p>
+                            <p className="text-xs font-bold text-white group-hover/add:text-white">
+                                Tambah Akun / Dompet
+                            </p>
+                        </div>
                     </div>
-                    <span className="text-xs font-black uppercase tracking-widest text-[#9CA3AF] group-hover:text-[#10b981]">
-                        Tambah Akun
-                    </span>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                            <Plus size={14} className="text-white group-hover/add:rotate-90 transition-transform duration-300" />
+                        </div>
+                    </div>
                 </button>
             </div>
-        </div>
+        </Card>
     );
 }

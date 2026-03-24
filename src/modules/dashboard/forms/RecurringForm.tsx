@@ -195,63 +195,75 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                         </Tabs>
                     </div>
 
-                    {/* Sumber Dana */}
-                    <div className="space-y-2">
-                        <Label htmlFor="sumber-dana">Sumber Dana</Label>
-                        <Controller
-                            name="id_sumber_dana"
-                            control={control}
-                            render={({ field }) => (
-                                <SearchableSelect
-                                    options={sumberDanaList.map(s => ({
-                                        value: s.id_sumber_dana,
-                                        label: s.nama_sumber
-                                    }))}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Pilih sumber dana..."
-                                    searchPlaceholder="Cari sumber dana..."
-                                    error={!!errors.id_sumber_dana}
-                                />
+                    {/* Account Info Group */}
+                    <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 flex flex-col gap-4">
+                        {/* Sumber Dana */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="sumber-dana" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Sumber Dana</Label>
+                            <Controller
+                                name="id_sumber_dana"
+                                control={control}
+                                render={({ field }) => (
+                                    <SearchableSelect
+                                        options={sumberDanaList.map(s => ({
+                                            value: s.id_sumber_dana,
+                                            label: s.nama_sumber
+                                        }))}
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder="Pilih sumber dana..."
+                                        searchPlaceholder="Cari sumber dana..."
+                                        error={!!errors.id_sumber_dana}
+                                    />
+                                )}
+                            />
+                            {errors.id_sumber_dana && (
+                                <p className="text-xs font-medium text-destructive">{errors.id_sumber_dana.message}</p>
                             )}
-                        />
-                        {errors.id_sumber_dana && (
-                            <p className="text-xs font-medium text-destructive">{errors.id_sumber_dana.message}</p>
-                        )}
-                    </div>
+                        </div>
 
-                    {/* Kategori */}
-                    <div className="space-y-2">
-                        <Label htmlFor="kategori">Kategori</Label>
-                        <Controller
-                            name="id_kategori"
-                            control={control}
-                            render={({ field }) => (
-                                <SearchableSelect
-                                    options={filteredKategori.map(k => ({
-                                        value: k.id_kategori,
-                                        label: k.nama_kategori
-                                    }))}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Pilih kategori..."
-                                    searchPlaceholder="Cari kategori..."
-                                    error={!!errors.id_kategori}
-                                />
+                        {/* Kategori */}
+                        <div className="space-y-1.5">
+                            <Label htmlFor="kategori" className="text-xs font-bold text-slate-500 uppercase tracking-wider">Kategori</Label>
+                            <Controller
+                                name="id_kategori"
+                                control={control}
+                                render={({ field }) => (
+                                    <SearchableSelect
+                                        options={filteredKategori.map(k => ({
+                                            value: k.id_kategori,
+                                            label: k.nama_kategori
+                                        }))}
+                                        value={field.value}
+                                        onValueChange={field.onChange}
+                                        placeholder="Pilih kategori..."
+                                        searchPlaceholder="Cari kategori..."
+                                        error={!!errors.id_kategori}
+                                    />
+                                )}
+                            />
+                            {errors.id_kategori && (
+                                <p className="text-xs font-medium text-destructive">{errors.id_kategori.message}</p>
                             )}
-                        />
-                        {errors.id_kategori && (
-                            <p className="text-xs font-medium text-destructive">{errors.id_kategori.message}</p>
-                        )}
+                        </div>
                     </div>
 
                     {/* Nominal */}
-                    <NumericInput
-                        label="Nominal"
-                        name="nominal"
-                        control={control}
-                        error={errors.nominal?.message}
-                    />
+                    <div className={cn(
+                        "flex flex-col space-y-2 p-5 rounded-2xl border transition-colors duration-300",
+                        activeJenis === 'Pemasukan' ? "bg-emerald-50/50 border-emerald-100" : "bg-rose-50/50 border-rose-100"
+                    )}>
+                        <NumericInput
+                            label="Nominal Transaksi Rutin"
+                            name="nominal"
+                            control={control}
+                            error={errors.nominal?.message}
+                            className={cn(
+                                "text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white shadow-sm text-center",
+                                activeJenis === 'Pemasukan' ? "border-emerald-200 focus:ring-emerald-200 text-emerald-900" : "border-rose-200 focus:ring-rose-200 text-rose-900"
+                            )}
+                        />
+                    </div>
 
                     {/* Frekuensi & Tanggal Mulai Grid */}
                     <div className="grid grid-cols-2 gap-4">

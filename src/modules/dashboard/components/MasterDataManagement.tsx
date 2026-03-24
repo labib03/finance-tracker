@@ -12,15 +12,14 @@ import {
     CreditCard,
     Wallet,
     Tags,
-    Layers,
+    LayoutGrid
 } from 'lucide-react';
-import { formatRupiah } from '@/lib/utils';
+import { formatRupiah, cn } from '@/lib/utils';
 import type { Kategori, SumberDana } from '@/lib/types';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
 import { Input } from '@/shared/ui/input';
-import { cn } from '@/lib/utils';
+import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 
 interface MasterDataManagementProps {
     onAddKategori: () => void;
@@ -42,9 +41,10 @@ export default function MasterDataManagement({
     const removeKategori = useFinanceStore((s) => s.removeKategori);
     const removeSumberDana = useFinanceStore((s) => s.removeSumberDana);
 
-    const [activeTab, setActiveTab] = useState<'kategori' | 'sumber_dana'>('kategori');
-    const [search, setSearch] = useState('');
+    const [searchKategori, setSearchKategori] = useState('');
+    const [searchSumberDana, setSearchSumberDana] = useState('');
     const [kategoriTipe, setKategoriTipe] = useState<'all' | 'Pengeluaran' | 'Pemasukan'>('all');
+    
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; name: string; type: 'kategori' | 'sumber_dana' }>({
         isOpen: false, id: '', name: '', type: 'kategori'
     });
@@ -56,16 +56,16 @@ export default function MasterDataManagement({
         if (kategoriTipe !== 'all') {
             list = list.filter(k => k.tipe === kategoriTipe);
         }
-        if (search) {
-            list = list.filter(k => k.nama_kategori.toLowerCase().includes(search.toLowerCase()));
+        if (searchKategori) {
+            list = list.filter(k => k.nama_kategori.toLowerCase().includes(searchKategori.toLowerCase()));
         }
         return list;
-    }, [kategoriList, kategoriTipe, search]);
+    }, [kategoriList, kategoriTipe, searchKategori]);
 
     const filteredSumberDana = useMemo(() => {
-        if (!search) return sumberDanaList;
-        return sumberDanaList.filter(s => s.nama_sumber.toLowerCase().includes(search.toLowerCase()));
-    }, [sumberDanaList, search]);
+        if (!searchSumberDana) return sumberDanaList;
+        return sumberDanaList.filter(s => s.nama_sumber.toLowerCase().includes(searchSumberDana.toLowerCase()));
+    }, [sumberDanaList, searchSumberDana]);
 
     const pengeluaranCount = kategoriList.filter(k => k.tipe === 'Pengeluaran').length;
     const pemasukanCount = kategoriList.filter(k => k.tipe === 'Pemasukan').length;
@@ -93,216 +93,285 @@ export default function MasterDataManagement({
         setConfirmDelete({ ...confirmDelete, isOpen: false });
     };
 
-    const tabs = [
-        { id: 'kategori' as const, label: 'Kategori', icon: Tags, count: kategoriList.length },
-        { id: 'sumber_dana' as const, label: 'Sumber Dana', icon: Wallet, count: sumberDanaList.length },
-    ];
-
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
                 <div>
-                    <h2 className="text-lg font-black uppercase tracking-widest text-foreground">Master Data</h2>
-                    <p className="text-xs font-medium text-muted-foreground/80 uppercase tracking-widest mt-1">
-                        Kelola kategori transaksi dan sumber dana Anda
+                    <h2 className="text-lg font-black uppercase tracking-widest text-slate-900">Master Data</h2>
+                    <p className="text-xs font-medium text-slate-500 uppercase tracking-widest mt-1">
+                        Konfigurasi Struktur Kategori & Rekening Anda
                     </p>
                 </div>
-                <Button
-                    onClick={activeTab === 'kategori' ? onAddKategori : onAddSumberDana}
-                    className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0"
-                >
-                    <Plus size={16} className="mr-2" />
-                    {activeTab === 'kategori' ? 'Tambah Kategori' : 'Tambah Akun'}
-                </Button>
             </div>
 
-            {/* Tab Navigation */}
-            <div className="bg-white rounded-[2.5rem] shadow-scandi border border-border/40 overflow-hidden transition-all duration-500 hover:shadow-float">
-                <div className="flex border-b border-border/20">
-                    {tabs.map((tab) => (
-                        <button
-                            key={tab.id}
-                            onClick={() => { setActiveTab(tab.id); setSearch(''); }}
-                            className={cn(
-                                "flex-1 flex items-center justify-center gap-3 px-6 py-5 text-xs font-black uppercase tracking-widest transition-all duration-500 relative",
-                                activeTab === tab.id
-                                    ? "text-foreground bg-muted/20"
-                                    : "text-muted-foreground/80 hover:text-muted-foreground/70 hover:bg-muted/10"
-                            )}
-                        >
-                            <tab.icon size={16} />
-                            {tab.label}
-                            <span className={cn(
-                                "px-2 py-0.5 rounded-full text-xs font-black transition-colors",
-                                activeTab === tab.id ? "bg-foreground text-background" : "bg-muted/40 text-muted-foreground/80"
-                            )}>
-                                {tab.count}
-                            </span>
-                            {activeTab === tab.id && (
-                                <div className="absolute bottom-0 left-1/4 right-1/4 h-[3px] bg-foreground rounded-full" />
-                            )}
-                        </button>
-                    ))}
-                </div>
-
-                {/* Search + Filters */}
-                <div className="px-8 py-5 border-b border-border/10">
-                    <div className="flex items-center gap-4">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground/80" size={14} />
-                            <Input
-                                placeholder={activeTab === 'kategori' ? "Cari kategori..." : "Cari sumber dana..."}
-                                className="pl-10 h-11 text-xs font-medium rounded-2xl bg-muted/15 border-transparent focus:bg-white focus:border-border/40 focus:ring-0"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
+            {/* Grid Layout (Side-by-side on LG screens) */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+                
+                {/* ----------------- KATEGORI PANEL ----------------- */}
+                <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col h-full min-h-[600px] max-h-[750px] relative">
+                    <CardHeader className="p-8 pb-6 shrink-0 relative z-20 border-b border-slate-100 space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-[1rem] bg-slate-100 flex items-center justify-center border border-slate-200/50 text-slate-900 shadow-sm relative">
+                                <Tags size={24} strokeWidth={2.5} />
+                                <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[8px] font-black text-white border-2 border-white">
+                                    {kategoriList.length}
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 leading-none mb-1.5">
+                                    Klasifikasi
+                                </p>
+                                <CardTitle className="text-xl font-black text-slate-950 tracking-tight leading-none">
+                                    Kategori Transaksi
+                                </CardTitle>
+                            </div>
                         </div>
-                        {activeTab === 'kategori' && (
-                            <div className="flex items-center gap-1.5 bg-muted/15 rounded-2xl p-1">
+
+                        {/* Filter & Search Header */}
+                        <div className="space-y-3">
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <Input
+                                    placeholder="Cari kategori..."
+                                    className="pl-11 h-12 text-sm font-medium rounded-2xl bg-slate-50 border-slate-200/60 focus:bg-white focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-400"
+                                    value={searchKategori}
+                                    onChange={(e) => setSearchKategori(e.target.value)}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 overflow-x-auto pb-1 custom-scrollbar">
                                 {[
-                                    { value: 'all' as const, label: 'Semua' },
-                                    { value: 'Pengeluaran' as const, label: `Keluar (${pengeluaranCount})` },
-                                    { value: 'Pemasukan' as const, label: `Masuk (${pemasukanCount})` }
+                                    { value: 'all' as const, label: 'Semua Kategori' },
+                                    { value: 'Pengeluaran' as const, label: `Pengeluaran (${pengeluaranCount})` },
+                                    { value: 'Pemasukan' as const, label: `Pemasukan (${pemasukanCount})` }
                                 ].map(f => (
                                     <button
                                         key={f.value}
                                         onClick={() => setKategoriTipe(f.value)}
                                         className={cn(
-                                            "px-3 py-2 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300",
+                                            "px-4 py-2 rounded-[1rem] text-[10px] font-black uppercase tracking-widest transition-all duration-300 whitespace-nowrap border placeholder:",
                                             kategoriTipe === f.value
-                                                ? "bg-white text-foreground shadow-sm"
-                                                : "text-muted-foreground/80 hover:text-muted-foreground"
+                                                ? "bg-slate-900 text-white border-transparent shadow-sm"
+                                                : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-800"
                                         )}
                                     >
                                         {f.label}
                                     </button>
                                 ))}
                             </div>
-                        )}
-                    </div>
-                </div>
-
-                {/* Content */}
-                <div className="p-4">
-                    {activeTab === 'kategori' && (
-                        <div className="space-y-1.5">
-                            {filteredKategori.length === 0 ? (
-                                <div className="text-center py-16">
-                                    <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center mx-auto mb-4 text-muted-foreground/80">
-                                        <Tags size={28} />
-                                    </div>
-                                    <p className="text-xs font-black uppercase tracking-widest text-foreground">Tidak ada kategori</p>
-                                    <p className="text-xs font-medium text-muted-foreground/80 mt-1 uppercase tracking-widest">Tambahkan kategori baru untuk memulai</p>
+                        </div>
+                    </CardHeader>
+                    
+                    <CardContent className="p-4 flex-1 overflow-y-auto overflow-x-hidden relative z-10 scroll-smooth custom-scrollbar">
+                        {filteredKategori.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-[200px] text-center p-8">
+                                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-dashed border-slate-200">
+                                    <Tags size={24} className="text-slate-300" />
                                 </div>
-                            ) : (
-                                filteredKategori.map((k) => (
+                                <p className="text-sm font-bold text-slate-400">Tidak ada kategori ditemukan</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3 pb-2 z-10 relative">
+                                {filteredKategori.map((k) => (
                                     <div
                                         key={k.id_kategori}
-                                        className="group flex items-center justify-between px-6 py-4 rounded-2xl hover:bg-muted/20 transition-all duration-300"
+                                        className="group relative p-4 rounded-[1.5rem] bg-white border border-slate-100 hover:border-slate-200 transition-all duration-300 flex items-center justify-between gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.04)]"
                                     >
-                                        <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-4 min-w-0 flex-1">
                                             <div className={cn(
-                                                "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border shadow-sm",
-                                                k.tipe === 'Pemasukan'
-                                                    ? "bg-emerald-50 text-emerald-600 border-emerald-100/50"
-                                                    : "bg-rose-50 text-rose-600 border-rose-100/50"
+                                                "w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border border-slate-100/50 shadow-sm transition-transform group-hover:scale-105",
+                                                k.tipe === 'Pemasukan' ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
                                             )}>
-                                                {k.tipe === 'Pemasukan' ? <ArrowUpRight size={16} strokeWidth={2.5} /> : <ArrowDownRight size={16} strokeWidth={2.5} />}
+                                                {k.tipe === 'Pemasukan' ? <ArrowUpRight size={20} strokeWidth={2.5} /> : <ArrowDownRight size={20} strokeWidth={2.5} />}
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-foreground leading-tight">{k.nama_kategori}</span>
+                                                <span className="text-sm font-black text-slate-800 leading-tight">{k.nama_kategori}</span>
                                                 <span className={cn(
-                                                    "text-xs font-black uppercase tracking-widest mt-0.5",
-                                                    k.tipe === 'Pemasukan' ? "text-emerald-500/60" : "text-rose-500/60"
+                                                    "text-[10px] font-black uppercase tracking-[0.15em] mt-1",
+                                                    k.tipe === 'Pemasukan' ? "text-emerald-500" : "text-rose-500"
                                                 )}>
-                                                    {k.tipe}
+                                                    Kategori {k.tipe}
                                                 </span>
                                             </div>
                                         </div>
                                         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                             <Button
                                                 variant="ghost"
-                                                size="icon-xs"
+                                                size="icon"
                                                 onClick={() => onEditKategori(k)}
-                                                className="h-8 w-8 rounded-xl text-indigo-600 hover:bg-indigo-50"
+                                                className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-100 bg-white border border-transparent hover:border-indigo-100 shadow-sm transition-all"
                                             >
-                                                <Edit2 size={14} />
+                                                <Edit2 size={16} />
                                             </Button>
                                             <Button
                                                 variant="ghost"
-                                                size="icon-xs"
+                                                size="icon"
                                                 onClick={() => handleDeleteKategori(k.id_kategori, k.nama_kategori)}
-                                                className="h-8 w-8 rounded-xl text-rose-500 hover:bg-rose-50"
+                                                className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 bg-white border border-transparent hover:border-rose-100 shadow-sm transition-all"
                                             >
-                                                <Trash2 size={14} />
+                                                <Trash2 size={16} />
                                             </Button>
                                         </div>
                                     </div>
-                                ))
-                            )}
-                        </div>
-                    )}
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
 
-                    {activeTab === 'sumber_dana' && (
-                        <div className="space-y-1.5">
-                            {filteredSumberDana.length === 0 ? (
-                                <div className="text-center py-16">
-                                    <div className="w-14 h-14 rounded-2xl bg-muted/20 flex items-center justify-center mx-auto mb-4 text-muted-foreground/80">
-                                        <Wallet size={28} />
-                                    </div>
-                                    <p className="text-xs font-black uppercase tracking-widest text-foreground">Belum ada akun</p>
-                                    <p className="text-xs font-medium text-muted-foreground/80 mt-1 uppercase tracking-widest">Tambahkan sumber dana baru untuk memulai</p>
+                    <div className="p-4 shrink-0 relative z-20 border-t border-slate-100 bg-white">
+                        <button 
+                            onClick={onAddKategori}
+                            className="w-full group/add relative flex items-center justify-between p-4 rounded-[1.5rem] bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98]"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shadow-sm text-white group-hover/add:bg-white/20 transition-colors border border-white/5">
+                                    <Tags size={18} strokeWidth={2.5} />
                                 </div>
-                            ) : (
-                                filteredSumberDana.map((s) => (
+                                <div className="text-left">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 group-hover/add:text-slate-300 leading-none mb-1.5">
+                                        Data Master Baru
+                                    </p>
+                                    <p className="text-xs font-bold text-white group-hover/add:text-white">
+                                        Tambahkan Kategori
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                                    <Plus size={14} className="text-white group-hover/add:rotate-90 transition-transform duration-300" />
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </Card>
+
+                {/* ----------------- SUMBER DANA PANEL ----------------- */}
+                <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col h-full min-h-[600px] max-h-[750px] relative">
+                    <CardHeader className="p-8 pb-6 shrink-0 relative z-20 border-b border-slate-100 space-y-6">
+                        <div className="flex items-center gap-4">
+                            <div className="w-12 h-12 rounded-[1rem] bg-slate-100 flex items-center justify-center border border-slate-200/50 text-slate-900 shadow-sm relative">
+                                <Wallet size={24} strokeWidth={2.5} />
+                                <div className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-slate-900 text-[8px] font-black text-white border-2 border-white">
+                                    {sumberDanaList.length}
+                                </div>
+                            </div>
+                            <div>
+                                <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 leading-none mb-1.5">
+                                    Alokasi Aset
+                                </p>
+                                <CardTitle className="text-xl font-black text-slate-950 tracking-tight leading-none">
+                                    Rekening & Dompet
+                                </CardTitle>
+                            </div>
+                        </div>
+
+                        {/* Search Header */}
+                        <div className="space-y-3">
+                            <div className="relative">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
+                                <Input
+                                    placeholder="Cari rekening..."
+                                    className="pl-11 h-12 text-sm font-medium rounded-2xl bg-slate-50 border-slate-200/60 focus:bg-white focus:border-slate-300 focus:ring-4 focus:ring-slate-100 transition-all placeholder:text-slate-400"
+                                    value={searchSumberDana}
+                                    onChange={(e) => setSearchSumberDana(e.target.value)}
+                                />
+                            </div>
+                            {/* Empty spacing block just to match exactly with the filters row in the other card */}
+                            <div className="flex items-center gap-2 overflow-x-auto pb-1 invisible h-8">
+                                <button className="px-4 py-2 rounded-[1rem] text-[10px] font-black uppercase">Spacing</button>
+                            </div>
+                        </div>
+                    </CardHeader>
+                    
+                    <CardContent className="p-4 flex-1 overflow-y-auto overflow-x-hidden relative z-10 scroll-smooth custom-scrollbar">
+                        {filteredSumberDana.length === 0 ? (
+                            <div className="flex flex-col items-center justify-center h-[200px] text-center p-8">
+                                <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-dashed border-slate-200">
+                                    <Wallet size={24} className="text-slate-300" />
+                                </div>
+                                <p className="text-sm font-bold text-slate-400">Tidak ada rekening ditemukan</p>
+                            </div>
+                        ) : (
+                            <div className="space-y-3 pb-2 z-10 relative">
+                                {filteredSumberDana.map((s) => (
                                     <div
                                         key={s.id_sumber_dana}
-                                        className="group flex items-center justify-between px-6 py-4 rounded-2xl hover:bg-muted/20 transition-all duration-300"
+                                        className="group relative p-4 rounded-[1.5rem] bg-white border border-slate-100 hover:border-slate-200 transition-all duration-300 flex items-center justify-between gap-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.04)]"
                                     >
-                                        <div className="flex items-center gap-4">
-                                            <div className="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/50 shadow-sm">
-                                                <CreditCard size={16} strokeWidth={2.5} />
+                                        <div className="flex items-center gap-4 min-w-0 flex-1">
+                                            <div className="w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border border-slate-200/50 shadow-sm transition-transform group-hover:scale-105 bg-slate-50 text-slate-700">
+                                                <CreditCard size={20} strokeWidth={2.5} />
                                             </div>
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-foreground leading-tight">{s.nama_sumber}</span>
-                                                <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mt-0.5">
-                                                    Personal Account
-                                                </span>
+                                                <span className="text-sm font-black text-slate-800 leading-tight">{s.nama_sumber}</span>
+                                                <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2 mt-1">
+                                                    <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                                        Akun Personal
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
+
                                         <div className="flex items-center gap-4">
-                                            <div className="text-right">
-                                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 leading-none mb-1">Saldo Awal</p>
-                                                <span className="display-number text-sm font-black text-foreground/70">
+                                            <div className="text-right hidden sm:block pr-2">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">Saldo Net</p>
+                                                <span className="display-number text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
                                                     {formatRupiah(s.saldo_awal)}
                                                 </span>
                                             </div>
+
                                             <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300">
                                                 <Button
                                                     variant="ghost"
-                                                    size="icon-xs"
+                                                    size="icon"
                                                     onClick={() => onEditSumberDana(s)}
-                                                    className="h-8 w-8 rounded-xl text-indigo-600 hover:bg-indigo-50"
+                                                    className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-100 bg-white border border-transparent hover:border-indigo-100 shadow-sm transition-all"
                                                 >
-                                                    <Edit2 size={14} />
+                                                    <Edit2 size={16} />
                                                 </Button>
                                                 <Button
                                                     variant="ghost"
-                                                    size="icon-xs"
+                                                    size="icon"
                                                     onClick={() => handleDeleteSumberDana(s.id_sumber_dana, s.nama_sumber)}
-                                                    className="h-8 w-8 rounded-xl text-rose-500 hover:bg-rose-50"
+                                                    className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 bg-white border border-transparent hover:border-rose-100 shadow-sm transition-all"
                                                 >
-                                                    <Trash2 size={14} />
+                                                    <Trash2 size={16} />
                                                 </Button>
                                             </div>
                                         </div>
                                     </div>
-                                ))
-                            )}
-                        </div>
-                    )}
-                </div>
+                                ))}
+                            </div>
+                        )}
+                    </CardContent>
+
+                    <div className="p-4 shrink-0 relative z-20 border-t border-slate-100 bg-white">
+                        <button 
+                            onClick={onAddSumberDana}
+                            className="w-full group/add relative flex items-center justify-between p-4 rounded-[1.5rem] bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98]"
+                        >
+                            <div className="flex items-center gap-4">
+                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shadow-sm text-white group-hover/add:bg-white/20 transition-colors border border-white/5">
+                                    <CreditCard size={18} strokeWidth={2.5} />
+                                </div>
+                                <div className="text-left">
+                                    <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 group-hover/add:text-slate-300 leading-none mb-1.5">
+                                        Data Master Baru
+                                    </p>
+                                    <p className="text-xs font-bold text-white group-hover/add:text-white">
+                                        Tambahkan Rekening
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
+                                    <Plus size={14} className="text-white group-hover/add:rotate-90 transition-transform duration-300" />
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </Card>
+
             </div>
 
             <ConfirmDialog

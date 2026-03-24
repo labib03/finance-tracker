@@ -9,6 +9,7 @@ import type { Titipan } from '@/lib/types';
 import { Save, UserCircle2 } from 'lucide-react';
 import { generateId, getToday } from '@/lib/utils';
 import { Button } from '@/shared/ui/button';
+import { cn } from '@/lib/utils';
 import {
     Dialog,
     DialogContent,
@@ -97,13 +98,16 @@ export default function TitipanForm({ onClose, titipanToEdit }: TitipanFormProps
                     <input type="hidden" {...register('status')} />
                     <input type="hidden" {...register('tanggal_dibuat')} />
 
-                    <div className="space-y-2">
-                        <Label htmlFor="nama_konteks">Nama Penitip / Konteks</Label>
+                    <div className="space-y-2 bg-amber-50/40 p-5 rounded-2xl border border-amber-100/50">
+                        <Label htmlFor="nama_konteks" className="text-xs font-bold text-amber-800 uppercase tracking-wider">Nama Penitip / Konteks</Label>
                         <Input
                             id="nama_konteks"
                             placeholder="Contoh: Titipan Maman, Kas Proyek X..."
                             {...register('nama_konteks')}
-                            className={errors.nama_konteks ? 'border-destructive' : ''}
+                            className={cn(
+                                "h-14 rounded-2xl bg-white border-amber-200 focus:ring-amber-200 focus:border-amber-400 font-medium text-amber-950 placeholder:text-amber-900/40 shadow-sm",
+                                errors.nama_konteks ? 'border-destructive' : ''
+                            )}
                         />
                         {errors.nama_konteks && (
                             <p className="text-xs font-medium text-destructive">{errors.nama_konteks.message}</p>

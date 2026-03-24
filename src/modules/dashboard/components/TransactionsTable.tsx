@@ -401,15 +401,14 @@ export default function TransactionsTable({
                 </Table>
 
                 {/* Mobile ListView - Card Based */}
-                <div className="md:hidden flex flex-col gap-4 p-4 bg-muted/5">
+                <div className="md:hidden flex flex-col gap-3 p-4 bg-slate-50/50">
                     {filteredTransaksi.length === 0 ? (
                         <div className="py-24 text-center px-4">
                             <div className="flex flex-col items-center justify-center">
-                                <div className="w-16 h-16 rounded-[2rem] bg-muted/20 flex items-center justify-center text-muted-foreground/80 mb-6">
-                                    <Filter size={32} />
+                                <div className="w-16 h-16 rounded-full bg-slate-100 flex items-center justify-center text-slate-400 mb-6 border border-dashed border-slate-200">
+                                    <Filter size={24} />
                                 </div>
-                                <p className="text-sm font-black uppercase tracking-widest text-foreground">Tidak ada transaksi</p>
-                                <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mt-1 text-center">Coba sesuaikan filter</p>
+                                <p className="text-sm font-black text-slate-400">Tidak ada transaksi ditemukan</p>
                             </div>
                         </div>
                     ) : (
@@ -418,75 +417,60 @@ export default function TransactionsTable({
                             const isTransfer = t.jenis === 'Transfer';
                             
                             return (
-                                <Card
+                                <div
                                     key={t.id}
-                                    className="group overflow-hidden bg-white rounded-2xl border border-border/40 shadow-sm active:scale-[0.98] transition-all cursor-pointer"
+                                    className="group relative bg-white p-4 rounded-[1.5rem] border border-slate-100 hover:border-slate-200 transition-all duration-300 flex items-center justify-between gap-4 shadow-sm active:scale-[0.98] cursor-pointer"
                                     onClick={() => setSelectedDetail(t)}
                                 >
-                                    <div className="p-4 flex items-center justify-between">
-                                        <div className="flex items-center gap-4 min-w-0">
-                                            <div className={cn(
-                                                "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500",
-                                                isTransfer
-                                                    ? "bg-indigo-50 text-indigo-600 border-indigo-100"
-                                                    : isIncome
-                                                        ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                                        : "bg-rose-50 text-rose-600 border-rose-100"
-                                            )}>
-                                                {isTransfer ? (
-                                                    <ArrowLeftRight size={18} strokeWidth={2.5} />
-                                                ) : (
-                                                    <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={18} strokeWidth={2.5} />
-                                                )}
-                                            </div>
-                                            <div className="flex flex-col min-w-0">
-                                                <span className="text-[11px] font-black text-foreground uppercase tracking-widest truncate">
-                                                    {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
-                                                </span>
-                                                <div className="flex items-center gap-1.5 mt-0.5 min-w-0">
-                                                    <span className="text-[10px] font-bold text-muted-foreground/60 truncate uppercase tracking-tighter">
-                                                        {getSumberDanaName(t.id_sumber_dana)}
-                                                        {isTransfer && t.id_target_dana && ` → ${getSumberDanaName(t.id_target_dana)}`}
-                                                    </span>
-                                                </div>
-                                                {t.label && (
-                                                    <span className="text-[10px] font-bold text-foreground/80 truncate mt-0.5 italic lowercase">
-                                                        {t.label}
-                                                    </span>
-                                                )}
-                                            </div>
+                                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                                        <div className={cn(
+                                            "w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border border-slate-100/50 shadow-sm transition-transform",
+                                            isTransfer
+                                                ? "bg-indigo-50 text-indigo-600"
+                                                : isIncome
+                                                    ? "bg-emerald-50 text-emerald-600"
+                                                    : "bg-rose-50 text-rose-600"
+                                        )}>
+                                            {isTransfer ? (
+                                                <ArrowLeftRight size={20} strokeWidth={2.5} />
+                                            ) : (
+                                                <CategoryIcon name={getKategori(t.id_kategori)?.icon_name || 'Circle'} size={20} strokeWidth={2.5} />
+                                            )}
                                         </div>
-                                        <div className="flex flex-col items-end shrink-0 pl-3">
-                                            <div className="flex items-center gap-1">
-                                                <span className={cn(
-                                                    "display-number text-sm font-black tracking-widest leading-none",
-                                                    isTransfer
-                                                        ? "text-indigo-600"
-                                                        : isIncome
-                                                            ? "text-emerald-600"
-                                                            : "text-orange-600"
-                                                )}>
-                                                    {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
+                                        
+                                        <div className="flex flex-col min-w-0 justify-center">
+                                            <div className="flex items-center gap-2 mb-1 min-w-0">
+                                                <span className="text-sm font-black text-slate-800 leading-tight truncate">
+                                                    {t.label || (getKategori(t.id_kategori)?.nama_kategori || 'Transfer')}
+                                                </span>
+                                                {t.is_titipan && (
+                                                    <span className="shrink-0 flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100 text-[8px] font-black uppercase tracking-tighter">
+                                                        <UserCircle2 size={8} strokeWidth={3} /> Titipan
+                                                    </span>
+                                                )}
+                                            </div>
+                                            <div className="flex items-center gap-1.5 min-w-0">
+                                                <span className="text-[10px] font-black uppercase tracking-widest text-slate-400 truncate flex items-center gap-1">
+                                                    {isTransfer ? 'Transfer' : getKategori(t.id_kategori)?.nama_kategori} 
+                                                    <span className="text-slate-300">•</span>
+                                                    {getSumberDanaName(t.id_sumber_dana)}
                                                 </span>
                                             </div>
-                                            <p className="flex items-center gap-1 mt-2">
-                                                {t.catatan && (
-                                                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-[0.2em] truncate">
-                                                        {t.catatan}
-                                                    </span>
-                                                )}
-                                                {t.is_titipan && (
-                                                    <span className="inline-flex items-center gap-1 ml-2 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-600 border border-amber-100 text-[10px] font-black uppercase tracking-tighter">
-                                                        <UserCircle2 size={10} strokeWidth={3} /> Titipan
-                                                    </span>
-                                                )}
-                                            </p>
-                                            <span className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-[0.2em] mt-2">
-                                                {formatTanggalPendek(t.tanggal)}
-                                            </span>
                                         </div>
                                     </div>
-                                </Card>
+
+                                    <div className="flex flex-col items-end justify-center shrink-0 pl-2">
+                                        <span className={cn(
+                                            "display-number text-sm font-black tracking-tight leading-none mb-1.5 text-right",
+                                            isTransfer ? "text-indigo-600" : isIncome ? "text-emerald-600" : "text-slate-900"
+                                        )}>
+                                            {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
+                                        </span>
+                                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            {formatTanggalPendek(t.tanggal)}
+                                        </span>
+                                    </div>
+                                </div>
                             );
                         })
                     )}

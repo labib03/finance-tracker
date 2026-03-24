@@ -14,11 +14,11 @@ export default function SaldoView({
 }) {
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
-        <div className="md:col-span-8 flex flex-col gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="h-full">
           <SaldoCards onAddAccount={() => setActiveModal('sumber_dana')} />
         </div>
-        <div className="md:col-span-4 h-full">
+        <div className="h-full flex flex-col gap-8">
            <TitipanSummary 
               onAddClick={() => setActiveModal('titipan')} 
               onEditClick={(t) => {

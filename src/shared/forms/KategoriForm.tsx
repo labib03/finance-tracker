@@ -95,7 +95,7 @@ export default function KategoriForm({ onClose, kategoriToEdit }: KategoriFormPr
                             id="nama_kategori"
                             placeholder="Contoh: Makanan, Gaji..."
                             {...register('nama_kategori')}
-                            className={errors.nama_kategori ? 'border-destructive' : ''}
+                            className={cn("h-11 rounded-xl", errors.nama_kategori ? 'border-destructive' : '')}
                         />
                         {errors.nama_kategori && (
                             <p className="text-xs font-medium text-destructive">{errors.nama_kategori.message}</p>
@@ -145,7 +145,7 @@ export default function KategoriForm({ onClose, kategoriToEdit }: KategoriFormPr
                                             {...field}
                                             id="icon_name"
                                             placeholder="Contoh: ShoppingBag, Utensils, Home..."
-                                            className={errors.icon_name ? 'border-destructive' : ''}
+                                            className={cn("h-11 rounded-xl", errors.icon_name ? 'border-destructive' : '')}
                                         />
                                     )}
                                 />

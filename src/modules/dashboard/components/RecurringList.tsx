@@ -166,87 +166,66 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {filteredRecurring.map((r) => (
-                            <Card key={r.id} className="group overflow-hidden bg-white rounded-[1.75rem] border border-border/40 shadow-scandi hover:shadow-float hover:-translate-y-1 transition-all duration-500">
-                                <CardContent className="p-0">
-                                    <div className="flex flex-col sm:flex-row sm:items-center gap-4 p-5 sm:p-6">
-                                        <div className="flex items-center gap-4">
-                                            <div
-                                                className={`w-12 h-12 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform group-hover:scale-110 duration-500 ${r.jenis === 'Pemasukan'
-                                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100'
-                                                    : 'bg-orange-50 text-orange-600 border-orange-100'
-                                                    }`}
-                                            >
-                                                <CalendarClock size={22} strokeWidth={2.5} />
-                                            </div>
-
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center gap-2">
-                                                    <p className="text-[11px] font-black uppercase tracking-widest text-foreground truncate">
-                                                        {r.label}
-                                                    </p>
-                                                    <Badge className={cn(
-                                                        "text-[9px] font-black uppercase tracking-tighter h-4 px-1.5 border-none",
-                                                        r.aktif ? "bg-emerald-50 text-emerald-600" : "bg-muted text-muted-foreground"
-                                                    )}>
-                                                        {r.aktif ? 'AKTIF' : 'OFF'}
-                                                    </Badge>
-                                                </div>
-                                                <p className="text-[10px] font-bold text-muted-foreground/80 mt-1 uppercase tracking-tight truncate">
-                                                    {r.frekuensi} • {getNamaBulan(r.tanggal_mulai.split('-')[1])} • {getSumberDanaName(r.id_sumber_dana)}
-                                                </p>
-                                            </div>
+                            <div key={r.id} className="group overflow-hidden bg-white rounded-[1.5rem] border border-slate-100 hover:border-slate-200 shadow-sm transition-all duration-300">
+                                <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                                    <div className="flex items-center gap-4 min-w-0">
+                                        <div className={cn("w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border border-slate-100/50 shadow-sm transition-transform group-hover:scale-110 duration-500",
+                                                r.jenis === 'Pemasukan' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
+                                        )}>
+                                            <CalendarClock size={20} strokeWidth={2.5} />
                                         </div>
-
-                                        <div className="flex items-center justify-between sm:flex-col sm:items-end gap-2 border-t sm:border-t-0 border-border/10 pt-4 sm:pt-0">
-                                            <div className="text-left sm:text-right">
-                                                <p
-                                                    className={`text-base sm:text-lg font-black display-number tracking-widest ${r.jenis === 'Pemasukan' ? 'text-emerald-600' : 'text-orange-600'
-                                                        }`}
-                                                >
-                                                    {formatRupiah(r.nominal)}
+                                        <div className="flex-1 min-w-0">
+                                            <div className="flex items-center gap-2 mb-1 min-w-0">
+                                                <p className="text-sm font-black text-slate-800 leading-tight truncate">
+                                                    {r.label}
                                                 </p>
-                                                <div className="flex items-center gap-1.5 mt-0.5 sm:justify-end">
-                                                    <Calendar size={10} className="text-primary/40" />
-                                                    <p className="text-[10px] font-black text-primary/60 uppercase tracking-tighter">
-                                                        NEXT: {formatTanggalPendek(getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya))}
-                                                    </p>
-                                                </div>
+                                                <span className={cn(
+                                                    "shrink-0 text-[8px] font-black uppercase tracking-[0.15em] px-1.5 py-0.5 rounded-md",
+                                                    r.aktif ? "bg-emerald-50 text-emerald-600" : "bg-slate-100 text-slate-500"
+                                                )}>
+                                                    {r.aktif ? 'AKTIF' : 'OFF'}
+                                                </span>
                                             </div>
-
-                                            <div className="flex items-center gap-1">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    onClick={() => updateRecurring({ ...r, aktif: !r.aktif })}
-                                                    title={r.aktif ? 'Pause' : 'Play'}
-                                                    className={cn(
-                                                        "h-8 w-8 rounded-xl transition-all",
-                                                        r.aktif ? 'text-amber-500 hover:bg-amber-50' : 'text-emerald-500 hover:bg-emerald-50'
-                                                    )}
-                                                >
-                                                    {r.aktif ? <Pause size={14} strokeWidth={2.5} /> : <Play size={14} strokeWidth={2.5} />}
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    onClick={() => onEdit?.(r)}
-                                                    className="h-8 w-8 text-primary/60 hover:bg-primary/5 rounded-xl"
-                                                >
-                                                    <Pencil size={14} strokeWidth={2.5} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    onClick={() => handleDeleteClick(r.id, r.id_kategori)}
-                                                    className="h-8 w-8 text-rose-400 hover:bg-rose-50 hover:text-rose-500 rounded-xl"
-                                                >
-                                                    <Trash2 size={14} strokeWidth={2.5} />
-                                                </Button>
+                                            <div className="flex flex-wrap items-center gap-1.5 mt-1 min-w-0">
+                                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                                    {r.frekuensi}
+                                                </span>
+                                                <span className="text-slate-300">•</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">
+                                                    {getKategoriName(r.id_kategori)}
+                                                </span>
+                                                <span className="text-slate-300 hidden xs:inline">•</span>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 truncate hidden xs:inline">
+                                                    {getSumberDanaName(r.id_sumber_dana)}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
-                                </CardContent>
-                            </Card>
+                                    
+                                    <div className="flex items-center justify-between sm:flex-col sm:items-end gap-3 sm:gap-2 border-t border-slate-100 sm:border-transparent pt-4 sm:pt-0">
+                                        <div className="flex flex-col items-start sm:items-end">
+                                            <p className={cn("text-base sm:text-lg font-black display-number tracking-tight leading-none mb-1.5", r.jenis === 'Pemasukan' ? 'text-emerald-600' : 'text-slate-900')}>
+                                                {formatRupiah(r.nominal)}
+                                            </p>
+                                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">
+                                                NEXT: {formatTanggalPendek(getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya))}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center gap-1.5 shrink-0">
+                                            <Button variant="ghost" size="icon-xs" onClick={() => updateRecurring({ ...r, aktif: !r.aktif })} title={r.aktif ? 'Pause' : 'Play'} className={cn("h-8 w-8 rounded-lg shadow-xs border border-slate-100 bg-white hover:bg-slate-50 transition-all", r.aktif ? 'text-amber-500 border-amber-100 hover:border-amber-200 hover:bg-amber-50' : 'text-emerald-500 border-emerald-100 hover:border-emerald-200 hover:bg-emerald-50')}>
+                                                {r.aktif ? <Pause size={14} strokeWidth={2.5} /> : <Play size={14} strokeWidth={2.5} />}
+                                            </Button>
+                                            <Button variant="ghost" size="icon-xs" onClick={() => onEdit?.(r)} className="h-8 w-8 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 shadow-xs rounded-lg transition-all bg-white">
+                                                <Pencil size={14} strokeWidth={2.5} />
+                                            </Button>
+                                            <Button variant="ghost" size="icon-xs" onClick={() => handleDeleteClick(r.id, r.id_kategori)} className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-200 shadow-xs rounded-lg transition-all bg-white">
+                                                <Trash2 size={14} strokeWidth={2.5} />
+                                            </Button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         ))}
                     </div>
                 )}

@@ -67,16 +67,15 @@ export default function CycleSettingsForm({ onClose }: CycleSettingsFormProps) {
                         <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
                             Tanggal Mulai Siklus (1 - 28)
                         </label>
-                        <div className="relative group">
-                            <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" size={18} />
+                        <div className="bg-indigo-50/40 p-5 rounded-2xl border border-indigo-100 flex justify-center">
                             <Input
                                 type="number"
                                 min="1"
                                 max="28"
                                 value={day}
                                 onChange={(e) => setDay(e.target.value)}
-                                placeholder="Contoh: 25"
-                                className="pl-12 h-14 rounded-2xl bg-muted/10 border-none text-base font-bold transition-all focus:bg-background focus:ring-2 focus:ring-primary/20"
+                                placeholder="25"
+                                className="w-32 h-16 sm:h-20 text-3xl sm:text-4xl rounded-2xl bg-white border-indigo-200 text-center font-black transition-all focus:bg-white focus:ring-4 focus:ring-indigo-100 shadow-sm text-indigo-950 px-4"
                                 required
                             />
                         </div>

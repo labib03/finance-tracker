@@ -3,10 +3,12 @@
 import {
     LayoutDashboard,
     Wallet,
-    PieChart,
-    Database,
+    ReceiptText,
+    Target,
+    BarChart3,
+    Settings2,
     Plus,
-    PlusCircle,
+    CalendarDays,
     Menu as HamburgerIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -29,7 +31,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
 
     const mainNavItems = [
         { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
-        { id: 'transaksi', label: 'History', icon: PlusCircle }
+        { id: 'transaksi', label: 'History', icon: ReceiptText }
     ];
 
     const rightNavItems = [
@@ -116,12 +118,12 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Extra items from Sidebar's navItems */}
                                 {[
-                                    { id: 'anggaran', label: 'Budget', icon: PieChart, type: 'view' },
+                                    { id: 'anggaran', label: 'Budget', icon: Target, type: 'view' },
                                     { id: 'transfer', label: 'Transfer', icon: ArrowLeftRight, type: 'view' },
-                                    { id: 'laporan', label: 'Analitik', icon: PieChart, type: 'view' },
+                                    { id: 'laporan', label: 'Analitik', icon: BarChart3, type: 'view' },
                                     { id: 'recurring', label: 'Tagihan', icon: CalendarClock, type: 'view' },
-                                    { id: 'master', label: 'Setup', icon: Database, type: 'view' },
-                                    { id: 'cycle', label: 'Siklus', icon: CalendarClock, type: 'modal' },
+                                    { id: 'master', label: 'Setup', icon: Settings2, type: 'view' },
+                                    { id: 'cycle', label: 'Siklus', icon: CalendarDays, type: 'modal' },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
