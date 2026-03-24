@@ -100,3 +100,16 @@ export type BudgetFormData = z.infer<typeof budgetSchema>;
 export type KategoriFormData = z.infer<typeof kategoriSchema>;
 export type SumberDanaFormData = z.infer<typeof sumberDanaSchema>;
 export type TitipanFormData = z.infer<typeof titipanSchema>;
+
+export const tabunganSchema = z.object({
+  id_tabungan: z.string().optional(),
+  nama_tujuan: z.string().min(1, "Nama tujuan wajib diisi"),
+  target_nominal: z.coerce
+    .number({ message: "Target nominal harus berupa angka" })
+    .positive("Target nominal harus lebih dari 0"),
+  tanggal_target: z.string().min(1, "Pilih estimasi tanggal target"),
+  icon: z.string().min(1, "Pilih ikon"),
+  status: z.enum(["aktif", "tercapai"]).default("aktif").optional(),
+});
+
+export type TabunganFormData = z.infer<typeof tabunganSchema>;

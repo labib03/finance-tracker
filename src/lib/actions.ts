@@ -847,3 +847,7 @@ export async function updateTabungan(tabungan: Tabungan): Promise<boolean> {
     return false;
   }
 }
+
+export async function deleteTabungan(id: string): Promise<boolean> {
+  return deleteRowByIdFromSheet("Master_Tabungan", id);
+}

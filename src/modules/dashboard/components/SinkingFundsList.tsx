@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, cn } from '@/lib/utils';
-import { MoreHorizontal, Plus, Banknote, ShieldAlert, CheckCircle2, Target, PiggyBank, Car, Home, Plane, GraduationCap, Laptop, Smartphone, HeartPulse, Pencil } from 'lucide-react';
+import { MoreHorizontal, Plus, Banknote, ShieldAlert, CheckCircle2, Target, PiggyBank, Car, Home, Plane, GraduationCap, Laptop, Smartphone, HeartPulse, Pencil, Trash2 } from 'lucide-react';
 import { 
     DropdownMenu, 
     DropdownMenuTrigger, 
@@ -14,6 +14,8 @@ import {
 import { Tabungan } from '@/lib/types';
 import TabunganAksiForm from '@/modules/dashboard/forms/TabunganAksiForm';
 import TabunganForm from '@/modules/dashboard/forms/TabunganForm';
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
+import { toast } from 'sonner';
 
 type AksiType = 'alokasi_tabungan' | 'tarik_tabungan' | 'eksekusi_tabungan';
 
@@ -28,6 +30,10 @@ export default function SinkingFundsList() {
 
     const [aksiModal, setAksiModal] = useState<{ tabungan: Tabungan; aksi: AksiType } | null>(null);
     const [editModal, setEditModal] = useState<Tabungan | null>(null);
+    const [confirmDelete, setConfirmDelete] = useState<Tabungan | null>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const removeTabungan = useFinanceStore((s) => s.removeTabungan);
 
     const calculateTimeRemaining = (targetDateStr: string) => {
         if (!targetDateStr) return '';
@@ -45,6 +51,20 @@ export default function SinkingFundsList() {
 
     const openAksi = (tabungan: Tabungan, aksi: AksiType) => {
         setAksiModal({ tabungan, aksi });
+    };
+
+    const handleDelete = async () => {
+        if (!confirmDelete) return;
+        setIsDeleting(true);
+        try {
+            await removeTabungan(confirmDelete.id_tabungan);
+            setConfirmDelete(null);
+        } catch (error) {
+            console.error(error);
+            toast.error("Gagal menghapus tabungan.");
+        } finally {
+            setIsDeleting(false);
+        }
     };
 
     return (
@@ -130,6 +150,13 @@ export default function SinkingFundsList() {
                                                         <Pencil className="mr-2.5 h-4 w-4" />
                                                         Edit Tujuan
                                                     </DropdownMenuItem>
+                                                    <DropdownMenuItem
+                                                        onClick={() => setConfirmDelete(t)}
+                                                        className="py-3 px-3 rounded-xl cursor-pointer font-bold text-xs uppercase tracking-widest text-rose-500 focus:bg-rose-50"
+                                                    >
+                                                        <Trash2 className="mr-2.5 h-4 w-4" />
+                                                        Hapus Tujuan
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
@@ -189,6 +216,17 @@ export default function SinkingFundsList() {
                     onClose={() => setEditModal(null)}
                 />
             )}
+
+            {/* Confirm Delete Dialog */}
+            <ConfirmDialog
+                isOpen={!!confirmDelete}
+                onClose={() => !isDeleting && setConfirmDelete(null)}
+                onConfirm={handleDelete}
+                isLoading={isDeleting}
+                title="Hapus Tujuan Tabungan?"
+                description={`Apakah Anda yakin ingin menghapus "${confirmDelete?.nama_tujuan}"? Data transaksi terkait tabungan ini akan kehilangan referensi tabungannya, namun saldo riil Anda tetap aman.`}
+                confirmText="Ya, Hapus"
+            />
         </>
     );
 }

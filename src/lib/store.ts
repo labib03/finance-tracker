@@ -37,7 +37,8 @@ import {
   updateTitipan,
   fetchTabungan,
   tambahTabungan,
-  updateTabungan
+  updateTabungan,
+  deleteTabungan
 } from "@/lib/actions";
 import { getCurrentMonth, generateId, formatRupiah, hitungSaldoAkun, getJadwalTerdekat } from "@/lib/utils";
 
@@ -116,6 +117,7 @@ interface FinanceState {
   // Actions - Tabungan CRUD
   addTabungan: (data: Tabungan) => Promise<void>;
   updateTabungan: (data: Tabungan) => Promise<void>;
+  removeTabungan: (id: string) => Promise<void>;
   tabunganToEdit: any;
   setTabunganToEdit: (val: any) => void;
 
@@ -792,6 +794,21 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     if (!success) {
       set({ tabunganList: prev });
       toast.error("Gagal mengupdate tujuan tabungan.");
+    }
+  },
+
+  removeTabungan: async (id) => {
+    const prev = get().tabunganList;
+    set((state) => ({
+      tabunganList: state.tabunganList.filter((t) => t.id_tabungan !== id),
+    }));
+
+    toast.success("Tujuan Tabungan dihapus.");
+
+    const success = await deleteTabungan(id);
+    if (!success) {
+      set({ tabunganList: prev });
+      toast.error("Gagal menghapus tujuan tabungan dari server.");
     }
   },
 

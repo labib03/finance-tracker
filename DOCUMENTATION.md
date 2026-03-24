@@ -166,3 +166,8 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 7.  **Filter Transaksi**: Transaksi baru hanya dapat ditautkan ke amplop titipan atau tabungan dengan status `aktif`.
 8.  **Biaya Admin Transfer (Linked Transactions)**: Jika sebuah transfer menyertakan biaya admin, sistem akan membuat transaksi pengeluaran otomatis di kategori "Biaya Admin". Transaksi ini ditandai dengan tag `[ADMIN_FEE:ID_TRANSFER]` di catatan.
 9.  **Layout Dinamis**: Komponen Dashboard menggunakan tinggi tetap (750px) dengan `overflow-y-auto` dan kustom scrollbar. Ini memungkinkan daftar yang panjang tetap dapat diakses tanpa memperpanjang halaman secara keseluruhan.
+10. **Manajemen Sinking Funds Pro Max**: 
+    - Form aksi tabungan menggunakan **SearchableSelect** (Dropdown) untuk pemilihan rekening sumber.
+    - Sistem memiliki **Konfirmasi Penghapusan (ConfirmDialog)** untuk tujuan tabungan.
+    - Pendekatan `Smart Balance Alert` dalam form alokasi untuk mendeteksi saldo rekening yang tidak mencukupi sebelum transaksi.
+    - Tombol shortcut **"Selesaikan Target"** untuk mempercepat proses alokasi dana sesuai sisa target.
