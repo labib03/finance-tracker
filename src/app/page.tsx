@@ -84,7 +84,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="flex min-h-screen w-full relative bg-background">
+    <div className="flex min-h-dvh w-full relative bg-background overflow-x-hidden">
       <LiquidBackground />
       <Toaster richColors position="top-right" />
 

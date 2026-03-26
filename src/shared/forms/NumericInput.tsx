@@ -78,7 +78,7 @@ export default function NumericInput({
         } else if (operation) {
             const result = calculate(prevVal, current, operation);
             setPrevVal(result);
-            setHistory(prev => [...prev.slice(-2), `${formatRupiah(current)} = ${formatRupiah(result)}`, `${formatRupiah(result)} ${op}`]);
+            setHistory(prev => [...prev, `${formatRupiah(current)} = ${formatRupiah(result)}`, `${formatRupiah(result)} ${op}`]);
             setCurrentVal(result.toString());
         }
         
@@ -91,7 +91,7 @@ export default function NumericInput({
         if (prevVal !== null && operation) {
             const result = calculate(prevVal, current, operation);
             setCurrentVal(result.toString());
-            setHistory(prev => [...prev.slice(-2), `${formatRupiah(current)} = ${formatRupiah(result)}`]);
+            setHistory(prev => [...prev, `${formatRupiah(current)} = ${formatRupiah(result)}`]);
             setPrevVal(result);
             setOperation(null);
             setShouldResetScreen(true);
@@ -133,16 +133,18 @@ export default function NumericInput({
 
             {/* History Display */}
             <div className={cn(
-                "bg-slate-50/90 p-6 overflow-y-auto flex flex-col justify-end gap-1.5 text-right border-b border-slate-100 custom-scrollbar shadow-inner",
+                "bg-slate-50/90 p-6 overflow-y-auto flex flex-col gap-1.5 text-right border-b border-slate-100 custom-scrollbar shadow-inner",
                 isDesktop ? "h-28" : "flex-1 min-h-[120px]"
             )}>
-                {history.length === 0 && <span className="text-[10px] text-slate-300 font-black uppercase tracking-[0.15em]">Siap Menghitung</span>}
-                {history.map((h, i) => (
-                    <span key={i} className={cn(
-                        "font-mono font-bold tracking-tight",
-                        isDesktop ? "text-[11px] text-slate-500" : "text-sm text-slate-600"
-                    )}>{h}</span>
-                ))}
+                <div className="mt-auto flex flex-col gap-1.5">
+                    {history.length === 0 && <span className="text-[10px] text-slate-300 font-black uppercase tracking-[0.15em]">Siap Menghitung</span>}
+                    {history.map((h, i) => (
+                        <span key={i} ref={i === history.length - 1 ? (el) => { if (el) setTimeout(() => el.scrollIntoView({ behavior: 'smooth', block: 'end' }), 50) } : undefined} className={cn(
+                            "font-mono font-bold tracking-tight",
+                            isDesktop ? "text-[11px] text-slate-500" : "text-sm text-slate-600"
+                        )}>{h}</span>
+                    ))}
+                </div>
             </div>
 
             {/* Main Screen */}
@@ -194,11 +196,12 @@ export default function NumericInput({
                 </Button>
                 <Button 
                     type="button"
-                    className="col-span-2 h-14 bg-indigo-950 hover:bg-indigo-900 text-white rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-indigo-950/20 transition-all active:scale-[0.98] text-[10px] sm:text-xs"
+                    className="col-span-2 h-14 bg-indigo-950 hover:bg-indigo-900 text-white rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-indigo-950/20 transition-all active:scale-[0.98] text-[10px] sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:shadow-none"
                     onClick={applyCalc}
+                    disabled={operation !== null}
                 >
-                    <Check size={18} strokeWidth={3} className="mr-2 text-indigo-400" />
-                    Terapkan {formatRupiah(parseFloat(currentVal))}
+                    <Check size={18} strokeWidth={3} className={cn("mr-2", operation !== null ? "text-slate-400" : "text-indigo-400")} />
+                    Terapkan
                 </Button>
             </div>
         </div>

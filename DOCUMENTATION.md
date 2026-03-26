@@ -23,7 +23,10 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
 - **Smart Adaptive Calculator**: Komponen `NumericInput` dilengkapi dengan kalkulator pintar yang adaptif:
     - **Desktop**: Tampil sebagai floating popover yang elegan.
     - **Mobile**: Berubah secara otomatis menjadi *Full-screen Bottom Sheet* (drawer) untuk pengalaman sentuhan yang maksimal (Native-like).
-    - **Fitur**: Riwayat perhitungan real-time, tombol "Batal" untuk pembersihan state, dan tombol "Terapkan" yang menonjol untuk alur kerja cepat.
+    - **Optimasi UI**: Label tombol "Terapkan" didesain bersih tanpa nominal untuk mencegah *layout overflow* pada angka panjang.
+    - **Safe-Apply Logic**: Tombol "Terapkan" dinonaktifkan secara otomatis jika ada operasi matematika yang menggantung; pengguna wajib menekan `=` untuk mendapatkan hasil akhir sebelum dapat memasukkan nilai ke form.
+    - **Full History with Auto-Scroll**: Riwayat perhitungan kini mencatat seluruh langkah operasi secara lengkap (tanpa batas baris) dan dilengkapi fitur *smart auto-scroll* ke perhitungan terbaru.
+- **Dynamic Viewport Experience**: Menggunakan satuan `dvh` (*Dynamic Viewport Height*) dan `pb-safe` untuk memastikan UI tidak terhalang oleh bar navigasi dinamis pada browser mobile (Safari/Chrome).
 - **Responsive Mobile List View**: Daftar transaksi dan tabel pada perangkat mobile telah dioptimalkan dengan tata letak *Apple Wallet Style*:
     - Fokus pada keterbacaan label utama dan nominal.
     - Penggunaan ikon kategori yang konsisten dan detail akun yang ringkas.
@@ -171,3 +174,4 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
     - Sistem memiliki **Konfirmasi Penghapusan (ConfirmDialog)** untuk tujuan tabungan.
     - Pendekatan `Smart Balance Alert` dalam form alokasi untuk mendeteksi saldo rekening yang tidak mencukupi sebelum transaksi.
     - Tombol shortcut **"Selesaikan Target"** untuk mempercepat proses alokasi dana sesuai sisa target.
+11. **Urutan Alfabetis (Global Sorting)**: Seluruh daftar Kategori dan Sumber Dana diatur secara alfabetis (A-Z) langsung pada level *Store* (Zustand). Hal ini menjamin konsistensi urutan yang rapi di semua dropdown form, tabel master, dan widget dashboard tanpa pengecualian.

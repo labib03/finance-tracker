@@ -72,7 +72,7 @@ export function ResponsiveModal({
               <X size={20} strokeWidth={3} />
            </button>
         </div>
-        <div className="flex-1 overflow-y-auto scrollbar-none px-6 pt-4 pb-12">
+        <div className="flex-1 overflow-y-auto scrollbar-none px-6 pt-4 pb-12 pb-safe">
             {children}
         </div>
       </SheetContent>

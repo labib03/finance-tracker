@@ -41,7 +41,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
     ];
 
     return (
-        <nav className="lg:hidden fixed bottom-0 left-0 right-0 h-[72px] bg-white/80 backdrop-blur-xl border-t border-border/40 z-50 px-6 flex items-center justify-between pb-safe shadow-scandi transition-all duration-500 animate-in slide-in-from-bottom-5">
+        <nav className="lg:hidden fixed bottom-0 left-0 right-0 min-h-[72px] bg-white/80 backdrop-blur-xl border-t border-border/40 z-50 px-6 flex items-center justify-between pb-[calc(env(safe-area-inset-bottom)+12px)] shadow-scandi transition-all duration-500 animate-in slide-in-from-bottom-5">
             {mainNavItems.map((item) => {
                 const isActive = activeView === item.id;
                 const Icon = item.icon;
@@ -113,7 +113,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                     } />
                     {/* The content will be rendered here but Sidebar will likely handle its own internal mobile sheet ? */}
                     {/* Actually, BottomNav might need its own SheetContent or use Sidebar's. Let's make it independent. */}
-                    <SheetContent side="bottom" className="h-[75vh] rounded-t-[2.5rem] border-t-0 p-0 flex flex-col bg-white overflow-hidden">
+                    <SheetContent side="bottom" className="h-[75dvh] rounded-t-[2.5rem] border-t-0 p-0 flex flex-col bg-white overflow-hidden pb-safe">
                         <div className="w-12 h-1.5 bg-muted/20 rounded-full mx-auto mt-4 mb-8" />
                         <div className="flex-1 overflow-y-auto scrollbar-none px-6 pb-12">
                             <div className="grid grid-cols-2 gap-4">
