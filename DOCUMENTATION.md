@@ -27,7 +27,7 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
     - **Safe-Apply Logic**: Tombol "Terapkan" dinonaktifkan secara otomatis jika ada operasi matematika yang menggantung; pengguna wajib menekan `=` untuk mendapatkan hasil akhir sebelum dapat memasukkan nilai ke form.
     - **Full History with Auto-Scroll**: Riwayat perhitungan kini mencatat seluruh langkah operasi secara lengkap (tanpa batas baris) dan dilengkapi fitur *smart auto-scroll* ke perhitungan terbaru.
     - **Auto-Select on Focus**: Input nominal transaksi secara otomatis akan memblokir (*highlight*) seluruh nilai saat disentuh/diklik. Ini memastikan input awal "0" langsung tergantikan saat pengguna mengetik angka pertama, mencegah kesalahan jumlah digit.
-- **Dynamic Viewport Experience**: Menggunakan satuan `dvh` (*Dynamic Viewport Height*) dan `pb-safe` untuk memastikan UI tidak terhalang oleh bar navigasi dinamis pada browser mobile (Safari/Chrome).
+- **Dynamic Viewport Experience**: Menggunakan satuan `dvh` (*Dynamic Viewport Height*) dan kalkulasi **Precision Safe-Area** (`env(safe-area-inset-bottom)`) untuk memastikan elemen interaktif (seperti tombol kalkulator dan modal) tidak terhalang oleh bar navigasi dinamis pada browser mobile (Safari/Chrome).
 - **Responsive Mobile List View**: Daftar transaksi dan tabel pada perangkat mobile telah dioptimalkan dengan tata letak *Apple Wallet Style*:
     - Fokus pada keterbacaan label utama dan nominal.
     - Penggunaan ikon kategori yang konsisten dan detail akun yang ringkas.
