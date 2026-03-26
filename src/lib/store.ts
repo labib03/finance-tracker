@@ -207,8 +207,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         ]);
 
       set({
-        kategoriList: kategori,
-        sumberDanaList: sumberDana,
+        kategoriList: kategori.sort((a, b) => a.nama_kategori.localeCompare(b.nama_kategori)),
+        sumberDanaList: sumberDana.sort((a, b) => a.nama_sumber.localeCompare(b.nama_sumber)),
         transaksiList: transaksi,
         recurringList: recurring,
         budgetList: budgets,
@@ -244,8 +244,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         transaksiList: transaksi,
         recurringList: recurring,
         budgetList: budgets,
-        kategoriList: kategori,
-        sumberDanaList: sumberDana,
+        kategoriList: kategori.sort((a, b) => a.nama_kategori.localeCompare(b.nama_kategori)),
+        sumberDanaList: sumberDana.sort((a, b) => a.nama_sumber.localeCompare(b.nama_sumber)),
         titipanList: titipan,
         tabunganList: tabungan,
       });
@@ -260,7 +260,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         fetchKategori(),
         fetchSumberDana(),
       ]);
-      set({ kategoriList: kategori, sumberDanaList: sumberDana });
+      set({ 
+        kategoriList: kategori.sort((a, b) => a.nama_kategori.localeCompare(b.nama_kategori)), 
+        sumberDanaList: sumberDana.sort((a, b) => a.nama_sumber.localeCompare(b.nama_sumber)) 
+      });
     } catch (error) {
       console.error("Failed to refresh master data:", error);
     }
