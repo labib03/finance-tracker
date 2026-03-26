@@ -39,7 +39,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     const getRemainingDaysInCycle = useFinanceStore((s) => s.getRemainingDaysInCycle);
     const getDailySafeLimit = useFinanceStore((s) => s.getDailySafeLimit);
 
-    const { sisaBersih, pemasukanSiklus, totalTagihanMendatang, upcomingItems, pengeluaranSiklus } = useMemo(() => {
+    const { sisaBersih, pemasukanSiklus, totalTagihanMendatang, upcomingItems, pengeluaranSiklus, alokasiTabunganSiklus } = useMemo(() => {
         const today = new Date();
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth();
@@ -66,6 +66,16 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
             .filter(t => t.jenis === 'Pengeluaran')
             .reduce((acc, t) => acc + t.nominal, 0);
 
+        const alokasiTabunganActual = transaksiSiklus
+            .filter(t => t.jenis === 'alokasi_tabungan')
+            .reduce((acc, t) => acc + t.nominal, 0);
+
+        const tarikTabunganActual = transaksiSiklus
+            .filter(t => t.jenis === 'tarik_tabungan')
+            .reduce((acc, t) => acc + t.nominal, 0);
+
+        const netTabungan = alokasiTabunganActual - tarikTabunganActual;
+
         const activeRecurring = recurringList.filter(r => r.aktif);
         const cycleBills = activeRecurring.filter(r => {
             const nextDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
@@ -89,12 +99,13 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
             .filter(r => r.jenis === 'Pengeluaran')
             .reduce((acc, r) => acc + r.nominal, 0);
 
-        const sisa = pemasukanActual - (pengeluaranActual + tagihanMendatangTotal);
+        const sisa = pemasukanActual - (pengeluaranActual + tagihanMendatangTotal + netTabungan);
 
         return {
             sisaBersih: sisa,
             pemasukanSiklus: pemasukanActual,
             pengeluaranSiklus: pengeluaranActual,
+            alokasiTabunganSiklus: netTabungan,
             totalTagihanMendatang: tagihanMendatangTotal,
             upcomingItems: cycleBills,
         };
@@ -104,6 +115,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     const isBudgetExhausted = sisaBersih <= 0;
     const totalCap = Math.max(pemasukanSiklus, 1);
     const terpakaiWidth = (pengeluaranSiklus / totalCap) * 100;
+    const tabunganWidth = (Math.max(0, alokasiTabunganSiklus) / totalCap) * 100;
     const tagihanWidth = (totalTagihanMendatang / totalCap) * 100;
     const sisaWidth = Math.max(0, (sisaBersih / totalCap) * 100);
 
@@ -154,6 +166,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                         <div className="space-y-4">
                             <div className="h-3 w-full bg-[#F3F4F6] rounded-full overflow-hidden flex shadow-inner">
                                 <div className="h-full bg-emerald-500/30 transition-all duration-1000" style={{ width: `${terpakaiWidth}%` }} />
+                                {tabunganWidth > 0 && <div className="h-full bg-indigo-500/30 transition-all duration-1000" style={{ width: `${tabunganWidth}%` }} />}
                                 <div className="h-full bg-amber-400/40 transition-all duration-1000" style={{ width: `${tagihanWidth}%` }} />
                                 <div className="h-full bg-blue-500/20 transition-all duration-1000" style={{ width: `${sisaWidth}%` }} />
                             </div>
@@ -163,6 +176,12 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                     <div className="w-2 rounded-full h-2 bg-emerald-500/40" />
                                     <span className="text-[9px] font-black text-[#9CA3AF] uppercase tracking-wider">Terpakai {formatRupiah(pengeluaranSiklus)}</span>
                                 </div>
+                                {alokasiTabunganSiklus > 0 && (
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 rounded-full h-2 bg-indigo-500/40" />
+                                        <span className="text-[9px] font-black text-[#9CA3AF] uppercase tracking-wider">Tabungan {formatRupiah(alokasiTabunganSiklus)}</span>
+                                    </div>
+                                )}
                                 <div className="flex items-center gap-2">
                                     <div className="w-2 rounded-full h-2 bg-amber-400/50" />
                                     <span className="text-[9px] font-black text-[#9CA3AF] uppercase tracking-wider">Tagihan {formatRupiah(totalTagihanMendatang)}</span>
@@ -358,18 +377,22 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                         </p>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div className="p-6 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
-                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.15em] mb-1">Total Pemasukan</p>
-                            <p className="text-xl font-black text-emerald-600 display-number">{formatRupiah(pemasukanSiklus)}</p>
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                        <div className="p-4 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
+                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Total Pemasukan</p>
+                            <p className="text-lg font-black text-emerald-600 display-number">{formatRupiah(pemasukanSiklus)}</p>
                         </div>
-                        <div className="p-6 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
-                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.15em] mb-1">Total Pengeluaran</p>
-                            <p className="text-xl font-black text-rose-500 display-number">{formatRupiah(pengeluaranSiklus)}</p>
+                        <div className="p-4 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
+                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Total Pengeluaran</p>
+                            <p className="text-lg font-black text-rose-500 display-number">{formatRupiah(pengeluaranSiklus)}</p>
                         </div>
-                        <div className="p-6 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
-                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-[0.15em] mb-1">Tagihan Tertunda</p>
-                            <p className="text-xl font-black text-amber-500 display-number">{formatRupiah(totalTagihanMendatang)}</p>
+                        <div className="p-4 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
+                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Alokasi Tabungan</p>
+                            <p className="text-lg font-black text-indigo-500 display-number">{formatRupiah(Math.max(0, alokasiTabunganSiklus))}</p>
+                        </div>
+                        <div className="p-4 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
+                            <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Tagihan Tertunda</p>
+                            <p className="text-lg font-black text-amber-500 display-number">{formatRupiah(totalTagihanMendatang)}</p>
                         </div>
                     </div>
                 </div>

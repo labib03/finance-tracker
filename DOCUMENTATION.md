@@ -154,7 +154,7 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
 ## 4. Logika Perhitungan Penting
 
 1.  **Siklus Keuangan**: Aplikasi mendukung pengaturan tanggal mulai siklus (default: tanggal 25). Seluruh ringkasan bulanan akan dihitung sejak tanggal tersebut hingga hari sebelum tanggal tersebut di bulan berikutnya.
-2.  **Zero-Based Budgeting (ZBB)**: Logika proyeksi kas menggunakan prinsip ZBB: `Sisa Aman = Pemasukan Aktual - (Pengeluaran Aktual + Semua Tagihan Rutin Siklus)`. Ini memastikan setiap rupiah memiliki "pekerjaan" dan pengguna tahu persis berapa uang yang benar-benar bebas digunakan.
+2.  **Zero-Based Budgeting (ZBB)**: Logika proyeksi kas menggunakan prinsip ZBB: `Sisa Aman = Pemasukan Aktual - (Pengeluaran Aktual + Tagihan Siklus + Net Alokasi Tabungan)`. Di mana `Net Alokasi Tabungan = Alokasi Dana - Tarik Darurat`. Ini memastikan setiap rupiah memiliki "pekerjaan" dan pengguna tahu persis berapa uang yang benar-benar bebas digunakan tanpa menyentuh dana yang sudah disisihkan.
 3.  **Saldo Riil**: Saldo setiap akun dihitung dengan rumus:
     `Saldo Awal + (Total Pemasukan & Transfer Masuk) - (Total Pengeluaran & Transfer Keluar + Total Eksekusi Tabungan)`
 4.  **Dana Titipan**: Sisa dana titipan dihitung secara khusus dari akumulasi transaksi bertipe `is_titipan` untuk membantu pengguna mengetahui berapa banyak uang orang lain yang masih tersimpan di dompet elektroniknya.
