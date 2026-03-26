@@ -63,13 +63,15 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
       watch,
       setValue,
       formState: { errors, isSubmitting },
-  } = useForm<TabunganFormData>({
+  } = useForm<any>({
       resolver: zodResolver(tabunganSchema),
       defaultValues: {
+          id_tabungan: "",
           nama_tujuan: "",
           target_nominal: 0,
           tanggal_target: "",
           icon: "Target",
+          status: "aktif",
       },
   });
 
@@ -132,7 +134,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
                     errors.nama_tujuan && "border-destructive"
                 )}
               />
-              {errors.nama_tujuan && <p className="text-[10px] font-bold text-destructive">{errors.nama_tujuan.message}</p>}
+              {errors.nama_tujuan && <p className="text-[10px] font-bold text-destructive">{(errors.nama_tujuan.message as string)}</p>}
             </div>
 
             <div className="space-y-2">
@@ -176,7 +178,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
                       </Popover>
                   )}
               />
-              {errors.tanggal_target && <p className="text-[10px] font-bold text-destructive">{errors.tanggal_target.message}</p>}
+              {errors.tanggal_target && <p className="text-[10px] font-bold text-destructive">{(errors.tanggal_target.message as string)}</p>}
             </div>
           </div>
 
@@ -186,7 +188,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
               label="Target Nominal Menabung"
               name="target_nominal"
               control={control}
-              error={errors.target_nominal?.message}
+              error={(errors.target_nominal?.message as string)}
               className="text-3xl font-black h-16 bg-white shadow-sm text-center border-indigo-200 focus:ring-indigo-200 text-indigo-900"
             />
           </div>
@@ -215,7 +217,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
                   );
                 })}
               </div>
-              {errors.icon && <p className="text-[10px] font-bold text-destructive">{errors.icon.message}</p>}
+              {errors.icon && <p className="text-[10px] font-bold text-destructive">{(errors.icon.message as string)}</p>}
           </div>
 
           <div className="pt-2">
