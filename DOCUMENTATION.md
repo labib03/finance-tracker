@@ -13,6 +13,9 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
     - **Indikator Visual**: Progress bar tiga warna (Terpakai, Tagihan Mendatang, Sisa Aman).
     - **Sistem Peringatan**: Alert merah otomatis jika total tagihan melebihi sisa dana pribadi.
     - **Manajemen Tagihan**: Daftar tagihan rutin dalam siklus (25 hingga 24) dengan tombol "Catat Sekarang" untuk eksekusi cepat.
+- **Daily Pacing (Today's Limit)**: Pemantauan jatah belanja harian yang aktual dan real-time.
+    - **Visual Health Bar**: Indikator warna (Indigo untuk aman, Amber untuk Over-budget) yang memantau sisa jatah hari ini.
+    - **Deduction 1:1**: Pengeluaran hari ini langsung memotong jatah harian secara instan, memberikan gambaran "Sisa Uang Aman" yang jujur untuk 24 jam ke depan.
 - **Status Anggaran Berbasis Kartu**: Pemantauan real-time pengeluaran per kategori terhadap limit bulanan.
 - **Fitur Expand (Detail View)**: Setiap kartu kartu utama memiliki ikon "Expand/Perbesar" di pojok kanan atas untuk membuka **Modal Dialog (Radix UI)**.
     - **Detail Modal**: Menampilkan rincian fungsional lebih mendalam dan area yang disiapkan untuk visualisasi grafik atau tabel transaksi penuh.
@@ -176,3 +179,7 @@ Database aplikasi disimpan dalam satu Spreadsheet dengan lembar (sheets) sebagai
     - Pendekatan `Smart Balance Alert` dalam form alokasi untuk mendeteksi saldo rekening yang tidak mencukupi sebelum transaksi.
     - Tombol shortcut **"Selesaikan Target"** untuk mempercepat proses alokasi dana sesuai sisa target.
 11. **Urutan Alfabetis (Global Sorting)**: Seluruh daftar Kategori dan Sumber Dana diatur secara alfabetis (A-Z) langsung pada level *Store* (Zustand). Hal ini menjamin konsistensi urutan yang rapi di semua dropdown form, tabel master, dan widget dashboard tanpa pengecualian.
+12. **Logika Daily Pacing (Actual Harian)**:
+    - **Target Jatah (Baseline)**: Dihitung dengan rumus `(Sisa Bersih Sekarang + Pengeluaran Hari Ini) / Sisa Hari`. Ini adalah angka "start harian" yang ideal.
+    - **Sisa Aktual**: Dihitung dengan `Target Jatah - Pengeluaran Hari Ini (Riil)`. 
+    - **Mekanisme Self-Healing**: Jika *Sisa Aktual* negatif (overspent), sistem tidak memaksanya menjadi nol hari ini, tetapi kerugian tersebut akan secara otomatis "dimakan" oleh kalkulasi hari esok (jatah esok mengecil), sehingga profil pengeluaran bulanan tetap terjaga di jalur yang sehat.

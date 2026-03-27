@@ -37,9 +37,8 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     const recurringList = useFinanceStore((s) => s.recurringList);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const getRemainingDaysInCycle = useFinanceStore((s) => s.getRemainingDaysInCycle);
-    const getDailySafeLimit = useFinanceStore((s) => s.getDailySafeLimit);
 
-    const { sisaBersih, pemasukanSiklus, totalTagihanMendatang, upcomingItems, pengeluaranSiklus, alokasiTabunganSiklus } = useMemo(() => {
+    const { sisaBersih, pemasukanSiklus, totalTagihanMendatang, upcomingItems, pengeluaranSiklus, alokasiTabunganSiklus, pengeluaranHariIni } = useMemo(() => {
         const today = new Date();
         const currentYear = today.getFullYear();
         const currentMonth = today.getMonth();
@@ -101,6 +100,16 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
 
         const sisa = pemasukanActual - (pengeluaranActual + tagihanMendatangTotal + netTabungan);
 
+        const pengeluaranHariIniActual = transaksiSiklus
+            .filter(t => {
+                if (t.jenis !== 'Pengeluaran') return false;
+                const d = new Date(t.tanggal);
+                return d.getDate() === today.getDate() && 
+                       d.getMonth() === today.getMonth() && 
+                       d.getFullYear() === today.getFullYear();
+            })
+            .reduce((acc, t) => acc + t.nominal, 0);
+
         return {
             sisaBersih: sisa,
             pemasukanSiklus: pemasukanActual,
@@ -108,6 +117,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
             alokasiTabunganSiklus: netTabungan,
             totalTagihanMendatang: tagihanMendatangTotal,
             upcomingItems: cycleBills,
+            pengeluaranHariIni: pengeluaranHariIniActual,
         };
     }, [transaksiList, recurringList, cycleStartDay]);
 
@@ -119,8 +129,19 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     const tagihanWidth = (totalTagihanMendatang / totalCap) * 100;
     const sisaWidth = Math.max(0, (sisaBersih / totalCap) * 100);
 
-    const dailyLimit = getDailySafeLimit();
     const daysLeft = getRemainingDaysInCycle();
+    
+    // Kalkulasi untuk "Today's Pacing"
+    const targetLimitHarian = sisaBersih + pengeluaranHariIni > 0 
+        ? Math.floor((sisaBersih + pengeluaranHariIni) / daysLeft)
+        : 0;
+        
+    const sisaActualHariIni = targetLimitHarian - pengeluaranHariIni;
+    const isTodayOverspent = sisaActualHariIni < 0;
+    
+    // Progress bar calculations for Today's Pacing
+    const safeTargetLimitHarian = Math.max(targetLimitHarian, 1);
+    const todayTerpakaiWidth = Math.min((pengeluaranHariIni / safeTargetLimitHarian) * 100, 100);
 
     return (
         <Dialog>
@@ -193,43 +214,90 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                             </div>
                         </div>
 
-                        {/* Daily Pacing Indicator */}
+                        {/* Today's Pacing Indicator */}
                         <div className={cn(
-                            "flex items-start sm:items-center gap-4 p-4 rounded-[1.25rem] border transition-all duration-300",
+                            "flex flex-col gap-4 p-5 rounded-[1.5rem] border transition-all duration-500 relative overflow-hidden",
                             isBudgetExhausted 
                                 ? "bg-red-50/50 border-red-100" 
-                                : "bg-emerald-50/30 border-emerald-100/50"
+                                : isTodayOverspent
+                                    ? "bg-amber-50/30 border-amber-100/80"
+                                    : "bg-[#F8FAFC] border-[#E2E8F0] hover:border-indigo-100 hover:shadow-sm"
                         )}>
-                            <div className={cn(
-                                "w-10 h-10 shrink-0 rounded-[0.85rem] flex items-center justify-center border shadow-xs transition-colors",
-                                isBudgetExhausted
-                                    ? "bg-white text-rose-500 border-rose-100/80"
-                                    : "bg-white text-emerald-500 border-emerald-100/80 hover:scale-105"
-                            )}>
-                                {isBudgetExhausted ? <AlertTriangle size={18} strokeWidth={2.5} /> : <Coffee size={18} strokeWidth={2.5} className="text-emerald-500/90" />}
+                            {/* Header Section */}
+                            <div className="flex items-start sm:items-center justify-between gap-4">
+                                <div className="flex items-center gap-3">
+                                    <div className={cn(
+                                        "w-10 h-10 shrink-0 rounded-[0.85rem] flex items-center justify-center border shadow-xs transition-colors",
+                                        isBudgetExhausted
+                                            ? "bg-white text-rose-500 border-rose-100/80"
+                                            : isTodayOverspent
+                                                ? "bg-white text-amber-500 border-amber-100/80"
+                                                : "bg-white text-indigo-500 border-indigo-100/80 hover:scale-105"
+                                    )}>
+                                        {isBudgetExhausted ? <AlertTriangle size={18} strokeWidth={2.5} /> : <Coffee size={18} strokeWidth={2.5} />}
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className={cn(
+                                            "text-[10px] font-black uppercase tracking-widest",
+                                            isBudgetExhausted ? "text-rose-500" : isTodayOverspent ? "text-amber-600" : "text-[#64748B]"
+                                        )}>
+                                            Sisa Limit Hari Ini
+                                        </span>
+                                        <span className={cn(
+                                            "text-xl sm:text-2xl font-black display-number tracking-tight leading-none mt-0.5",
+                                            isBudgetExhausted ? "text-rose-600" : isTodayOverspent ? "text-amber-600" : "text-[#0F172A]"
+                                        )}>
+                                            {isTodayOverspent ? '-' : ''}{formatRupiah(Math.abs(sisaActualHariIni))}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div className="text-right flex flex-col justify-center">
+                                    <span className="text-[9px] font-black text-[#94A3B8] uppercase tracking-wider">
+                                        Target Jatah Harian
+                                    </span>
+                                    <span className="text-xs font-bold text-[#475569] display-number">
+                                        {formatRupiah(targetLimitHarian)}
+                                    </span>
+                                </div>
                             </div>
-                            <div className="flex flex-col">
-                                <span className={cn(
-                                    "text-[10px] font-black uppercase tracking-widest",
-                                    isBudgetExhausted ? "text-rose-500" : "text-[#9CA3AF]"
-                                )}>
-                                    Limit Harian Anda
-                                </span>
-                                <span className={cn(
-                                    "text-lg sm:text-xl font-black display-number tracking-tight leading-tight mt-0.5",
-                                    isBudgetExhausted ? "text-rose-600" : "text-slate-800"
-                                )}>
-                                    {formatRupiah(dailyLimit)}
-                                </span>
-                                <span className={cn(
-                                    "text-[10px] font-bold mt-1 leading-relaxed max-w-[90%]",
-                                    isBudgetExhausted ? "text-rose-600/80" : "text-[#6B7280]"
-                                )}>
-                                    {isBudgetExhausted 
-                                        ? "Anggaran bulan ini sudah habis. Tunda pengeluaran non-esensial." 
-                                        : `Aman untuk dibelanjakan hari ini. Tersisa ${daysLeft} hari dalam siklus.`}
-                                </span>
-                            </div>
+
+                            {/* Mini Progress Bar for Today */}
+                            {(!isBudgetExhausted) && (
+                                <div className="flex flex-col gap-1.5 mt-1">
+                                    <div className="flex justify-between items-center text-[9px] font-bold">
+                                        <span className="text-[#64748B] uppercase tracking-wider">
+                                            Terpakai {formatRupiah(pengeluaranHariIni)}
+                                        </span>
+                                        <span className={cn(
+                                            "uppercase tracking-wider transition-colors",
+                                            isTodayOverspent ? "text-amber-600" : "text-emerald-500"
+                                        )}>
+                                            {isTodayOverspent ? 'Over budget' : 'On Track'}
+                                        </span>
+                                    </div>
+                                    <div className="h-2 w-full bg-[#E2E8F0] rounded-full overflow-hidden flex shadow-inner">
+                                        <div 
+                                            className={cn(
+                                                "h-full transition-all duration-1000",
+                                                isTodayOverspent ? "bg-amber-400" : "bg-indigo-500"
+                                            )} 
+                                            style={{ width: `${todayTerpakaiWidth}%` }} 
+                                        />
+                                    </div>
+                                    <span className={cn(
+                                        "text-[10px] font-bold leading-relaxed max-w-full mt-1.5",
+                                        isBudgetExhausted 
+                                            ? "text-rose-600/80" 
+                                            : isTodayOverspent
+                                                ? "text-amber-700/80"
+                                                : "text-[#64748B]"
+                                    )}>
+                                        {isTodayOverspent
+                                            ? "Sisa hari ini minus. Jatah limit besok akan disesuaikan otomatis agar keuangan tetap sehat."
+                                            : `Aman untuk dibelanjakan hari ini. Tersisa ${daysLeft} hari dalam siklus.`}
+                                    </span>
+                                </div>
+                            )}
                         </div>
 
                         {isNegative && (
