@@ -48,6 +48,15 @@ Aplikasi Finance Tracker adalah platform manajemen keuangan pribadi berbasis web
 - **Fitur Sinking Funds (Savings Allocation)**: Melokasikan sebagian saldo akun fisik ke dalam tabungan tujuan tanpa mengeluarkannya secara riil dari bank hingga barang/tujuan tersebut dibeli.
 - **Mekanisme Arsip (Soft Delete)**: Amplop titipan yang sudah selesai (saldo Rp 0) dapat diarsipkan untuk menjaga daftar utama tetap bersih. Data arsip tetap dapat diakses di "Ruang Arsip".
 
+### 🔍 Advanced Inquiry & Audit
+- **Pusat Pencarian Pro Max**: Dashboard khusus untuk mengaudit seluruh riwayat transaksi dengan antarmuka yang sangat minimalis dan responsif.
+- **Filter Cerdas (Deferred & Instant)**: 
+    - Filter pencarian teks (label/catatan) dan rentang tanggal (*Date Range Picker*) berjalan secara instan. Terdapat tombol "X" absolut untuk mereset rentang tanggal dengan cepat.
+    - Filter lanjutan (Jenis, Kategori, Sumber, Rentang Nominal) menggunakan sistem *Deferred* (hanya aktif setelah menekan "Terapkan Filter") yang diletakkan dalam *Sheet* khusus untuk menghindari *rendering* data yang tidak perlu saat pengguna sedang memilih kriteria.
+- **Ringkasan KPI Adaptif**: Tiga kartu indikator utama (Total Inflow, Outflow, Net Balance) yang secara dinamis menghitung ulang nilai berdasarkan hasil filter yang sedang aktif.
+- **Sorting Dinamis Minimalis**: Tidak menggunakan *dropdown* yang memakan tempat. Pengurutan data menggunakan tombol *toggle* ikon Kalender (untuk tanggal) dan teks 'Rp' (untuk nominal).
+- **Detail Transaksi via Dialog**: Baris tabel dan *card* di layar *mobile* bersifat *clickable*. Mengkliknya akan memunculkan *pop-up* dialog detail transaksi. Dialog ini menampilkan ikon jenis transaksi, informasi sumber dana/target, dan memiliki penanganan khusus untuk "Catatan" panjang (mendukung jeda baris, dan memiliki kotak internal setinggi 200px dengan *scrollbar* kustom tipis).
+
 ### 🔄 Transaksi Berulang (Recurring)
 - Mengotomatisasi transaksi rutin (seperti tagihan, gaji, atau langganan).
 - Mendukung berbagai frekuensi (Harian, Mingguan, Bulanan, Tahunan, atau kustom setiap X bulan).

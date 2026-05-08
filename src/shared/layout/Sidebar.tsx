@@ -16,7 +16,8 @@ import {
     PiggyBank,
     ChevronRight,
     PanelLeftClose,
-    PanelLeftOpen
+    PanelLeftOpen,
+    Search
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useFinanceStore } from '@/lib/store';
@@ -40,6 +41,7 @@ const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard, description: 'Ringkasan finansial' },
     { id: 'saldo', label: 'Dompet Kontrol', icon: Wallet, description: 'Manajemen akun' },
     { id: 'transaksi', label: 'Riwayat Transaksi', icon: ReceiptText, description: 'Catat transaksi' },
+    { id: 'inquiry', label: 'Inquiry', icon: Search, description: 'All-time data' },
     { id: 'transfer', label: 'Transfer Dana', icon: ArrowLeftRight, description: 'Pindah saldo' },
     { id: 'anggaran', label: 'Target Budget', icon: Target, description: 'Batas hemat' },
     { id: 'tabungan', label: 'Sinking Funds', icon: PiggyBank, description: 'Virtual sub-ledger' },

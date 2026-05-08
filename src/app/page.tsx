@@ -23,15 +23,16 @@ import LaporanView from '@/modules/dashboard/views/LaporanView';
 import RecurringView from '@/modules/dashboard/views/RecurringView';
 import MasterView from '@/modules/dashboard/views/MasterView';
 import TabunganView from '@/modules/dashboard/views/TabunganView';
+import InquiryView from '@/modules/dashboard/views/InquiryView';
 
 // Forms & Modals
 import ModalOrchestrator from '@/modules/dashboard/components/ModalOrchestrator';
 import DashboardHeader from '@/modules/dashboard/components/DashboardHeader';
 
-import { 
-  Plus, 
-  ChevronLeft, 
-  ChevronRight, 
+import {
+  Plus,
+  ChevronLeft,
+  ChevronRight,
   RefreshCw,
   Sparkles
 } from 'lucide-react';
@@ -91,13 +92,13 @@ export default function HomePage() {
       <Sidebar activeView={activeView} onViewChange={setActiveView} />
 
       <div className={cn(
-          "flex-1 w-full min-w-0 flex flex-col relative z-10 transition-[margin] duration-300 ease-out will-change-[margin] transform-gpu",
-          isSidebarCollapsed ? "lg:ml-[76px]" : "lg:ml-[320px]"
+        "flex-1 w-full min-w-0 flex flex-col relative z-10 transition-[margin] duration-300 ease-out will-change-[margin] transform-gpu",
+        isSidebarCollapsed ? "lg:ml-[76px]" : "lg:ml-[320px]"
       )}>
         <main className="flex-1 w-full p-4 sm:p-6 lg:p-8 xl:p-10 pt-8 pb-32 lg:pb-8">
           <div className="mx-auto w-full max-w-[2000px]">
             {/* Premium Header Bar */}
-            <DashboardHeader 
+            <DashboardHeader
               activeView={activeView}
               activeMonth={activeMonth}
               isRefreshing={isRefreshing}
@@ -130,6 +131,8 @@ export default function HomePage() {
                   setTransaksiToEdit={setTransaksiToEdit}
                 />
               )}
+
+              {activeView === 'inquiry' && <InquiryView />}
 
               {activeView === 'transfer' && (
                 <TransferView
@@ -171,7 +174,7 @@ export default function HomePage() {
       <BottomNav activeView={activeView} onViewChange={setActiveView} />
 
       {/* ======================== MODALS ======================== */}
-      <ModalOrchestrator 
+      <ModalOrchestrator
         transaksiToEdit={transaksiToEdit}
         setTransaksiToEdit={setTransaksiToEdit}
         recurringToEdit={recurringToEdit}
