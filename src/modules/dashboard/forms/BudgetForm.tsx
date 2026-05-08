@@ -208,7 +208,7 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                         <NumericInput
                             label="Batas Anggaran"
                             name="nominal_limit"
-                            control={control}
+                            control={control as any}
                             error={errors.nominal_limit?.message}
                             className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-indigo-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-indigo-950"
                         />
