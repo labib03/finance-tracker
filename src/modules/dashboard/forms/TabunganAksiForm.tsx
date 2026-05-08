@@ -207,7 +207,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                             </div>
                             <NumericInput
                                 name="nominal"
-                                control={control}
+                                control={control as any}
                                 placeholder="0"
                                 className={cn(
                                     "text-3xl font-black h-16 bg-white shadow-sm text-center border-none focus:ring-0",

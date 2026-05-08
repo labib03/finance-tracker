@@ -111,7 +111,7 @@ export default function SumberDanaForm({ onClose, sumberDanaToEdit }: SumberDana
                         <NumericInput
                             label="Saldo Awal"
                             name="saldo_awal"
-                            control={control}
+                            control={control as any}
                             error={errors.saldo_awal?.message}
                             disabled={!!sumberDanaToEdit}
                             className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-primary/20 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-primary"

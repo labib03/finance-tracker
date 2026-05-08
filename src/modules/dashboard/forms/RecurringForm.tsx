@@ -256,7 +256,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                         <NumericInput
                             label="Nominal Transaksi Rutin"
                             name="nominal"
-                            control={control}
+                            control={control as any}
                             error={errors.nominal?.message}
                             className={cn(
                                 "text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white shadow-sm text-center",

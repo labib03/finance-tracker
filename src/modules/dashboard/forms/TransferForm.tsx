@@ -233,7 +233,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             <NumericInput
                                 label="Nominal Transfer"
                                 name="nominal"
-                                control={control}
+                                control={control as any}
                                 error={errors.nominal?.message}
                                 className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-indigo-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-indigo-950"
                             />
@@ -243,7 +243,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                             <NumericInput
                                 label="Biaya Admin (Opsional)"
                                 name="biaya_admin"
-                                control={control}
+                                control={control as any}
                                 hideCalculator={true}
                                 error={errors.biaya_admin?.message}
                                 className="text-lg font-bold h-12 bg-white"

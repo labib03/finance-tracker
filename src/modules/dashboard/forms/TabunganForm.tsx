@@ -187,7 +187,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
             <NumericInput
               label="Target Nominal Menabung"
               name="target_nominal"
-              control={control}
+              control={control as any}
               error={(errors.target_nominal?.message as string)}
               className="text-3xl font-black h-16 bg-white shadow-sm text-center border-indigo-200 focus:ring-indigo-200 text-indigo-900"
             />
