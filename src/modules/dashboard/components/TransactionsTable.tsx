@@ -1,6 +1,8 @@
 'use client';
 
-import { useMemo, useEffect, useState } from 'react';
+import { useMemo, useEffect, useState, Suspense } from 'react';
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import InlineQuickAddRow from './InlineQuickAddRow';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, formatTanggal, formatTanggalPendek, isInCustomMonth } from '@/lib/utils';
 import {
@@ -61,7 +63,7 @@ interface TransactionsTableProps {
     hideHeader?: boolean;
 }
 
-export default function TransactionsTable({
+function TransactionsTableInner({
     limit,
     showDelete = false,
     showEdit = false,
@@ -80,16 +82,63 @@ export default function TransactionsTable({
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const removeTransaksi = useFinanceStore((s) => s.removeTransaksi);
 
+    const router = useRouter();
+    const pathname = usePathname();
+    const searchParams = useSearchParams();
+
+    const createQueryString = (name: string, value: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (value && value !== 'all') {
+            params.set(name, value);
+        } else {
+            params.delete(name);
+        }
+        return params.toString();
+    };
+
+    const updateFilter = (name: string, value: string) => {
+        router.replace(`${pathname}?${createQueryString(name, value)}`, { scroll: false });
+    };
+
+    const search = searchParams.get('q') || '';
+    const typeFilter = searchParams.get('type') || 'all';
+    const rawCategoryFilter = searchParams.get('category') || 'all';
+    const categoryFilter = rawCategoryFilter !== 'all' 
+        ? (kategoriList.find(k => k.nama_kategori.toLowerCase() === rawCategoryFilter.toLowerCase())?.id_kategori || preselectedCategory || 'all')
+        : (preselectedCategory || 'all');
+
+    const rawAccountFilter = searchParams.get('account') || 'all';
+    const accountFilter = rawAccountFilter !== 'all'
+        ? (sumberDanaList.find(s => s.nama_sumber.toLowerCase() === rawAccountFilter.toLowerCase())?.id_sumber_dana || 'all')
+        : 'all';
+        
+    const dateFilter = searchParams.get('date') || 'all';
+
+    const setSearch = (val: string) => updateFilter('q', val);
+    const setTypeFilter = (val: string) => updateFilter('type', val);
+    const setCategoryFilter = (val: string) => {
+        if (val === 'all') {
+            updateFilter('category', 'all');
+        } else {
+            const found = kategoriList.find(k => k.id_kategori === val);
+            updateFilter('category', found ? found.nama_kategori.toLowerCase() : val);
+        }
+    };
+    const setAccountFilter = (val: string) => {
+        if (val === 'all') {
+            updateFilter('account', 'all');
+        } else {
+            const found = sumberDanaList.find(s => s.id_sumber_dana === val);
+            updateFilter('account', found ? found.nama_sumber.toLowerCase() : val);
+        }
+    };
+    const setDateFilter = (val: string) => updateFilter('date', val);
+
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, id: string }>({
         isOpen: false,
         id: ''
     });
     const [isDeleting, setIsDeleting] = useState(false);
-    const [search, setSearch] = useState('');
-    const [typeFilter, setTypeFilter] = useState<string>('all');
-    const [categoryFilter, setCategoryFilter] = useState<string>(preselectedCategory || 'all');
-    const [accountFilter, setAccountFilter] = useState<string>('all');
-    const [dateFilter, setDateFilter] = useState<string>('all');
     const [selectedDetail, setSelectedDetail] = useState<Transaksi | null>(null);
 
     const [currentPage, setCurrentPage] = useState(1);
@@ -162,10 +211,11 @@ export default function TransactionsTable({
             list = list.slice(0, limit);
         }
         return list;
-    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, accountFilter, dateFilter, kategoriList, cycleStartDay]);
+    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, accountFilter, dateFilter, kategoriList, cycleStartDay, filterType, sumberDanaList]);
 
     // Reset pagination when filters change
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentPage(1);
     }, [search, typeFilter, categoryFilter, accountFilter, dateFilter, activeMonth]);
 
@@ -229,6 +279,14 @@ export default function TransactionsTable({
                         </TableRow>
                     </TableHeader>
                     <TableBody>
+                        {showSearch && filterType !== 'Transfer' && typeFilter !== 'Transfer' && (
+                            <InlineQuickAddRow 
+                                defaultDate={dateFilter}
+                                defaultCategory={categoryFilter}
+                                defaultAccount={accountFilter}
+                                defaultType={typeFilter}
+                            />
+                        )}
                         {filteredTransaksi.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={7} className="py-24 text-center">
@@ -544,5 +602,13 @@ export default function TransactionsTable({
                 onDelete={removeTransaksi}
             />
         </Card>
+    );
+}
+
+export default function TransactionsTable(props: TransactionsTableProps) {
+    return (
+        <Suspense fallback={<div className="p-8 text-center text-muted-foreground font-black text-xs uppercase tracking-widest">Memuat tabel...</div>}>
+            <TransactionsTableInner {...props} />
+        </Suspense>
     );
 }

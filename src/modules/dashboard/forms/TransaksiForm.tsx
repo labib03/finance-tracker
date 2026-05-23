@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
+import { useSearchParams } from 'next/navigation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
@@ -28,7 +29,7 @@ interface TransaksiFormProps {
     transaksiToEdit?: Transaksi | null;
 }
 
-export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFormProps) {
+function TransaksiFormInner({ onClose, transaksiToEdit }: TransaksiFormProps) {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const addTransaksi = useFinanceStore((s) => s.addTransaksi);
@@ -38,8 +39,25 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const getTitipanAktif = useFinanceStore((s) => s.getTitipanAktif);
 
+    const searchParams = useSearchParams();
+    
+    // Parse default values from URL if not editing an existing transaction
+    const dateParam = searchParams.get('date');
+    const categoryParam = searchParams.get('category');
+    const accountParam = searchParams.get('account');
+    const typeParam = searchParams.get('type');
+
+    const defaultDate = (dateParam && dateParam !== 'all') ? dateParam : getToday();
+    const defaultCategoryName = (categoryParam && categoryParam !== 'all') ? categoryParam : '';
+    const defaultAccountName = (accountParam && accountParam !== 'all') ? accountParam : '';
+
+    // Map names to IDs for default values
+    const defaultCategory = defaultCategoryName ? (kategoriList.find(k => k.nama_kategori.toLowerCase() === defaultCategoryName.toLowerCase())?.id_kategori || '') : '';
+    const defaultAccount = defaultAccountName ? (sumberDanaList.find(s => s.nama_sumber.toLowerCase() === defaultAccountName.toLowerCase())?.id_sumber_dana || '') : '';
+    const defaultType = (typeParam === 'Pemasukan' || typeParam === 'Pengeluaran') ? typeParam : 'Pengeluaran';
+
     const [activeJenis, setActiveJenis] = useState<'Pengeluaran' | 'Pemasukan'>(
-        (transaksiToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran') as 'Pengeluaran' | 'Pemasukan'
+        (transaksiToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : transaksiToEdit?.jenis === 'Pengeluaran' ? 'Pengeluaran' : defaultType) as 'Pengeluaran' | 'Pemasukan'
     );
 
     const {
@@ -53,10 +71,10 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         resolver: zodResolver(transaksiSchema) as any,
         defaultValues: {
-            tanggal: transaksiToEdit?.tanggal || getToday(),
-            jenis: (transaksiToEdit?.jenis || 'Pengeluaran') as 'Pengeluaran' | 'Pemasukan',
-            id_sumber_dana: transaksiToEdit?.id_sumber_dana || '',
-            id_kategori: transaksiToEdit?.id_kategori || '',
+            tanggal: transaksiToEdit?.tanggal || defaultDate,
+            jenis: (transaksiToEdit?.jenis || defaultType) as 'Pengeluaran' | 'Pemasukan',
+            id_sumber_dana: transaksiToEdit?.id_sumber_dana || defaultAccount,
+            id_kategori: transaksiToEdit?.id_kategori || defaultCategory,
             nominal: transaksiToEdit?.nominal || 0,
             label: transaksiToEdit?.label || '',
             catatan: transaksiToEdit?.catatan || '',
@@ -276,6 +294,7 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                         <NumericInput
                             label="Nominal Transaksi"
                             name="nominal"
+                            // eslint-disable-next-line @typescript-eslint/no-explicit-any
                             control={control as any}
                             error={errors.nominal?.message}
                             className={cn(
@@ -415,5 +434,13 @@ export default function TransaksiForm({ onClose, transaksiToEdit }: TransaksiFor
                     </div>
                 </form>
         </ResponsiveModal>
+    );
+}
+
+export default function TransaksiForm(props: TransaksiFormProps) {
+    return (
+        <Suspense fallback={<div className="p-8 text-center text-muted-foreground">Memuat form...</div>}>
+            <TransaksiFormInner {...props} />
+        </Suspense>
     );
 }

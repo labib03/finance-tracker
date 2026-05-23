@@ -1,4 +1,7 @@
-import { ChevronLeft, ChevronRight, RefreshCw, Sparkles } from 'lucide-react';
+'use client';
+
+import { useState, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, RefreshCw, Sparkles, Download } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { getNamaBulan, cn } from '@/lib/utils';
 
@@ -17,6 +20,23 @@ export default function DashboardHeader({
   navigateMonth,
   handleRefresh
 }: DashboardHeaderProps) {
+  const [isStandalone, setIsStandalone] = useState(true); // default true to avoid flash
+
+  useEffect(() => {
+    // Check if already installed or in standalone mode
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches 
+        || (window.navigator as any).standalone 
+        || document.referrer.includes('android-app://');
+    
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setIsStandalone(isStandaloneMode);
+  }, []);
+
+  const triggerPwaPrompt = () => {
+    window.dispatchEvent(new CustomEvent('force-pwa-prompt'));
+  };
+
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8 mb-8 lg:mb-12">
       <div className="space-y-3 lg:space-y-4">
@@ -76,6 +96,19 @@ export default function DashboardHeader({
             <ChevronRight size={16} className="size-6 sm:size-8" />
           </Button>
         </div>
+
+        {/* PWA Install Button */}
+        {!isStandalone && (
+          <Button
+            variant="outline"
+            size="icon-xs"
+            onClick={triggerPwaPrompt}
+            title="Install Aplikasi"
+            className="h-10 w-10 sm:h-12 sm:w-12 rounded-[1.25rem] shadow-scandi border-border/40 bg-white hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all active:scale-95 shrink-0"
+          >
+            <Download size={16} className="size-5 sm:size-6" />
+          </Button>
+        )}
 
         {/* Refresh with Tooltip-like style */}
         <Button

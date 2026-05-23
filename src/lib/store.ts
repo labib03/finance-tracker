@@ -40,7 +40,7 @@ import {
   updateTabungan,
   deleteTabungan
 } from "@/lib/actions";
-import { getCurrentMonth, generateId, formatRupiah, hitungSaldoAkun, getJadwalTerdekat } from "@/lib/utils";
+import { getCurrentMonth, generateId, formatRupiah, getJadwalTerdekat } from "@/lib/utils";
 
 // ---------- Store Types ----------
 interface FinanceState {
@@ -60,6 +60,7 @@ interface FinanceState {
   activeModal: string | null;
   cycleStartDay: number;
   isSidebarCollapsed: boolean;
+  pwaDismissedDate: string | null;
 
   // Actions - Data Fetching
   initialize: () => Promise<void>;
@@ -111,20 +112,24 @@ interface FinanceState {
   addTitipan: (data: Titipan) => Promise<void>;
   updateTitipanStatus: (id: string, status: "aktif" | "selesai") => Promise<void>;
   archiveTitipan: (id: string) => Promise<boolean>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   titipanToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setTitipanToEdit: (val: any) => void;
 
   // Actions - Tabungan CRUD
   addTabungan: (data: Tabungan) => Promise<void>;
   updateTabungan: (data: Tabungan) => Promise<void>;
   removeTabungan: (id: string) => Promise<void>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tabunganToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setTabunganToEdit: (val: any) => void;
 
-  // Actions - UI
   setActiveModal: (modal: string | null) => void;
   setCycleStartDay: (day: number) => void;
   setSidebarCollapsed: (collapsed: boolean) => void;
+  setPwaDismissed: () => void;
 
   // Derived Getters (Titipan)
   getTitipanAktif: () => Titipan[];
@@ -169,6 +174,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   activeMonth: "", 
   activeModal: null,
   isSidebarCollapsed: false,
+  pwaDismissedDate: null,
   titipanToEdit: null,
   tabunganToEdit: null,
 
@@ -180,18 +186,22 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     // Load cycle start day and sidebar state from local storage
     let savedDay = 25;
     let savedCollapsed = false;
+    let savedPwaDate = null;
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('cycle_start_day');
       if (stored) savedDay = parseInt(stored);
       
       const storedCollapsed = localStorage.getItem('sidebar_collapsed');
       if (storedCollapsed) savedCollapsed = storedCollapsed === 'true';
+
+      savedPwaDate = localStorage.getItem('pwa_dismissed_date');
     }
  
     set({ 
       isLoading: true, 
       cycleStartDay: savedDay,
       isSidebarCollapsed: savedCollapsed,
+      pwaDismissedDate: savedPwaDate,
       activeMonth: getCurrentMonth(savedDay)
     });
     try {
@@ -270,6 +280,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   setActiveMonth: (month) => set({ activeMonth: month }),
+
+  setPwaDismissed: () => {
+    const today = new Date().toLocaleDateString('en-CA');
+    set({ pwaDismissedDate: today });
+    if (typeof window !== 'undefined') {
+        localStorage.setItem('pwa_dismissed_date', today);
+    }
+  },
 
   // ======================== Optimistic Updates ========================
 
@@ -762,7 +780,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     try {
       await get().updateTitipanStatus(id, "selesai");
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   },
@@ -882,8 +900,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   getCurrentCycleDates: () => {
     const cycleStartDay = get().cycleStartDay;
     const now = new Date();
-    let year = now.getFullYear();
-    let month = now.getMonth(); // 0-indexed
+    const year = now.getFullYear();
+    const month = now.getMonth(); // 0-indexed
 
     let startDate: Date;
     let endDate: Date;

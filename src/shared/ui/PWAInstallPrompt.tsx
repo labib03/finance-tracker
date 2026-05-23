@@ -1,22 +1,30 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { Download, X, Smartphone, Monitor, Sparkles } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { cn } from '@/lib/utils';
+import { useFinanceStore } from '@/lib/store';
 
 export default function PWAInstallPrompt() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
     const [isVisible, setIsVisible] = useState(false);
     const [isIOS, setIsIOS] = useState(false);
     const [isStandalone, setIsStandalone] = useState(false);
 
+    const pwaDismissedDate = useFinanceStore(s => s.pwaDismissedDate);
+    const setPwaDismissed = useFinanceStore(s => s.setPwaDismissed);
+    const today = useMemo(() => new Date().toLocaleDateString('en-CA'), []);
+
     useEffect(() => {
         // Check if already installed or in standalone mode
         const isStandaloneMode = window.matchMedia('(display-mode: standalone)').matches 
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             || (window.navigator as any).standalone 
             || document.referrer.includes('android-app://');
         
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setIsStandalone(isStandaloneMode);
 
         // Check if iOS
@@ -29,8 +37,8 @@ export default function PWAInstallPrompt() {
             e.preventDefault();
             setDeferredPrompt(e);
             
-            // Only show if not already standalone
-            if (!isStandaloneMode) {
+            // Only show if not already standalone and not dismissed today
+            if (!isStandaloneMode && pwaDismissedDate !== today) {
                 // Delay showing to not annoy user immediately
                 setTimeout(() => setIsVisible(true), 3000);
             }
@@ -38,15 +46,23 @@ export default function PWAInstallPrompt() {
 
         window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
 
+        const handleForcePrompt = () => {
+            if (!isStandaloneMode) {
+                setIsVisible(true);
+            }
+        };
+        window.addEventListener('force-pwa-prompt', handleForcePrompt);
+
         // Also suggest for iOS specifically if not standalone
-        if (isIOSDevice && !isStandaloneMode) {
+        if (isIOSDevice && !isStandaloneMode && pwaDismissedDate !== today) {
              setTimeout(() => setIsVisible(true), 5000);
         }
 
         return () => {
             window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+            window.removeEventListener('force-pwa-prompt', handleForcePrompt);
         };
-    }, []);
+    }, [pwaDismissedDate, today]);
 
     const handleInstallClick = async () => {
         if (!deferredPrompt) return;
@@ -69,7 +85,10 @@ export default function PWAInstallPrompt() {
                 <div className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-primary/5 rounded-full blur-3xl group-hover:bg-primary/10 transition-colors duration-500" />
                 
                 <button 
-                    onClick={() => setIsVisible(false)}
+                    onClick={() => {
+                        setIsVisible(false);
+                        setPwaDismissed();
+                    }}
                     className="absolute top-3 right-3 p-1.5 rounded-full hover:bg-muted text-muted-foreground transition-colors"
                 >
                     <X size={16} />
@@ -90,7 +109,7 @@ export default function PWAInstallPrompt() {
 
                         {isIOS ? (
                             <p className="text-[11px] text-muted-foreground leading-relaxed">
-                                Klik <span className="font-bold text-foreground">Share</span> lalu pilih <span className="font-bold text-foreground">"Add to Home Screen"</span> untuk akses instan di iPhone Anda.
+                                Klik <span className="font-bold text-foreground">Share</span> lalu pilih <span className="font-bold text-foreground">&quot;Add to Home Screen&quot;</span> untuk akses instan di iPhone Anda.
                             </p>
                         ) : (
                             <>
