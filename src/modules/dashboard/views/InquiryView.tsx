@@ -193,27 +193,27 @@ export default function InquiryView() {
     const activeFiltersBadges = (
         <div className="flex flex-wrap items-center gap-2 mb-6">
             {filterJenis !== 'all' && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-bold tracking-wider">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold tracking-wider">
                     Jenis: {filterJenis}
-                    <button onClick={() => { setFilterJenis('all'); setPendingJenis('all'); setPage(1); }} className="hover:bg-indigo-100 p-0.5 rounded-full"><X size={12} /></button>
+                    <button onClick={() => { setFilterJenis('all'); setPendingJenis('all'); setPage(1); }} className="hover:bg-blue-100 p-0.5 rounded-full"><X size={12} /></button>
                 </div>
             )}
             {filterKategori !== 'all' && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-bold tracking-wider">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold tracking-wider">
                     Kategori: {kategoriList.find(k => k.id_kategori === filterKategori)?.nama_kategori || 'Filter'}
-                    <button onClick={() => { setFilterKategori('all'); setPendingKategori('all'); setPage(1); }} className="hover:bg-indigo-100 p-0.5 rounded-full"><X size={12} /></button>
+                    <button onClick={() => { setFilterKategori('all'); setPendingKategori('all'); setPage(1); }} className="hover:bg-blue-100 p-0.5 rounded-full"><X size={12} /></button>
                 </div>
             )}
             {filterSumber !== 'all' && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-bold tracking-wider">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold tracking-wider">
                     Sumber: {sumberDanaList.find(s => s.id_sumber_dana === filterSumber)?.nama_sumber || 'Filter'}
-                    <button onClick={() => { setFilterSumber('all'); setPendingSumber('all'); setPage(1); }} className="hover:bg-indigo-100 p-0.5 rounded-full"><X size={12} /></button>
+                    <button onClick={() => { setFilterSumber('all'); setPendingSumber('all'); setPage(1); }} className="hover:bg-blue-100 p-0.5 rounded-full"><X size={12} /></button>
                 </div>
             )}
             {(minNominal || maxNominal) && (
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-indigo-50 text-indigo-600 text-[11px] font-bold tracking-wider">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold tracking-wider">
                     Nominal Terfilter
-                    <button onClick={() => { setMinNominal(''); setMaxNominal(''); setPendingMinNominal(''); setPendingMaxNominal(''); setPage(1); }} className="hover:bg-indigo-100 p-0.5 rounded-full"><X size={12} /></button>
+                    <button onClick={() => { setMinNominal(''); setMaxNominal(''); setPendingMinNominal(''); setPendingMaxNominal(''); setPage(1); }} className="hover:bg-blue-100 p-0.5 rounded-full"><X size={12} /></button>
                 </div>
             )}
             {activeFiltersCount > 0 && (
@@ -328,12 +328,12 @@ export default function InquiryView() {
                             {formatRupiah(summary.expense)}
                         </p>
                     </Card>
-                    <Card className="rounded-[2rem] border-none bg-indigo-500/5 shadow-none p-6 relative overflow-hidden group">
+                    <Card className="rounded-[2rem] border-none bg-blue-500/5 shadow-none p-6 relative overflow-hidden group">
                         <div className="absolute top-0 right-0 p-6 opacity-10 group-hover:opacity-20 transition-opacity">
-                            <Activity size={64} className="text-indigo-500" />
+                            <Activity size={64} className="text-blue-500" />
                         </div>
-                        <p className="text-xs font-black uppercase tracking-widest text-indigo-600/70 mb-2">Net Balance</p>
-                        <p className="text-3xl font-black text-indigo-600 tracking-tight">
+                        <p className="text-xs font-black uppercase tracking-widest text-blue-600/70 mb-2">Net Balance</p>
+                        <p className="text-3xl font-black text-blue-600 tracking-tight">
                             {summary.net > 0 ? '+' : ''}{formatRupiah(summary.net)}
                         </p>
                     </Card>
@@ -432,12 +432,12 @@ export default function InquiryView() {
                             setIsSheetOpen(open);
                         }}>
                             <SheetTrigger render={
-                                <Button variant="outline" className="w-full md:w-auto rounded-[1.5rem] md:rounded-full h-12 flex items-center justify-center gap-2 border-border/40 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200 transition-colors" />
+                                <Button variant="outline" className="w-full md:w-auto rounded-[1.5rem] md:rounded-full h-12 flex items-center justify-center gap-2 border-border/40 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-200 transition-colors" />
                             }>
                                 <Filter className="w-4 h-4" />
                                 <span className="md:hidden lg:inline">Filters</span>
                                 {activeFiltersCount > 0 && (
-                                    <span className="ml-1 bg-indigo-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                                    <span className="ml-1 bg-blue-600 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
                                         {activeFiltersCount}
                                     </span>
                                 )}
@@ -556,7 +556,7 @@ export default function InquiryView() {
                                                         "w-8 h-8 rounded-full flex items-center justify-center mt-0.5 shrink-0 transition-transform group-hover:scale-110",
                                                         isIncome ? "bg-emerald-100 text-emerald-600" :
                                                         isExpense ? "bg-rose-100 text-rose-600" :
-                                                        "bg-indigo-100 text-indigo-600"
+                                                        "bg-blue-100 text-blue-600"
                                                     )}>
                                                         {isIncome ? <ArrowUpRight size={14} strokeWidth={3} /> : 
                                                          isExpense ? <ArrowDownRight size={14} strokeWidth={3} /> : 
@@ -581,7 +581,7 @@ export default function InquiryView() {
                                             <td className="py-4 px-4 whitespace-nowrap text-right">
                                                 <span className={cn(
                                                     "font-black text-[17px] tracking-tight",
-                                                    isIncome ? "text-emerald-600" : isExpense ? "text-foreground" : "text-indigo-600"
+                                                    isIncome ? "text-emerald-600" : isExpense ? "text-foreground" : "text-blue-600"
                                                 )}>
                                                     {isIncome ? '+' : isExpense ? '-' : ''}{formatRupiah(tx.nominal)}
                                                 </span>
@@ -616,7 +616,7 @@ export default function InquiryView() {
                                                 "w-12 h-12 rounded-[1.25rem] flex items-center justify-center shrink-0 shadow-sm",
                                                 isIncome ? "bg-emerald-100 text-emerald-600" :
                                                 isExpense ? "bg-rose-100 text-rose-600" :
-                                                "bg-indigo-100 text-indigo-600"
+                                                "bg-blue-100 text-blue-600"
                                             )}>
                                                 {isIncome ? <ArrowUpRight size={20} strokeWidth={3} /> : 
                                                  isExpense ? <ArrowDownRight size={20} strokeWidth={3} /> : 
@@ -635,7 +635,7 @@ export default function InquiryView() {
                                         <div className="text-right shrink-0 ml-4 flex flex-col justify-between h-12">
                                             <p className={cn(
                                                 "font-black text-base tracking-tight",
-                                                isIncome ? "text-emerald-600" : isExpense ? "text-foreground" : "text-indigo-600"
+                                                isIncome ? "text-emerald-600" : isExpense ? "text-foreground" : "text-blue-600"
                                             )}>
                                                 {isIncome ? '+' : isExpense ? '-' : ''}{formatRupiah(tx.nominal)}
                                             </p>
@@ -693,7 +693,7 @@ export default function InquiryView() {
                                     "w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-4",
                                     selectedTx.jenis === 'Pemasukan' ? "bg-emerald-100 text-emerald-600" :
                                     selectedTx.jenis === 'Pengeluaran' ? "bg-rose-100 text-rose-600" :
-                                    "bg-indigo-100 text-indigo-600"
+                                    "bg-blue-100 text-blue-600"
                                 )}>
                                     {selectedTx.jenis === 'Pemasukan' ? <ArrowUpRight size={32} strokeWidth={3} /> : 
                                      selectedTx.jenis === 'Pengeluaran' ? <ArrowDownRight size={32} strokeWidth={3} /> : 
@@ -703,7 +703,7 @@ export default function InquiryView() {
                                 <p className={cn(
                                     "font-black text-3xl tracking-tight mt-2",
                                     selectedTx.jenis === 'Pemasukan' ? "text-emerald-600" : 
-                                    selectedTx.jenis === 'Pengeluaran' ? "text-foreground" : "text-indigo-600"
+                                    selectedTx.jenis === 'Pengeluaran' ? "text-foreground" : "text-blue-600"
                                 )}>
                                     {selectedTx.jenis === 'Pemasukan' ? '+' : selectedTx.jenis === 'Pengeluaran' ? '-' : ''}
                                     {formatRupiah(selectedTx.nominal)}

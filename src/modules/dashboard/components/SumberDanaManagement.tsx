@@ -70,20 +70,20 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                         Kelola akun dan dompet digital Anda
                     </CardDescription>
                 </div>
-                <Button onClick={onAdd} className="shrink-0 rounded-2xl shadow-lg shadow-primary/10 bg-indigo-600 hover:bg-indigo-700">
+                <Button onClick={onAdd} className="shrink-0 rounded-2xl shadow-lg shadow-primary/10 bg-blue-600 hover:bg-blue-700">
                     <Plus size={18} className="mr-2" />
                     Tambah Akun
                 </Button>
             </CardHeader>
             <CardContent className="p-0">
                 <div className="px-6 sm:px-8 mb-8">
-                    <div className="bg-indigo-50/40 rounded-3xl p-5 border border-indigo-100/50 flex items-center gap-5 transition-all hover:bg-indigo-50/60 shadow-xs">
-                        <div className="w-12 h-12 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-scandi shrink-0">
+                    <div className="bg-blue-50/40 rounded-3xl p-5 border border-blue-100/50 flex items-center gap-5 transition-all hover:bg-blue-50/60 shadow-xs">
+                        <div className="w-12 h-12 rounded-2xl bg-white border border-blue-100 flex items-center justify-center text-blue-600 shadow-scandi shrink-0">
                             <ShieldCheck size={24} strokeWidth={2.5} />
                         </div>
                         <div className="flex flex-col gap-1">
-                            <p className="text-[10px] sm:text-xs font-black text-indigo-900 uppercase tracking-widest leading-none">Status Keamanan</p>
-                            <p className="text-[11px] text-indigo-700/70 font-bold uppercase tracking-tight italic">Eksklusif: Data tersimpan lokal di peranti Anda.</p>
+                            <p className="text-[10px] sm:text-xs font-black text-blue-900 uppercase tracking-widest leading-none">Status Keamanan</p>
+                            <p className="text-[11px] text-blue-700/70 font-bold uppercase tracking-tight italic">Eksklusif: Data tersimpan lokal di peranti Anda.</p>
                         </div>
                     </div>
                 </div>
@@ -95,7 +95,7 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                         </div>
                         <p className="text-sm font-black uppercase tracking-widest text-foreground">Dompet Anda Kosong</p>
                         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground/60 mt-2 italic">Mulai perjalanan finansial Anda dengan menambah satu akun.</p>
-                        <Button onClick={onAdd} variant="link" className="mt-6 text-xs font-black uppercase tracking-widest text-indigo-600 hover:no-underline">
+                        <Button onClick={onAdd} variant="link" className="mt-6 text-xs font-black uppercase tracking-widest text-blue-600 hover:no-underline">
                             Daftarkan Akun Pertama Sekarang
                         </Button>
                     </div>
@@ -116,11 +116,11 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                                         <TableRow key={s.id_sumber_dana} className="group hover:bg-muted/10 border-b border-border/10 transition-all duration-300">
                                             <TableCell className="px-8 py-6">
                                                 <div className="flex items-center gap-5">
-                                                    <div className="w-12 h-12 rounded-2xl bg-white border border-border/40 text-indigo-600 flex items-center justify-center shrink-0 shadow-scandi transition-all duration-500 group-hover:scale-110 group-hover:bg-indigo-50 group-hover:border-indigo-100">
+                                                    <div className="w-12 h-12 rounded-2xl bg-white border border-border/40 text-blue-600 flex items-center justify-center shrink-0 shadow-scandi transition-all duration-500 group-hover:scale-110 group-hover:bg-blue-50 group-hover:border-blue-100">
                                                         <CreditCard size={20} strokeWidth={2.5} />
                                                     </div>
                                                     <div className="flex flex-col gap-1">
-                                                        <span className="text-sm font-black text-foreground uppercase tracking-widest transition-colors group-hover:text-indigo-600 leading-none">
+                                                        <span className="text-sm font-black text-foreground uppercase tracking-widest transition-colors group-hover:text-blue-600 leading-none">
                                                             {s.nama_sumber}
                                                         </span>
                                                         <span className="text-[10px] text-muted-foreground/60 font-black uppercase tracking-widest">
@@ -140,7 +140,7 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                                                         variant="ghost"
                                                         size="icon-xs"
                                                         onClick={() => onEdit(s)}
-                                                        className="h-9 w-9 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-xl shadow-sm border border-transparent hover:border-indigo-100/50"
+                                                        className="h-9 w-9 text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl shadow-sm border border-transparent hover:border-blue-100/50"
                                                     >
                                                         <Edit2 size={16} strokeWidth={2.5} />
                                                     </Button>
@@ -170,7 +170,7 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                                 >
                                     <div className="flex items-center justify-between mb-6">
                                         <div className="flex items-center gap-4">
-                                            <div className="w-11 h-11 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/30">
+                                            <div className="w-11 h-11 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/30">
                                                 <CreditCard size={18} strokeWidth={2.5} />
                                             </div>
                                             <div className="flex flex-col">
@@ -185,7 +185,7 @@ export default function SumberDanaManagement({ onAdd, onEdit }: SumberDanaManage
                                                 variant="ghost"
                                                 size="icon-xs"
                                                 onClick={() => onEdit(s)}
-                                                className="h-9 w-9 text-indigo-600 hover:bg-indigo-50 rounded-xl"
+                                                className="h-9 w-9 text-blue-600 hover:bg-blue-50 rounded-xl"
                                             >
                                                 <Edit2 size={15} strokeWidth={2.5} />
                                             </Button>

@@ -51,7 +51,7 @@ export default function ExpensePieChart() {
         <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float transform-gpu backface-hidden">
             <CardHeader className="flex flex-row items-center justify-between pb-2 pt-6 sm:pt-8 px-6 sm:px-8">
                 <div className="flex items-center gap-3">
-                    <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                    <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                         <PieChartIcon size={18} />
                     </div>
                     <div>

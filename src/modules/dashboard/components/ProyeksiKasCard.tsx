@@ -187,7 +187,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                         <div className="space-y-4">
                             <div className="h-3 w-full bg-[#F3F4F6] rounded-full overflow-hidden flex shadow-inner">
                                 <div className="h-full bg-emerald-500/30 transition-all duration-1000" style={{ width: `${terpakaiWidth}%` }} />
-                                {tabunganWidth > 0 && <div className="h-full bg-indigo-500/30 transition-all duration-1000" style={{ width: `${tabunganWidth}%` }} />}
+                                {tabunganWidth > 0 && <div className="h-full bg-blue-500/30 transition-all duration-1000" style={{ width: `${tabunganWidth}%` }} />}
                                 <div className="h-full bg-amber-400/40 transition-all duration-1000" style={{ width: `${tagihanWidth}%` }} />
                                 <div className="h-full bg-blue-500/20 transition-all duration-1000" style={{ width: `${sisaWidth}%` }} />
                             </div>
@@ -199,7 +199,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                 </div>
                                 {alokasiTabunganSiklus > 0 && (
                                     <div className="flex items-center gap-2">
-                                        <div className="w-2 rounded-full h-2 bg-indigo-500/40" />
+                                        <div className="w-2 rounded-full h-2 bg-blue-500/40" />
                                         <span className="text-[9px] font-black text-[#9CA3AF] uppercase tracking-wider">Tabungan {formatRupiah(alokasiTabunganSiklus)}</span>
                                     </div>
                                 )}
@@ -221,7 +221,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                 ? "bg-red-50/50 border-red-100" 
                                 : isTodayOverspent
                                     ? "bg-amber-50/30 border-amber-100/80"
-                                    : "bg-[#F8FAFC] border-[#E2E8F0] hover:border-indigo-100 hover:shadow-sm"
+                                    : "bg-[#F8FAFC] border-[#E2E8F0] hover:border-blue-100 hover:shadow-sm"
                         )}>
                             {/* Header Section */}
                             <div className="flex items-start sm:items-center justify-between gap-4">
@@ -232,7 +232,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                             ? "bg-white text-rose-500 border-rose-100/80"
                                             : isTodayOverspent
                                                 ? "bg-white text-amber-500 border-amber-100/80"
-                                                : "bg-white text-indigo-500 border-indigo-100/80 hover:scale-105"
+                                                : "bg-white text-blue-500 border-blue-100/80 hover:scale-105"
                                     )}>
                                         {isBudgetExhausted ? <AlertTriangle size={18} strokeWidth={2.5} /> : <Coffee size={18} strokeWidth={2.5} />}
                                     </div>
@@ -279,7 +279,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                         <div 
                                             className={cn(
                                                 "h-full transition-all duration-1000",
-                                                isTodayOverspent ? "bg-amber-400" : "bg-indigo-500"
+                                                isTodayOverspent ? "bg-amber-400" : "bg-blue-500"
                                             )} 
                                             style={{ width: `${todayTerpakaiWidth}%` }} 
                                         />
@@ -381,7 +381,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                                                 {diffDays <= 0 && (
                                                     <button 
                                                         onClick={() => onProcess(item)}
-                                                        className="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-[9px] font-black text-white uppercase tracking-wider transition-all shadow-sm hover:shadow-md active:scale-95 flex items-center gap-1.5"
+                                                        className="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-[9px] font-black text-white uppercase tracking-wider transition-all shadow-sm hover:shadow-md active:scale-95 flex items-center gap-1.5"
                                                     >
                                                         <Plus size={10} strokeWidth={4} />
                                                         Catat
@@ -421,7 +421,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
             <DialogContent className="sm:max-w-4xl min-h-[60vh]">
                 <DialogHeader>
                     <div className="flex items-center gap-4 mb-2">
-                        <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                        <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-600">
                             <Wallet size={24} />
                         </div>
                         <div>
@@ -456,7 +456,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
                         </div>
                         <div className="p-4 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
                             <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Alokasi Tabungan</p>
-                            <p className="text-lg font-black text-indigo-500 display-number">{formatRupiah(Math.max(0, alokasiTabunganSiklus))}</p>
+                            <p className="text-lg font-black text-blue-500 display-number">{formatRupiah(Math.max(0, alokasiTabunganSiklus))}</p>
                         </div>
                         <div className="p-4 rounded-[1.5rem] bg-[#F9FAFB] border border-[#F3F4F6]">
                             <p className="text-[10px] font-black text-[#9CA3AF] uppercase tracking-widest mb-1">Tagihan Tertunda</p>

@@ -115,7 +115,7 @@ export default function TransactionFilters({
                                         <SelectItem value="all" className="text-[10px] sm:text-xs font-black uppercase tracking-widest">SEMUA TIPE</SelectItem>
                                         <SelectItem value="Pengeluaran" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-orange-600">PENGELUARAN</SelectItem>
                                         <SelectItem value="Pemasukan" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-emerald-600">PEMASUKAN</SelectItem>
-                                        <SelectItem value="Transfer" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-indigo-600">TRANSFER</SelectItem>
+                                        <SelectItem value="Transfer" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-blue-600">TRANSFER</SelectItem>
                                     </SelectContent>
                                 </Select>
                             </div>

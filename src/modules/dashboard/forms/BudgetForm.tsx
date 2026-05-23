@@ -204,13 +204,13 @@ export default function BudgetForm({ onClose, budgetToEdit }: BudgetFormProps) {
                     </div>
 
                     {/* Nominal Limit */}
-                    <div className="flex flex-col space-y-2 bg-indigo-50/40 p-5 rounded-2xl border border-indigo-100/60 mt-4">
+                    <div className="flex flex-col space-y-2 bg-blue-50/40 p-5 rounded-2xl border border-blue-100/60 mt-4">
                         <NumericInput
                             label="Batas Anggaran"
                             name="nominal_limit"
                             control={control as any}
                             error={errors.nominal_limit?.message}
-                            className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-indigo-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-indigo-950"
+                            className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-blue-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-blue-950"
                         />
                     </div>
 

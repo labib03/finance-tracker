@@ -120,7 +120,7 @@ export default function NumericInput({
             {!isDesktop && (
                 <div className="flex items-center justify-between p-6 bg-slate-50/80 border-b border-slate-100 sticky top-0 z-10 backdrop-blur-xl">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-[1rem] bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 shadow-sm">
+                        <div className="w-12 h-12 rounded-[1rem] bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 shadow-sm">
                             <Calculator size={24} strokeWidth={2.5} />
                         </div>
                         <div>
@@ -149,8 +149,8 @@ export default function NumericInput({
 
             {/* Main Screen */}
             <div className={cn("p-6 bg-white text-right shrink-0", isDesktop ? "py-4" : "py-6")}>
-                <div className="text-[10px] uppercase font-black tracking-[0.15em] text-indigo-400 mb-2">Total Saat Ini</div>
-                <div className={cn("font-black text-indigo-600 font-mono break-all leading-none", isDesktop ? "text-3xl" : "text-4xl")}>
+                <div className="text-[10px] uppercase font-black tracking-[0.15em] text-blue-400 mb-2">Total Saat Ini</div>
+                <div className={cn("font-black text-blue-600 font-mono break-all leading-none", isDesktop ? "text-3xl" : "text-4xl")}>
                     {formatRupiah(parseFloat(currentVal))}
                 </div>
             </div>
@@ -162,23 +162,23 @@ export default function NumericInput({
                 <Button type="button" variant="secondary" className="h-12 md:h-12 text-lg md:text-lg font-black rounded-2xl bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-sm shadow-amber-100/50" onClick={() => handleOperator('/')}>÷</Button>
                 
                 {[7, 8, 9].map(n => (
-                    <Button key={n} type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-indigo-600 border border-slate-100 shadow-sm" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                    <Button key={n} type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-blue-600 border border-slate-100 shadow-sm" onClick={() => handleDigit(n.toString())}>{n}</Button>
                 ))}
                 <Button type="button" variant="secondary" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-sm shadow-amber-100/50" onClick={() => handleOperator('*')}>×</Button>
                 
                 {[4, 5, 6].map(n => (
-                    <Button key={n} type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-indigo-600 border border-slate-100 shadow-sm" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                    <Button key={n} type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-blue-600 border border-slate-100 shadow-sm" onClick={() => handleDigit(n.toString())}>{n}</Button>
                 ))}
                 <Button type="button" variant="secondary" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-sm shadow-amber-100/50" onClick={() => handleOperator('-')}>-</Button>
                 
                 {[1, 2, 3].map(n => (
-                    <Button key={n} type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-indigo-600 border border-slate-100 shadow-sm" onClick={() => handleDigit(n.toString())}>{n}</Button>
+                    <Button key={n} type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-blue-600 border border-slate-100 shadow-sm" onClick={() => handleDigit(n.toString())}>{n}</Button>
                 ))}
                 <Button type="button" variant="secondary" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl bg-amber-50 text-amber-600 hover:bg-amber-100 border-none shadow-sm shadow-amber-100/50" onClick={() => handleOperator('+')}>+</Button>
                 
-                <Button type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-indigo-600 col-span-2 border border-slate-100 shadow-sm" onClick={() => handleDigit('0')}>0</Button>
-                <Button type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-indigo-600 border border-slate-100 shadow-sm" onClick={() => !currentVal.includes('.') && setCurrentVal(prev => prev + '.')}>.</Button>
-                <Button type="button" variant="secondary" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 border-none shadow-md shadow-indigo-600/20 active:scale-[0.98] transition-all" onClick={handleEqual}>=</Button>
+                <Button type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-blue-600 col-span-2 border border-slate-100 shadow-sm" onClick={() => handleDigit('0')}>0</Button>
+                <Button type="button" variant="ghost" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl hover:bg-slate-50 hover:text-blue-600 border border-slate-100 shadow-sm" onClick={() => !currentVal.includes('.') && setCurrentVal(prev => prev + '.')}>.</Button>
+                <Button type="button" variant="secondary" className="h-14 md:h-12 text-xl md:text-lg font-black rounded-2xl bg-blue-600 text-white hover:bg-blue-700 border-none shadow-md shadow-blue-600/20 active:scale-[0.98] transition-all" onClick={handleEqual}>=</Button>
             </div>
 
             {/* Final Action */}
@@ -196,18 +196,18 @@ export default function NumericInput({
                 </Button>
                 <Button 
                     type="button"
-                    className="col-span-2 h-14 bg-indigo-950 hover:bg-indigo-900 text-white rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-indigo-950/20 transition-all active:scale-[0.98] text-[10px] sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:shadow-none"
+                    className="col-span-2 h-14 bg-blue-950 hover:bg-blue-900 text-white rounded-[1.25rem] font-black uppercase tracking-widest shadow-xl shadow-blue-950/20 transition-all active:scale-[0.98] text-[10px] sm:text-xs disabled:opacity-50 disabled:cursor-not-allowed disabled:active:scale-100 disabled:shadow-none"
                     onClick={applyCalc}
                     disabled={operation !== null}
                 >
-                    <Check size={18} strokeWidth={3} className={cn("mr-2", operation !== null ? "text-slate-400" : "text-indigo-400")} />
+                    <Check size={18} strokeWidth={3} className={cn("mr-2", operation !== null ? "text-slate-400" : "text-blue-400")} />
                     Terapkan
                 </Button>
             </div>
         </div>
     );
 
-    const triggerClass = "flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-[0.75rem] border border-indigo-100 hover:bg-indigo-100 transition-colors cursor-pointer outline-none shadow-sm hover:shadow-md hover:scale-105 active:scale-95 duration-300";
+    const triggerClass = "flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.15em] text-blue-600 bg-blue-50 px-3 py-1.5 rounded-[0.75rem] border border-blue-100 hover:bg-blue-100 transition-colors cursor-pointer outline-none shadow-sm hover:shadow-md hover:scale-105 active:scale-95 duration-300";
 
     const triggerContent = (
         <>
@@ -265,7 +265,7 @@ export default function NumericInput({
                 displayType="input"
                 customInput={Input}
                 className={cn(
-                    "display-number text-2xl font-black h-14 bg-slate-50 border-slate-200/60 rounded-xl px-5 transition-all focus:bg-white focus:border-indigo-300 focus:ring-4 focus:ring-indigo-100 self-center",
+                    "display-number text-2xl font-black h-14 bg-slate-50 border-slate-200/60 rounded-xl px-5 transition-all focus:bg-white focus:border-blue-300 focus:ring-4 focus:ring-blue-100 self-center",
                     error && "border-rose-500 focus:ring-rose-100",
                     className
                 )}

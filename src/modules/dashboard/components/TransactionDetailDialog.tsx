@@ -74,7 +74,7 @@ export function TransactionDetailDialog({
                     {/* Category Minimal Icon */}
                     <div className={cn(
                         "w-16 h-16 rounded-3xl flex items-center justify-center mb-6 transition-colors duration-500",
-                        isTransfer ? "bg-indigo-50 text-indigo-500" : isIncome ? "bg-emerald-50 text-emerald-500" : "bg-red-50 text-red-500"
+                        isTransfer ? "bg-blue-50 text-blue-500" : isIncome ? "bg-emerald-50 text-emerald-500" : "bg-red-50 text-red-500"
                     )}>
                         {isTransfer ? (
                             <ArrowLeftRight size={28} strokeWidth={2} />
@@ -122,7 +122,7 @@ export function TransactionDetailDialog({
                             <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">Status</span>
                             <div className={cn(
                                 "text-xs font-black uppercase tracking-wider",
-                                isTransfer ? "text-indigo-600" : isIncome ? "text-emerald-600" : "text-red-500"
+                                isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : "text-red-500"
                             )}>
                                 {transaksi.jenis}
                             </div>
@@ -149,12 +149,12 @@ export function TransactionDetailDialog({
 
                             {isTransfer && (
                                 <div className="flex items-center gap-3 px-1">
-                                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+                                    <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500">
                                         <Wallet size={18} strokeWidth={2} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">KE UNTUK</span>
-                                        <span className="text-sm font-bold text-indigo-600">{sumberDanaTujuan?.nama_sumber || '-'}</span>
+                                        <span className="text-xs font-black text-blue-400 uppercase tracking-widest">KE UNTUK</span>
+                                        <span className="text-sm font-bold text-blue-600">{sumberDanaTujuan?.nama_sumber || '-'}</span>
                                     </div>
                                 </div>
                             )}

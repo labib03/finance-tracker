@@ -471,7 +471,7 @@ export const CHART_COLORS = [
   "#ec4899", // pink
   "#14b8a6", // teal
   "#f97316", // orange
-  "#6366f1", // indigo
+  "#6366f1", // blue
   "#84cc16", // lime
 ];
 

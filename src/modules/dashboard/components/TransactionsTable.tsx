@@ -331,7 +331,7 @@ function TransactionsTableInner({
                                             <div className={cn(
                                                 "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500 group-hover:scale-110",
                                                 isTransfer
-                                                    ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+                                                    ? "bg-blue-50 text-blue-600 border-blue-100"
                                                     : isIncome
                                                         ? "bg-emerald-50 text-emerald-600 border-emerald-100"
                                                         : "bg-rose-50 text-rose-600 border-rose-100"
@@ -344,7 +344,7 @@ function TransactionsTableInner({
                                             </div>
                                         </TableCell>
                                         <TableCell className="px-4 py-5">
-                                            <span className="text-[10px] font-black text-foreground/80 uppercase tracking-[0.15em]">
+                                            <span className="text-[10px] font-black uppercase tracking-[0.15em]">
                                                 {getKategori(t.id_kategori)?.nama_kategori || 'Transfer'}
                                             </span>
                                         </TableCell>
@@ -355,7 +355,7 @@ function TransactionsTableInner({
                                                 </span>
                                                 {isTransfer && t.id_target_dana && (
                                                     <div className="flex items-center gap-1.5 opacity-60">
-                                                        <ArrowRight size={10} className="text-indigo-500" />
+                                                        <ArrowRight size={10} className="text-blue-500" />
                                                         <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight">
                                                             {getSumberDanaName(t.id_target_dana)}
                                                         </span>
@@ -387,7 +387,7 @@ function TransactionsTableInner({
                                                     <span className={cn(
                                                         "display-number text-[13px] font-black tracking-widest",
                                                         isTransfer
-                                                            ? "text-indigo-600"
+                                                            ? "text-blue-600"
                                                             : isIncome
                                                                 ? "text-emerald-600"
                                                                 : "text-orange-600"
@@ -484,7 +484,7 @@ function TransactionsTableInner({
                                         <div className={cn(
                                             "w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border border-slate-100/50 shadow-sm transition-transform",
                                             isTransfer
-                                                ? "bg-indigo-50 text-indigo-600"
+                                                ? "bg-blue-50 text-blue-600"
                                                 : isIncome
                                                     ? "bg-emerald-50 text-emerald-600"
                                                     : "bg-rose-50 text-rose-600"
@@ -520,7 +520,7 @@ function TransactionsTableInner({
                                     <div className="flex flex-col items-end justify-center shrink-0 pl-2">
                                         <span className={cn(
                                             "display-number text-sm font-black tracking-tight leading-none mb-1.5 text-right",
-                                            isTransfer ? "text-indigo-600" : isIncome ? "text-emerald-600" : "text-slate-900"
+                                            isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : "text-slate-900"
                                         )}>
                                             {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
                                         </span>

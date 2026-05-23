@@ -134,7 +134,7 @@ export default function CategoryReport() {
                         <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/80 mt-2">Records</span>
                     </div>
                     <div className="w-full h-1.5 bg-muted rounded-full mt-4 overflow-hidden">
-                        <div className="h-full bg-indigo-500 w-[65%]" />
+                        <div className="h-full bg-blue-500 w-[65%]" />
                     </div>
                 </div>
             </div>
@@ -184,7 +184,7 @@ export default function CategoryReport() {
                     <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi h-full">
                         <div className="flex items-center justify-between mb-8">
                             <div className="flex items-center gap-3">
-                                <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+                                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg">
                                     <LineChartIcon size={18} />
                                 </div>
                                 <div>
@@ -369,9 +369,9 @@ export default function CategoryReport() {
                                         <p className="text-[9px] font-black text-muted-foreground/40 uppercase tracking-widest mb-1.5 leading-none">Bulan Lalu</p>
                                         <p className="text-xs font-black text-muted-foreground display-number leading-none">{formatRupiah(item.totalLalu)}</p>
                                     </div>
-                                    <div className="p-4 bg-indigo-50/30 rounded-2xl border border-indigo-100/20">
-                                        <p className="text-[9px] font-black text-indigo-400 uppercase tracking-widest mb-1.5 leading-none">Bulan Ini</p>
-                                        <p className="text-xs font-black text-indigo-600 display-number leading-none">{formatRupiah(item.totalAktif)}</p>
+                                    <div className="p-4 bg-blue-50/30 rounded-2xl border border-blue-100/20">
+                                        <p className="text-[9px] font-black text-blue-400 uppercase tracking-widest mb-1.5 leading-none">Bulan Ini</p>
+                                        <p className="text-xs font-black text-blue-600 display-number leading-none">{formatRupiah(item.totalAktif)}</p>
                                     </div>
                                 </div>
                             </div>

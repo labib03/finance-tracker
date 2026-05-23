@@ -102,7 +102,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                     </div>
                     <Button 
                         onClick={onAdd} 
-                        className="shrink-0 rounded-2xl h-12 px-6 shadow-lg shadow-indigo-600/20 bg-foreground text-background hover:bg-foreground/90 text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
+                        className="shrink-0 rounded-2xl h-12 px-6 shadow-lg shadow-blue-600/20 bg-foreground text-background hover:bg-foreground/90 text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
                     >
                         <Plus size={18} className="mr-2" />
                         Tambah Anggaran
@@ -216,7 +216,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                                 <TableRow key={b.id_anggaran} className="group hover:bg-muted/5 transition-all border-b border-border/10 cursor-pointer" onClick={() => onEdit?.(b)}>
                                                     <TableCell className="px-8 py-6">
                                                         <div className="flex items-center gap-4">
-                                                            <div className="w-12 h-12 rounded-2xl bg-indigo-50/50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/20 group-hover:scale-110 transition-transform duration-500">
+                                                            <div className="w-12 h-12 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/20 group-hover:scale-110 transition-transform duration-500">
                                                                 <Target size={20} strokeWidth={2.5} />
                                                             </div>
                                                             <div>
@@ -275,7 +275,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                                                     e.stopPropagation();
                                                                     onEdit?.(b);
                                                                 }}
-                                                                className="h-8 w-8 text-indigo-600 hover:bg-indigo-50 rounded-xl"
+                                                                className="h-8 w-8 text-blue-600 hover:bg-blue-50 rounded-xl"
                                                             >
                                                                 <Pencil size={14} strokeWidth={2.5} />
                                                             </Button>
@@ -310,7 +310,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                             <CardContent className="p-5 flex flex-col gap-5">
                                                 <div className="flex items-center justify-between">
                                                     <div className="flex items-center gap-3.5">
-                                                        <div className="w-12 h-12 rounded-2xl bg-indigo-50/50 text-indigo-600 flex items-center justify-center shrink-0 border border-indigo-100/20 group-hover:scale-110 transition-transform duration-500">
+                                                        <div className="w-12 h-12 rounded-2xl bg-blue-50/50 text-blue-600 flex items-center justify-center shrink-0 border border-blue-100/20 group-hover:scale-110 transition-transform duration-500">
                                                             <Target size={22} strokeWidth={2.5} />
                                                         </div>
                                                         <div className="flex flex-col min-w-0">
@@ -381,7 +381,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                                                     </div>
                                                     <div className="flex flex-col items-end">
                                                         <span className="text-[10px] font-black text-muted-foreground/40 uppercase tracking-widest leading-none mb-1.5 text-right">Limit</span>
-                                                        <span className="display-number text-xs font-black text-indigo-600 tracking-widest leading-none text-right">
+                                                        <span className="display-number text-xs font-black text-blue-600 tracking-widest leading-none text-right">
                                                             {formatRupiah(b.nominal_limit)}
                                                         </span>
                                                     </div>

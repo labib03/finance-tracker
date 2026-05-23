@@ -199,7 +199,7 @@ export default function MasterDataManagement({
                                                 variant="ghost"
                                                 size="icon"
                                                 onClick={() => onEditKategori(k)}
-                                                className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-100 bg-white border border-transparent hover:border-indigo-100 shadow-sm transition-all"
+                                                className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-slate-100 bg-white border border-transparent hover:border-blue-100 shadow-sm transition-all"
                                             >
                                                 <Edit2 size={16} />
                                             </Button>
@@ -315,7 +315,7 @@ export default function MasterDataManagement({
                                         <div className="flex items-center gap-4">
                                             <div className="text-right hidden sm:block pr-2">
                                                 <p className="text-[10px] font-black uppercase tracking-widest text-slate-400 leading-none mb-1">Saldo Net</p>
-                                                <span className="display-number text-base font-black text-slate-900 group-hover:text-indigo-600 transition-colors">
+                                                <span className="display-number text-base font-black text-slate-900 group-hover:text-blue-600 transition-colors">
                                                     {formatRupiah(s.saldo_awal)}
                                                 </span>
                                             </div>
@@ -325,7 +325,7 @@ export default function MasterDataManagement({
                                                     variant="ghost"
                                                     size="icon"
                                                     onClick={() => onEditSumberDana(s)}
-                                                    className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-indigo-600 hover:bg-slate-100 bg-white border border-transparent hover:border-indigo-100 shadow-sm transition-all"
+                                                    className="h-9 w-9 xl:h-10 xl:w-10 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-slate-100 bg-white border border-transparent hover:border-blue-100 shadow-sm transition-all"
                                                 >
                                                     <Edit2 size={16} />
                                                 </Button>

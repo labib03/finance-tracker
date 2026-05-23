@@ -30,12 +30,12 @@ const ICON_MAP: Record<string, React.ElementType> = {
 const AKSI_CONFIG = {
     alokasi_tabungan: {
         label: 'Alokasi Dana',
-        color: 'indigo',
+        color: 'blue',
         icon: PiggyBank,
         description: 'Sisihkan uang agar tidak terpakai untuk pengeluaran harian.',
         buttonText: 'Alokasikan Dana',
-        buttonClass: 'bg-indigo-600 hover:bg-indigo-700 shadow-indigo-600/30',
-        activeClass: 'bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-4 ring-indigo-50',
+        buttonClass: 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/30',
+        activeClass: 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30 ring-4 ring-blue-50',
     },
     tarik_tabungan: {
         label: 'Tarik Darurat',
@@ -118,27 +118,27 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
         >
                 <div className="space-y-6 pt-2 pb-2">
                     {/* Progress Header Group */}
-                    <div className="p-5 rounded-[1.75rem] bg-indigo-50/40 border border-indigo-100/50 space-y-4">
+                    <div className="p-5 rounded-[1.75rem] bg-blue-50/40 border border-blue-100/50 space-y-4">
                         <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-indigo-600 shadow-sm">
+                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-blue-600 shadow-sm">
                                 <TabIcon size={24} />
                             </div>
                             <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-indigo-400 leading-none mb-1">Status Sinking Fund</p>
+                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 leading-none mb-1">Status Sinking Fund</p>
                                 <p className="text-base font-black text-slate-800 leading-tight">{tabungan.nama_tujuan}</p>
                             </div>
                         </div>
 
                         <div className="space-y-1.5">
                             <div className="flex items-center justify-between text-[10px] font-black tracking-widest uppercase">
-                                <span className={cn(isTercapai ? 'text-emerald-600' : 'text-indigo-600')}>
+                                <span className={cn(isTercapai ? 'text-emerald-600' : 'text-blue-600')}>
                                     {formatRupiah(saldo)} terkumpul
                                 </span>
                                 <span className="text-slate-400">{formatRupiah(tabungan.target_nominal)}</span>
                             </div>
                             <div className="h-2.5 w-full bg-white rounded-full overflow-hidden shadow-inner ring-1 ring-black/3">
                                 <div
-                                    className={cn('h-full rounded-full transition-all duration-700 shadow-sm', isTercapai ? 'bg-emerald-500' : 'bg-indigo-500')}
+                                    className={cn('h-full rounded-full transition-all duration-700 shadow-sm', isTercapai ? 'bg-emerald-500' : 'bg-blue-500')}
                                     style={{ width: `${Math.min(progres, 100)}%` }}
                                 />
                             </div>
@@ -176,7 +176,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                         {/* Description Box */}
                         <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex gap-3">
-                            <div className="mt-0.5 text-indigo-500 shrink-0">
+                            <div className="mt-0.5 text-blue-500 shrink-0">
                                 <ShieldAlert size={16} />
                             </div>
                             <p className="text-[11px] font-bold text-slate-500 leading-normal">
@@ -187,7 +187,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                         {/* Nominal Input Pro Max */}
                         <div className={cn(
                             "flex flex-col space-y-2 p-5 rounded-[2rem] border transition-all duration-500",
-                            aksi === 'alokasi_tabungan' ? "bg-indigo-50/50 border-indigo-100" : 
+                            aksi === 'alokasi_tabungan' ? "bg-blue-50/50 border-blue-100" : 
                             aksi === 'tarik_tabungan' ? "bg-amber-50/50 border-amber-100" :
                             "bg-emerald-50/50 border-emerald-100"
                         )}>
@@ -199,7 +199,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                                     <button
                                         type="button"
                                         onClick={() => setValue('nominal', sisaTarget)}
-                                        className="text-[9px] font-black text-indigo-600 bg-white px-2 py-1 rounded-full border border-indigo-100 shadow-sm hover:scale-105 active:scale-95 transition-all"
+                                        className="text-[9px] font-black text-blue-600 bg-white px-2 py-1 rounded-full border border-blue-100 shadow-sm hover:scale-105 active:scale-95 transition-all"
                                     >
                                         Selesaikan Target
                                     </button>
@@ -251,7 +251,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                                 <Input
                                     placeholder="Alokasi dana untuk..."
                                     {...control.register('catatan')}
-                                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-4 focus:ring-indigo-50 font-medium"
+                                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-4 focus:ring-blue-50 font-medium"
                                 />
                             </div>
                         </div>

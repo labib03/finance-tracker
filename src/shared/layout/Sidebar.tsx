@@ -86,19 +86,19 @@ const NavLinks = ({ isSidebarCollapsed, mobile = false, setOpen }: NavLinksProps
                                             ? "w-full px-4 py-3 rounded-2xl gap-4 mb-1"
                                             : "w-full px-4 py-2 rounded-[1.5rem] gap-4 mb-1.5",
                                     isActive
-                                        ? "bg-indigo-50/80 text-indigo-600 font-bold"
+                                        ? "bg-blue-50/80 text-blue-600 font-bold"
                                         : "hover:bg-muted/40 text-muted-foreground hover:text-foreground"
                                 )}
                             >
                                 {/* Minimalist Active Indicator (Collapsed) */}
                                 {isCollapsed && isActive && (
-                                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full" />
+                                    <div className="absolute -left-1 top-1/2 -translate-y-1/2 w-1 h-6 bg-blue-500 rounded-r-full" />
                                 )}
 
                                 <div className={cn(
                                     "flex items-center justify-center rounded-xl shrink-0 transition-[transform,background-color] duration-300",
                                     isCollapsed ? "w-8 h-8" : "w-8 h-8",
-                                    isActive ? "bg-indigo-100/50" : "bg-muted/30 group-hover:bg-background"
+                                    isActive ? "bg-blue-100/50" : "bg-muted/30 group-hover:bg-background"
                                 )}>
                                     <Icon size={isCollapsed ? 18 : 18} strokeWidth={isActive ? 2.5 : 2} className={cn("transition-transform duration-300", isActive ? "scale-110" : "group-hover:scale-110")} />
                                 </div>
@@ -113,7 +113,7 @@ const NavLinks = ({ isSidebarCollapsed, mobile = false, setOpen }: NavLinksProps
 
                                 {isActive && !isCollapsed && (
                                     <div className="ml-auto animate-in fade-in slide-in-from-right-2 duration-300">
-                                        <div className="w-1 h-1 rounded-full bg-indigo-500" />
+                                        <div className="w-1 h-1 rounded-full bg-blue-500" />
                                     </div>
                                 )}
                             </Link>
@@ -148,7 +148,7 @@ const Brand = ({ collapsed = false, className }: { collapsed?: boolean; classNam
                         {!collapsed && (
                             <div className="flex flex-col animate-in fade-in slide-in-from-left-2 duration-300">
                                 <h1 className="text-2xl font-black tracking-widest leading-none">
-                                    Financer<span className="text-indigo-600">.</span>
+                                    Financer<span className="text-blue-600">.</span>
                                 </h1>
                                 <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mt-2">
                                     Premium Pro
@@ -281,13 +281,13 @@ export default function Sidebar() {
                                         className={cn(
                                             "group w-full flex items-center transition-[padding,height,background-color] duration-300 border border-transparent hover:border-border/40 relative",
                                             isSidebarCollapsed
-                                                ? "justify-center h-10 w-10 bg-indigo-50/30 hover:bg-indigo-50/50 text-indigo-600 rounded-full"
+                                                ? "justify-center h-10 w-10 bg-blue-50/30 hover:bg-blue-50/50 text-blue-600 rounded-full"
                                                 : "gap-4 p-2 rounded-[2rem] hover:bg-muted/30"
                                         )}
                                     >
                                         <div className={cn(
                                             "rounded-xl transition-[width,height,background-color] duration-300 shrink-0 flex items-center justify-center",
-                                            isSidebarCollapsed ? "w-8 h-8 bg-indigo-100/50" : "p-2.5 bg-muted/20 text-muted-foreground group-hover:text-foreground"
+                                            isSidebarCollapsed ? "w-8 h-8 bg-blue-100/50" : "p-2.5 bg-muted/20 text-muted-foreground group-hover:text-foreground"
                                         )}>
                                             {isSidebarCollapsed ? <PanelLeftOpen size={18} /> : <PanelLeftClose size={16} />}
                                         </div>
@@ -298,9 +298,9 @@ export default function Sidebar() {
                                         )}
                                     </button>
                                 } />
-                                <TooltipContent side="right" sideOffset={16} align="center" className="bg-indigo-600 text-white">
+                                <TooltipContent side="right" sideOffset={16} align="center" className="bg-blue-600 text-white">
                                     Expand Sidebar
-                                    <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-4 border-transparent border-r-indigo-600" />
+                                    <div className="absolute top-1/2 -left-1 -translate-y-1/2 border-4 border-transparent border-r-blue-600" />
                                 </TooltipContent>
                             </Tooltip>
                         </div>

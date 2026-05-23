@@ -216,7 +216,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                                             <Button variant="ghost" size="icon-xs" onClick={() => updateRecurring({ ...r, aktif: !r.aktif })} title={r.aktif ? 'Pause' : 'Play'} className={cn("h-8 w-8 rounded-lg shadow-xs border border-slate-100 bg-white hover:bg-slate-50 transition-all", r.aktif ? 'text-amber-500 border-amber-100 hover:border-amber-200 hover:bg-amber-50' : 'text-emerald-500 border-emerald-100 hover:border-emerald-200 hover:bg-emerald-50')}>
                                                 {r.aktif ? <Pause size={14} strokeWidth={2.5} /> : <Play size={14} strokeWidth={2.5} />}
                                             </Button>
-                                            <Button variant="ghost" size="icon-xs" onClick={() => onEdit?.(r)} className="h-8 w-8 text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 border border-slate-100 hover:border-indigo-200 shadow-xs rounded-lg transition-all bg-white">
+                                            <Button variant="ghost" size="icon-xs" onClick={() => onEdit?.(r)} className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 border border-slate-100 hover:border-blue-200 shadow-xs rounded-lg transition-all bg-white">
                                                 <Pencil size={14} strokeWidth={2.5} />
                                             </Button>
                                             <Button variant="ghost" size="icon-xs" onClick={() => handleDeleteClick(r.id, r.id_kategori)} className="h-8 w-8 text-rose-500 hover:text-rose-600 hover:bg-rose-50 border border-slate-100 hover:border-rose-200 shadow-xs rounded-lg transition-all bg-white">

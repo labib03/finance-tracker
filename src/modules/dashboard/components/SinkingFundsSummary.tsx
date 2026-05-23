@@ -40,7 +40,7 @@ export default function SinkingFundsSummary({ onViewAll }: SinkingFundsSummaryPr
             {/* Header */}
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                    <div className="w-9 h-9 rounded-xl bg-blue-50 flex items-center justify-center text-blue-600">
                         <PiggyBank size={18} strokeWidth={2.5} />
                     </div>
                     <div>
@@ -54,7 +54,7 @@ export default function SinkingFundsSummary({ onViewAll }: SinkingFundsSummaryPr
                 </div>
                 <button
                     onClick={onViewAll}
-                    className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-indigo-600 hover:text-indigo-800 transition-colors"
+                    className="flex items-center gap-1 text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-800 transition-colors"
                 >
                     Lihat Semua <ChevronRight size={13} strokeWidth={3} />
                 </button>
@@ -64,11 +64,11 @@ export default function SinkingFundsSummary({ onViewAll }: SinkingFundsSummaryPr
             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 space-y-2">
                 <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
                     <span className="text-slate-600">Total Terkumpul</span>
-                    <span className="text-indigo-600">{formatRupiah(totalTerkumpul)}</span>
+                    <span className="text-blue-600">{formatRupiah(totalTerkumpul)}</span>
                 </div>
                 <div className="h-2 w-full bg-slate-200 rounded-full overflow-hidden">
                     <div
-                        className="h-full bg-indigo-500 rounded-full transition-all duration-700"
+                        className="h-full bg-blue-500 rounded-full transition-all duration-700"
                         style={{ width: `${totalTarget > 0 ? Math.min((totalTerkumpul / totalTarget) * 100, 100) : 0}%` }}
                     />
                 </div>
@@ -103,7 +103,7 @@ export default function SinkingFundsSummary({ onViewAll }: SinkingFundsSummaryPr
                                 </div>
                                 <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                     <div
-                                        className={cn('h-full rounded-full transition-all duration-700', isTercapai ? 'bg-emerald-500' : 'bg-indigo-400')}
+                                        className={cn('h-full rounded-full transition-all duration-700', isTercapai ? 'bg-emerald-500' : 'bg-blue-400')}
                                         style={{ width: `${Math.min(progres, 100)}%` }}
                                     />
                                 </div>

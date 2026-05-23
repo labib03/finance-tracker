@@ -1,13 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Geist } from "next/font/google";
+import { Google_Sans, Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
-import { cn } from "@/lib/utils";
 import PWAInstallPrompt from "@/shared/ui/PWAInstallPrompt";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
-
-const inter = Inter({
-  variable: "--font-inter",
+const googleSans = Google_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
@@ -19,7 +16,7 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#4f46e5",
+  themeColor: "#3b82f6",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
@@ -50,8 +47,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="id" className={cn("font-sans", geist.variable)}>
-      <body className={`${inter.variable} ${jetbrainsMono.variable} antialiased`}>
+    <html lang="id" className="font-sans">
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap" rel="stylesheet" />
+      </head>
+      <body className={`${googleSans.variable} ${jetbrainsMono.variable} antialiased`}>
         {children}
         <PWAInstallPrompt />
       </body>

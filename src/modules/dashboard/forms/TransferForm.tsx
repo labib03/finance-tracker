@@ -108,11 +108,11 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
             className="sm:max-w-[425px]"
         >
 
-                <div className="bg-indigo-50/50 p-4 rounded-xl flex items-center gap-3 mb-2 border border-indigo-100/50">
-                    <div className="w-10 h-10 rounded-full bg-indigo-100 flex items-center justify-center shrink-0">
-                        <ArrowLeftRight size={20} className="text-indigo-600" />
+                <div className="bg-blue-50/50 p-4 rounded-xl flex items-center gap-3 mb-2 border border-blue-100/50">
+                    <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center shrink-0">
+                        <ArrowLeftRight size={20} className="text-blue-600" />
                     </div>
-                    <p className="text-xs font-medium text-indigo-700 leading-tight">
+                    <p className="text-xs font-medium text-blue-700 leading-tight">
                         Pindahkan saldo antar rekening tanpa memengaruhi total pemasukan atau pengeluaran.
                     </p>
                 </div>
@@ -229,13 +229,13 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
 
                     {/* Nominal & Biaya Admin */}
                     <div className="space-y-4 pt-2">
-                        <div className="flex flex-col space-y-2 bg-indigo-50/40 p-5 rounded-2xl border border-indigo-100/60">
+                        <div className="flex flex-col space-y-2 bg-blue-50/40 p-5 rounded-2xl border border-blue-100/60">
                             <NumericInput
                                 label="Nominal Transfer"
                                 name="nominal"
                                 control={control as any}
                                 error={errors.nominal?.message}
-                                className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-indigo-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-indigo-950"
+                                className="text-3xl sm:text-4xl font-black h-16 sm:h-20 bg-white border-blue-200 focus:bg-white focus:ring-primary/20 shadow-sm text-center text-blue-950"
                             />
                         </div>
 
@@ -317,7 +317,7 @@ export default function TransferForm({ onClose, transferToEdit }: TransferFormPr
                         <Button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full rounded-xl bg-indigo-600 hover:bg-indigo-700"
+                            className="w-full rounded-xl bg-blue-600 hover:bg-blue-700"
                         >
                             <ArrowLeftRight size={16} className="mr-2" />
                             {isSubmitting ? 'Memproses...' : 'Transfer Sekarang'}

@@ -50,12 +50,12 @@ export default function BottomNav() {
                         href={path}
                         className={cn(
                             "flex flex-col items-center justify-center gap-1.5 transition-all duration-300 flex-1",
-                            isActive ? "text-indigo-600" : "text-muted-foreground/60 hover:text-foreground"
+                            isActive ? "text-blue-600" : "text-muted-foreground/60 hover:text-foreground"
                         )}
                     >
                         <div className={cn(
                             "p-2 rounded-xl transition-all duration-300",
-                            isActive ? "bg-indigo-50/80 scale-110" : ""
+                            isActive ? "bg-blue-50/80 scale-110" : ""
                         )}>
                             <Icon size={20} strokeWidth={isActive ? 3 : 2} />
                         </div>
@@ -68,7 +68,7 @@ export default function BottomNav() {
             <div className="flex-1 flex justify-center -mt-16 relative z-50">
                 <button
                     onClick={() => setActiveModal('transaksi')}
-                    className="w-14 h-14 rounded-2xl bg-indigo-600 text-white shadow-xl shadow-indigo-600/30 flex items-center justify-center active:scale-90 transition-all duration-300 hover:rotate-90 hover:rounded-[2rem]"
+                    className="w-14 h-14 rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-600/30 flex items-center justify-center active:scale-90 transition-all duration-300 hover:rotate-90 hover:rounded-[2rem]"
                 >
                     <Plus size={28} strokeWidth={3} />
                 </button>
@@ -84,12 +84,12 @@ export default function BottomNav() {
                         href={path}
                         className={cn(
                             "flex flex-col items-center justify-center gap-1.5 transition-all duration-300 flex-1",
-                            isActive ? "text-indigo-600" : "text-muted-foreground/60 hover:text-foreground"
+                            isActive ? "text-blue-600" : "text-muted-foreground/60 hover:text-foreground"
                         )}
                     >
                         <div className={cn(
                             "p-2 rounded-xl transition-all duration-300",
-                            isActive ? "bg-indigo-50/80 scale-110" : ""
+                            isActive ? "bg-blue-50/80 scale-110" : ""
                         )}>
                             <Icon size={20} strokeWidth={isActive ? 3 : 2} />
                         </div>
@@ -156,7 +156,7 @@ export default function BottomNav() {
                                             className={cn(
                                                 "flex flex-col items-center justify-center gap-4 p-6 rounded-3xl transition-all duration-300 border",
                                                 isActive
-                                                    ? "bg-indigo-50/50 border-indigo-100 text-indigo-600"
+                                                    ? "bg-blue-50/50 border-blue-100 text-blue-600"
                                                     : "bg-muted/5 border-transparent text-muted-foreground hover:bg-muted/10"
                                             )}
                                         >

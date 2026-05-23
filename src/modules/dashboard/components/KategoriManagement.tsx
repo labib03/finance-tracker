@@ -110,7 +110,7 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                                                     e.stopPropagation();
                                                     onEdit(k);
                                                 }}
-                                                className="h-8 w-8 text-indigo-600 hover:bg-indigo-50 rounded-xl"
+                                                className="h-8 w-8 text-blue-600 hover:bg-blue-50 rounded-xl"
                                             >
                                                 <Edit2 size={14} strokeWidth={2.5} />
                                             </Button>
@@ -164,7 +164,7 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                                             e.stopPropagation();
                                             onEdit(k);
                                         }}
-                                        className="h-9 w-9 text-indigo-600 hover:bg-indigo-50 rounded-xl"
+                                        className="h-9 w-9 text-blue-600 hover:bg-blue-50 rounded-xl"
                                     >
                                         <Edit2 size={14} strokeWidth={2.5} />
                                     </Button>
@@ -200,7 +200,7 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                     </div>
                     <Button 
                         onClick={onAdd} 
-                        className="shrink-0 rounded-2xl h-11 px-6 shadow-lg shadow-indigo-600/20 bg-foreground text-background hover:bg-foreground/90 text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
+                        className="shrink-0 rounded-2xl h-11 px-6 shadow-lg shadow-blue-600/20 bg-foreground text-background hover:bg-foreground/90 text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
                     >
                         <Plus size={18} className="mr-2" />
                         Tambah Kategori

@@ -76,7 +76,7 @@ export default function RecentTransactions({
                                 {/* Icon */}
                                 <div
                                     className={`w-11 h-11 shrink-0 rounded-2xl flex items-center justify-center ${isTransfer
-                                        ? 'bg-indigo-50 text-indigo-600'
+                                        ? 'bg-blue-50 text-blue-600'
                                         : isIncome
                                             ? 'bg-emerald-50 text-emerald-600'
                                             : 'bg-red-50 text-red-600'
@@ -114,7 +114,7 @@ export default function RecentTransactions({
                                 <div className="text-right shrink-0">
                                     <p
                                         className={`text-sm font-bold display-number ${isTransfer
-                                            ? 'text-indigo-600'
+                                            ? 'text-blue-600'
                                             : isIncome
                                                 ? 'text-emerald-600'
                                                 : 'text-orange-600'

@@ -44,7 +44,7 @@ export function ConfirmDialog({
                             "w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-sm animate-in zoom-in-50 duration-300",
                             variant === 'destructive' ? 'bg-red-50 text-red-600 border border-red-100' :
                                 variant === 'info' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
-                                    'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                                    'bg-blue-50 text-blue-600 border border-blue-100'
                         )}>
                             {variant === 'destructive' ? <Trash2 size={28} /> :
                                 variant === 'info' ? <Info size={28} /> :
@@ -72,7 +72,7 @@ export function ConfirmDialog({
                         onClick={onConfirm}
                         className={cn(
                             "flex-1 rounded-none border-none font-bold h-11 transition-all active:scale-95",
-                            variant === 'default' ? 'bg-indigo-600 hover:bg-indigo-700' :
+                            variant === 'default' ? 'bg-blue-600 hover:bg-blue-700' :
                                 variant === 'info' ? 'bg-blue-600 hover:bg-blue-700' : ''
                         )}
                     >

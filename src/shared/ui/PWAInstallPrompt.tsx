@@ -119,7 +119,7 @@ export default function PWAInstallPrompt() {
                                 <Button 
                                     onClick={handleInstallClick}
                                     size="sm" 
-                                    className="h-9 px-5 rounded-xl font-bold text-xs bg-primary hover:bg-indigo-700 shadow-md shadow-primary/10"
+                                    className="h-9 px-5 rounded-xl font-bold text-xs bg-primary hover:bg-blue-700 shadow-md shadow-primary/10"
                                 >
                                     Instal Aplikasi
                                     <Monitor size={14} className="ml-2 opacity-50" />

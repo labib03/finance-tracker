@@ -51,12 +51,12 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
     return (
         <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float relative group min-h-[400px]">
             {/* Minimalist Background Accent */}
-            <div className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-indigo-50/80 rounded-full blur-3xl pointer-events-none group-hover:bg-indigo-100 transition-all duration-1000" />
+            <div className="absolute top-0 right-0 -mr-12 -mt-12 w-32 h-32 bg-blue-50/80 rounded-full blur-3xl pointer-events-none group-hover:bg-blue-100 transition-all duration-1000" />
 
             <CardHeader className="pb-4 pt-6 sm:pt-8 px-6 sm:px-8 relative z-10 border-b border-slate-100/50">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-[1rem] bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-100 shadow-sm">
+                        <div className="w-12 h-12 rounded-[1rem] bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100 shadow-sm">
                             <Bell size={20} strokeWidth={2.5} />
                         </div>
                         <div>
@@ -107,7 +107,7 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
                                             <CalendarClock size={18} strokeWidth={2.5} className="text-slate-400" />
                                         </div>
                                         <div className="flex flex-col min-w-0 flex-1">
-                                            <p className="text-sm font-black text-slate-800 uppercase tracking-widest truncate group-hover/item:text-indigo-600 transition-colors">
+                                            <p className="text-sm font-black text-slate-800 uppercase tracking-widest truncate group-hover/item:text-blue-600 transition-colors">
                                                 {r.label}
                                             </p>
                                             <div className="flex flex-wrap items-center gap-2 mt-1">
@@ -172,7 +172,7 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
                 <div className="pt-4">
                     <Button
                         variant="ghost"
-                        className="w-full text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 hover:border-indigo-200 h-12 text-[10px] font-black uppercase tracking-[0.2em] rounded-[1rem] border border-dashed border-slate-200 transition-all duration-300"
+                        className="w-full text-slate-500 hover:text-blue-600 hover:bg-blue-50 hover:border-blue-200 h-12 text-[10px] font-black uppercase tracking-[0.2em] rounded-[1rem] border border-dashed border-slate-200 transition-all duration-300"
                         onClick={onViewAll}
                     >
                         Kelola Jadwal Lengkap <ArrowRight size={14} strokeWidth={2.5} className="ml-2" />

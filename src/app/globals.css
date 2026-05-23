@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -5,22 +6,30 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Google Sans', var(--font-inter), ui-sans-serif, system-ui, sans-serif;
   --font-serif:
     var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 }
 
 :root {
-  /* Scandi Minimal Color Palette */
-  --bg-main: #fafafa;
+  /* FinSuite Modern Geometric Color Palette */
+  --bg-main: #f4f5f9;
   --bg-card: #ffffff;
 
-  --text-primary: #1c1c1e;
-  --text-secondary: #3a3a3c;
-  --text-muted: #8e8e93;
+  --text-primary: #0b0a12;     /* Deep Charcoal */
+  --text-secondary: #3c3b45;   /* Gray Charcoal */
+  --text-muted: #8e909c;       /* Muted Gray */
 
-  --border-light: #e5e5ea;
-  --border-focus: #1c1c1e;
+  --border-light: #ebebf8;     /* Soft Light Border */
+  --border-focus: #3b82f6;     /* Electric Blue */
+
+  /* FinSuite Core Brand Colors */
+  --brand-blue: #3b82f6;       /* Vibrant Sky Blue */
+  --brand-blue-hover: #2563eb;
+  --brand-lime: #b5f523;       /* Vibrant Lime Green */
+  --brand-purple: #b264ff;     /* Electric Purple */
+  --brand-black: #0b0a12;      /* Dark Charcoal/Black */
+  --brand-light: #ebebf8;      /* Light Off-white/Gray-blue */
 
   /* Accents */
   --accent-green: #34c759;
@@ -330,7 +339,6 @@ body {
 }
 
 @theme inline {
-  --font-sans: var(--font-sans);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);

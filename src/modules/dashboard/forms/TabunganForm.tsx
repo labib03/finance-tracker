@@ -130,7 +130,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
                 placeholder="Cth: Dana Darurat, Beli Laptop, dsb."
                 {...register("nama_tujuan")}
                 className={cn(
-                    "h-12 rounded-xl bg-white border-slate-200 focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 font-medium",
+                    "h-12 rounded-xl bg-white border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-400 font-medium",
                     errors.nama_tujuan && "border-destructive"
                 )}
               />
@@ -148,7 +148,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
                       <Popover>
                           <PopoverTrigger
                               className={cn(
-                                  "flex h-12 w-full items-center justify-start rounded-xl border border-input bg-white px-4 py-2 text-sm font-normal transition-all outline-none focus:ring-4 focus:ring-indigo-100 focus:border-indigo-400 disabled:cursor-not-allowed disabled:opacity-50",
+                                  "flex h-12 w-full items-center justify-start rounded-xl border border-input bg-white px-4 py-2 text-sm font-normal transition-all outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 disabled:cursor-not-allowed disabled:opacity-50",
                                   !field.value && "text-muted-foreground/50",
                                   errors.tanggal_target && "border-destructive"
                               )}
@@ -183,13 +183,13 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
           </div>
 
           {/* Nominal Target */}
-          <div className="p-5 rounded-2xl border border-indigo-100 bg-indigo-50/30">
+          <div className="p-5 rounded-2xl border border-blue-100 bg-blue-50/30">
             <NumericInput
               label="Target Nominal Menabung"
               name="target_nominal"
               control={control as any}
               error={(errors.target_nominal?.message as string)}
-              className="text-3xl font-black h-16 bg-white shadow-sm text-center border-indigo-200 focus:ring-indigo-200 text-indigo-900"
+              className="text-3xl font-black h-16 bg-white shadow-sm text-center border-blue-200 focus:ring-blue-200 text-blue-900"
             />
           </div>
 
@@ -208,7 +208,7 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
                       className={cn(
                         "flex items-center justify-center aspect-square rounded-2xl border transition-all duration-300",
                         isActive 
-                          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-600/30 scale-110 z-10" 
+                          ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30 scale-110 z-10" 
                           : "bg-white border-slate-100 text-slate-400 hover:bg-slate-50 hover:border-slate-200"
                       )}
                     >
@@ -223,10 +223,10 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
           <div className="pt-2">
             <Button
               type="submit"
-              className="w-full h-14 rounded-2xl bg-indigo-950 hover:bg-black text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-indigo-950/20 transition-all active:scale-[0.98]"
+              className="w-full h-14 rounded-2xl bg-blue-950 hover:bg-black text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-950/20 transition-all active:scale-[0.98]"
               disabled={isSubmitting}
             >
-              <Save size={18} className="mr-2 text-indigo-400" />
+              <Save size={18} className="mr-2 text-blue-400" />
               {isSubmitting ? "Menyimpan..." : dataToEdit ? "Simpan Perubahan" : "Buat Sinking Fund"}
             </Button>
           </div>

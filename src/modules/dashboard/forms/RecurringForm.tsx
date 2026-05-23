@@ -308,7 +308,7 @@ export default function RecurringForm({ onClose, recurringToEdit }: RecurringFor
                                                     baseFreq === 'Tahunan' ? 'Tahun' : ''}
                                     </span>
                                 </div>
-                                <p className="text-[10px] font-bold text-indigo-600/60 uppercase tracking-tighter">
+                                <p className="text-[10px] font-bold text-blue-600/60 uppercase tracking-tighter">
                                     Terjadwal otomatis setiap {multiplier} {baseFreq.toLowerCase()}
                                 </p>
                             </div>

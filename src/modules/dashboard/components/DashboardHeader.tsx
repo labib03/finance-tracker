@@ -49,7 +49,7 @@ export default function DashboardHeader() {
   return (
     <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 lg:gap-8 mb-8 lg:mb-12">
       <div className="space-y-3 lg:space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50/80 text-indigo-600 border border-indigo-100/50 backdrop-blur-sm self-start animate-in fade-in slide-in-from-left-4 duration-700">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50/80 text-blue-600 border border-blue-100/50 backdrop-blur-sm self-start animate-in fade-in slide-in-from-left-4 duration-700">
           <Sparkles size={10} className="animate-pulse lg:size-3" />
           <span className="text-[10px] font-black uppercase tracking-[0.2em]">Intelligence</span>
         </div>

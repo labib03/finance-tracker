@@ -89,7 +89,7 @@ export default function SinkingFundsList() {
                                         <div className="flex items-center gap-3 min-w-0 flex-1">
                                             <div className={cn(
                                                 "w-11 h-11 rounded-2xl flex items-center justify-center shrink-0 transition-all",
-                                                isTercapai ? "bg-emerald-50 text-emerald-500" : "bg-slate-100 text-slate-500 group-hover:bg-indigo-50 group-hover:text-indigo-600"
+                                                isTercapai ? "bg-emerald-50 text-emerald-500" : "bg-slate-100 text-slate-500 group-hover:bg-blue-50 group-hover:text-blue-600"
                                             )}>
                                                 {isTercapai
                                                     ? <CheckCircle2 size={20} strokeWidth={2.5} />
@@ -121,7 +121,7 @@ export default function SinkingFundsList() {
                                                 <DropdownMenuContent align="end" className="w-56 p-2 rounded-2xl shadow-xl border-slate-100">
                                                     <DropdownMenuItem
                                                         onClick={() => openAksi(t, 'alokasi_tabungan')}
-                                                        className="py-3 px-3 rounded-xl cursor-pointer font-bold text-xs uppercase tracking-widest text-indigo-600 focus:bg-indigo-50"
+                                                        className="py-3 px-3 rounded-xl cursor-pointer font-bold text-xs uppercase tracking-widest text-blue-600 focus:bg-blue-50"
                                                     >
                                                         <Plus className="mr-2.5 h-4 w-4" />
                                                         Alokasi Dana
@@ -165,7 +165,7 @@ export default function SinkingFundsList() {
                                     {/* Progress Section */}
                                     <div className="flex flex-col gap-2">
                                         <div className="flex items-center justify-between text-[11px] font-black tracking-widest uppercase">
-                                            <span className={cn(isTercapai ? "text-emerald-600" : "text-indigo-700")}>
+                                            <span className={cn(isTercapai ? "text-emerald-600" : "text-blue-700")}>
                                                 {formatRupiah(saldo)}
                                             </span>
                                             <span className="text-slate-400">
@@ -176,7 +176,7 @@ export default function SinkingFundsList() {
                                             <div 
                                                 className={cn(
                                                     "h-full rounded-full transition-all duration-1000",
-                                                    isTercapai ? "bg-emerald-500" : "bg-indigo-500"
+                                                    isTercapai ? "bg-emerald-500" : "bg-blue-500"
                                                 )}
                                                 style={{ width: `${Math.min(progres, 100)}%` }}
                                             />

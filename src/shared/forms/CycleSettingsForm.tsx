@@ -50,13 +50,13 @@ export default function CycleSettingsForm({ onClose }: CycleSettingsFormProps) {
             className="sm:max-w-md"
         >
                 <form onSubmit={handleSubmit} className="space-y-6 pt-2 pb-6">
-                    <div className="bg-indigo-50/50 rounded-2xl p-4 border border-indigo-100/50 flex items-start gap-4">
-                        <div className="mt-0.5 text-indigo-600">
+                    <div className="bg-blue-50/50 rounded-2xl p-4 border border-blue-100/50 flex items-start gap-4">
+                        <div className="mt-0.5 text-blue-600">
                             <Info size={18} />
                         </div>
                         <div className="flex-1">
-                            <p className="text-sm font-bold text-indigo-900 leading-tight mb-1">Cara Kerja Siklus</p>
-                            <p className="text-xs text-indigo-700/80 leading-relaxed">
+                            <p className="text-sm font-bold text-blue-900 leading-tight mb-1">Cara Kerja Siklus</p>
+                            <p className="text-xs text-blue-700/80 leading-relaxed">
                                 Siklus ini menentukan kapan dashboard Anda berpindah ke bulan baru. 
                                 Jika diatur ke <span className="font-bold underline">25</span>, maka tanggal 25 s/d 24 bulan depan dianggap sebagai satu periode keuangan.
                             </p>
@@ -67,7 +67,7 @@ export default function CycleSettingsForm({ onClose }: CycleSettingsFormProps) {
                         <label className="text-xs font-black uppercase tracking-widest text-muted-foreground ml-1">
                             Tanggal Mulai Siklus (1 - 28)
                         </label>
-                        <div className="bg-indigo-50/40 p-5 rounded-2xl border border-indigo-100 flex justify-center">
+                        <div className="bg-blue-50/40 p-5 rounded-2xl border border-blue-100 flex justify-center">
                             <Input
                                 type="number"
                                 min="1"
@@ -75,7 +75,7 @@ export default function CycleSettingsForm({ onClose }: CycleSettingsFormProps) {
                                 value={day}
                                 onChange={(e) => setDay(e.target.value)}
                                 placeholder="25"
-                                className="w-32 h-16 sm:h-20 text-3xl sm:text-4xl rounded-2xl bg-white border-indigo-200 text-center font-black transition-all focus:bg-white focus:ring-4 focus:ring-indigo-100 shadow-sm text-indigo-950 px-4"
+                                className="w-32 h-16 sm:h-20 text-3xl sm:text-4xl rounded-2xl bg-white border-blue-200 text-center font-black transition-all focus:bg-white focus:ring-4 focus:ring-blue-100 shadow-sm text-blue-950 px-4"
                                 required
                             />
                         </div>
