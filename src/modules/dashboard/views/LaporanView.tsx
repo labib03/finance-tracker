@@ -1,3 +1,5 @@
+'use client';
+
 import React from 'react';
 import CategoryReport from '@/modules/dashboard/components/CategoryReport';
 

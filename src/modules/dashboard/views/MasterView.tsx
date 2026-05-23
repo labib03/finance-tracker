@@ -1,15 +1,14 @@
+'use client';
+
 import React from 'react';
 import MasterDataManagement from '@/modules/dashboard/components/MasterDataManagement';
 
-export default function MasterView({
-  setActiveModal,
-  setKategoriToEdit,
-  setSumberDanaToEdit
-}: {
-  setActiveModal: (modal: string | null) => void;
-  setKategoriToEdit: (k: any) => void;
-  setSumberDanaToEdit: (s: any) => void;
-}) {
+import { useFinanceStore } from '@/lib/store';
+
+export default function MasterView() {
+  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+  const setKategoriToEdit = useFinanceStore((s) => s.setKategoriToEdit);
+  const setSumberDanaToEdit = useFinanceStore((s) => s.setSumberDanaToEdit);
   return (
     <MasterDataManagement
       onAddKategori={() => {

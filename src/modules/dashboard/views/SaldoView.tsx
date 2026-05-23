@@ -1,17 +1,16 @@
+'use client';
+
 import React from 'react';
 import SaldoCards from '@/modules/dashboard/components/SaldoCards';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
 
-export default function SaldoView({
-  setActiveModal,
-  setTransaksiToEdit,
-  setTitipanToEdit
-}: {
-  setActiveModal: (modal: string) => void;
-  setTransaksiToEdit: (t: any) => void;
-  setTitipanToEdit: (t: any) => void;
-}) {
+import { useFinanceStore } from '@/lib/store';
+
+export default function SaldoView() {
+  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+  const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
+  const setTitipanToEdit = useFinanceStore((s) => s.setTitipanToEdit);
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">

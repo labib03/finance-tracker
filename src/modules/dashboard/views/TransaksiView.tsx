@@ -1,15 +1,15 @@
+'use client';
+
 import React from 'react';
 import { Button } from '@/shared/ui/button';
 import { Plus } from 'lucide-react';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 
-export default function TransaksiView({
-  setActiveModal,
-  setTransaksiToEdit
-}: {
-  setActiveModal: (modal: string | null) => void;
-  setTransaksiToEdit: (t: any) => void;
-}) {
+import { useFinanceStore } from '@/lib/store';
+
+export default function TransaksiView() {
+  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+  const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
   return (
     <div className="space-y-6">
       <div className="flex justify-end">

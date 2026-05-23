@@ -112,19 +112,41 @@ interface FinanceState {
   addTitipan: (data: Titipan) => Promise<void>;
   updateTitipanStatus: (id: string, status: "aktif" | "selesai") => Promise<void>;
   archiveTitipan: (id: string) => Promise<boolean>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  titipanToEdit: any;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  setTitipanToEdit: (val: any) => void;
 
   // Actions - Tabungan CRUD
   addTabungan: (data: Tabungan) => Promise<void>;
   updateTabungan: (data: Tabungan) => Promise<void>;
   removeTabungan: (id: string) => Promise<void>;
+
+  // Modal Edit States
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  titipanToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setTitipanToEdit: (val: any) => void;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tabunganToEdit: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setTabunganToEdit: (val: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  transaksiToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setTransaksiToEdit: (val: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  recurringToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setRecurringToEdit: (val: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  budgetToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setBudgetToEdit: (val: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  kategoriToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setKategoriToEdit: (val: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sumberDanaToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setSumberDanaToEdit: (val: any) => void;
 
   setActiveModal: (modal: string | null) => void;
   setCycleStartDay: (day: number) => void;
@@ -177,6 +199,19 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   pwaDismissedDate: null,
   titipanToEdit: null,
   tabunganToEdit: null,
+  transaksiToEdit: null,
+  recurringToEdit: null,
+  budgetToEdit: null,
+  kategoriToEdit: null,
+  sumberDanaToEdit: null,
+
+  setTitipanToEdit: (val) => set({ titipanToEdit: val }),
+  setTabunganToEdit: (val) => set({ tabunganToEdit: val }),
+  setTransaksiToEdit: (val) => set({ transaksiToEdit: val }),
+  setRecurringToEdit: (val) => set({ recurringToEdit: val }),
+  setBudgetToEdit: (val) => set({ budgetToEdit: val }),
+  setKategoriToEdit: (val) => set({ kategoriToEdit: val }),
+  setSumberDanaToEdit: (val) => set({ sumberDanaToEdit: val }),
 
   // ======================== Data Fetching ========================
 
@@ -854,8 +889,6 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
   },
 
-  setTitipanToEdit: (val) => set({ titipanToEdit: val }),
-  setTabunganToEdit: (val) => set({ tabunganToEdit: val }),
 
   // ======================== Titipan Getters ========================
 

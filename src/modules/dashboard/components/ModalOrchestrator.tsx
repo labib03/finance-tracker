@@ -9,41 +9,24 @@ import TitipanForm from '@/modules/dashboard/forms/TitipanForm';
 import TabunganForm from '@/modules/dashboard/forms/TabunganForm';
 import { useFinanceStore } from '@/lib/store';
 
-interface ModalOrchestratorProps {
-  transaksiToEdit: any;
-  setTransaksiToEdit: (val: any) => void;
-  recurringToEdit: any;
-  setRecurringToEdit: (val: any) => void;
-  budgetToEdit: any;
-  setBudgetToEdit: (val: any) => void;
-  kategoriToEdit: any;
-  setKategoriToEdit: (val: any) => void;
-  sumberDanaToEdit: any;
-  setSumberDanaToEdit: (val: any) => void;
-  titipanToEdit: any;
-  setTitipanToEdit: (val: any) => void;
-  tabunganToEdit: any;
-  setTabunganToEdit: (val: any) => void;
-}
-
-export default function ModalOrchestrator({
-  transaksiToEdit,
-  setTransaksiToEdit,
-  recurringToEdit,
-  setRecurringToEdit,
-  budgetToEdit,
-  setBudgetToEdit,
-  kategoriToEdit,
-  setKategoriToEdit,
-  sumberDanaToEdit,
-  setSumberDanaToEdit,
-  titipanToEdit,
-  setTitipanToEdit,
-  tabunganToEdit,
-  setTabunganToEdit,
-}: ModalOrchestratorProps) {
+export default function ModalOrchestrator() {
   const activeModal = useFinanceStore((s) => s.activeModal);
   const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+  
+  const transaksiToEdit = useFinanceStore((s) => s.transaksiToEdit);
+  const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
+  const recurringToEdit = useFinanceStore((s) => s.recurringToEdit);
+  const setRecurringToEdit = useFinanceStore((s) => s.setRecurringToEdit);
+  const budgetToEdit = useFinanceStore((s) => s.budgetToEdit);
+  const setBudgetToEdit = useFinanceStore((s) => s.setBudgetToEdit);
+  const kategoriToEdit = useFinanceStore((s) => s.kategoriToEdit);
+  const setKategoriToEdit = useFinanceStore((s) => s.setKategoriToEdit);
+  const sumberDanaToEdit = useFinanceStore((s) => s.sumberDanaToEdit);
+  const setSumberDanaToEdit = useFinanceStore((s) => s.setSumberDanaToEdit);
+  const titipanToEdit = useFinanceStore((s) => s.titipanToEdit);
+  const setTitipanToEdit = useFinanceStore((s) => s.setTitipanToEdit);
+  const tabunganToEdit = useFinanceStore((s) => s.tabunganToEdit);
+  const setTabunganToEdit = useFinanceStore((s) => s.setTabunganToEdit);
 
   return (
     <>
@@ -101,26 +84,26 @@ export default function ModalOrchestrator({
           sumberDanaToEdit={sumberDanaToEdit}
         />
       )}
-      {activeModal === 'cycle_settings' && (
-        <CycleSettingsForm onClose={() => setActiveModal(null)} />
-      )}
       {activeModal === 'titipan' && (
-        <TitipanForm 
+        <TitipanForm
           onClose={() => {
             setActiveModal(null);
             setTitipanToEdit(null);
-          }} 
+          }}
           titipanToEdit={titipanToEdit}
         />
       )}
       {activeModal === 'tabungan' && (
-        <TabunganForm 
+        <TabunganForm
           onClose={() => {
             setActiveModal(null);
             setTabunganToEdit(null);
-          }} 
+          }}
           dataToEdit={tabunganToEdit}
         />
+      )}
+      {activeModal === 'cycle_settings' && (
+        <CycleSettingsForm onClose={() => setActiveModal(null)} />
       )}
     </>
   );

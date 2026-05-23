@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useMemo } from 'react';
 import { Sparkles, Plus, Wallet, CreditCard, Banknote, Smartphone, ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
@@ -12,13 +14,9 @@ const iconMap: Record<string, typeof Wallet> = {
     'E-Wallet': Smartphone,
 };
 
-export default function TransferView({
-  setActiveModal,
-  setTransaksiToEdit
-}: {
-  setActiveModal: (modal: string | null) => void;
-  setTransaksiToEdit: (t: any) => void;
-}) {
+export default function TransferView() {
+  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+  const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
   const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
   const transaksiList = useFinanceStore((s) => s.transaksiList);
 

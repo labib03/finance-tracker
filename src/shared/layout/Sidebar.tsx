@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
     LayoutDashboard,
     Wallet,
@@ -51,17 +53,19 @@ const navItems = [
 ];
 
 interface NavLinksProps {
-    activeView: string;
-    onViewChange: (view: string) => void;
     isSidebarCollapsed: boolean;
     mobile?: boolean;
     setOpen: (open: boolean) => void;
 }
 
-const NavLinks = ({ activeView, onViewChange, isSidebarCollapsed, mobile = false, setOpen }: NavLinksProps) => (
+const NavLinks = ({ isSidebarCollapsed, mobile = false, setOpen }: NavLinksProps) => {
+    const pathname = usePathname();
+    
+    return (
     <nav className={cn("flex flex-col min-h-0", isSidebarCollapsed && !mobile ? "gap-2.5" : "gap-2")}>
         {navItems.map((item) => {
-            const isActive = activeView === item.id;
+            const path = item.id === 'dashboard' ? '/' : `/${item.id}`;
+            const isActive = pathname === path;
             const Icon = item.icon;
             const isCollapsed = !mobile && isSidebarCollapsed;
 
@@ -69,9 +73,9 @@ const NavLinks = ({ activeView, onViewChange, isSidebarCollapsed, mobile = false
                 <div key={item.id} className={cn("relative group/nav w-full flex", isCollapsed ? "justify-center" : "px-0")}>
                     <Tooltip key={`${item.id}-${isCollapsed}`} open={isCollapsed ? undefined : false}>
                         <TooltipTrigger render={
-                            <button
+                            <Link
+                                href={path}
                                 onClick={() => {
-                                    onViewChange(item.id);
                                     if (mobile) setOpen(false);
                                 }}
                                 className={cn(
@@ -112,7 +116,7 @@ const NavLinks = ({ activeView, onViewChange, isSidebarCollapsed, mobile = false
                                         <div className="w-1 h-1 rounded-full bg-indigo-500" />
                                     </div>
                                 )}
-                            </button>
+                            </Link>
                         } />
                         <TooltipContent side="right" sideOffset={16} align="center">
                             {item.label}
@@ -122,7 +126,8 @@ const NavLinks = ({ activeView, onViewChange, isSidebarCollapsed, mobile = false
             );
         })}
     </nav>
-);
+    );
+};
 
 const Brand = ({ collapsed = false, className }: { collapsed?: boolean; className?: string }) => (
     <TooltipProvider>
@@ -160,12 +165,7 @@ const Brand = ({ collapsed = false, className }: { collapsed?: boolean; classNam
     </TooltipProvider>
 );
 
-interface SidebarProps {
-    activeView: string;
-    onViewChange: (view: string) => void;
-}
-
-export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
+export default function Sidebar() {
     const [open, setOpen] = useState(false);
     const [canScrollTop, setCanScrollTop] = useState(false);
     const [canScrollBottom, setCanScrollBottom] = useState(false);
@@ -195,7 +195,7 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                 window.removeEventListener('resize', checkScroll);
             };
         }
-    }, [isSidebarCollapsed, activeView]);
+    }, [isSidebarCollapsed]);
 
     return (
         <>
@@ -227,8 +227,6 @@ export default function Sidebar({ activeView, onViewChange }: SidebarProps) {
                                     <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/80 mb-6 px-4 animate-in fade-in duration-700">Menu Utama</p>
                                 )}
                                 <NavLinks
-                                    activeView={activeView}
-                                    onViewChange={onViewChange}
                                     isSidebarCollapsed={isSidebarCollapsed}
                                     setOpen={setOpen}
                                 />

@@ -5,21 +5,30 @@ import { ChevronLeft, ChevronRight, RefreshCw, Sparkles, Download } from 'lucide
 import { Button } from '@/shared/ui/button';
 import { getNamaBulan, cn } from '@/lib/utils';
 
-interface DashboardHeaderProps {
-  activeView: string;
-  activeMonth: string;
-  isRefreshing: boolean;
-  navigateMonth: (direction: -1 | 1) => void;
-  handleRefresh: () => void;
-}
+import { usePathname } from 'next/navigation';
+import { useFinanceStore } from '@/lib/store';
 
-export default function DashboardHeader({
-  activeView,
-  activeMonth,
-  isRefreshing,
-  navigateMonth,
-  handleRefresh
-}: DashboardHeaderProps) {
+export default function DashboardHeader() {
+  const pathname = usePathname();
+  const activeView = pathname === '/' ? 'dashboard' : pathname.replace('/', '');
+  
+  const activeMonth = useFinanceStore((s) => s.activeMonth);
+  const setActiveMonth = useFinanceStore((s) => s.setActiveMonth);
+  const refreshData = useFinanceStore((s) => s.refreshData);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const navigateMonth = (direction: -1 | 1) => {
+    const [year, month] = activeMonth.split('-').map(Number);
+    const date = new Date(year, month - 1 + direction, 1);
+    const newMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+    setActiveMonth(newMonth);
+  };
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await refreshData();
+    setTimeout(() => setIsRefreshing(false), 600);
+  };
   const [isStandalone, setIsStandalone] = useState(true); // default true to avoid flash
 
   useEffect(() => {
@@ -49,8 +58,10 @@ export default function DashboardHeader({
             {activeView === 'dashboard' && 'Beranda Keuangan'}
             {activeView === 'saldo' && 'Manajemen Saldo'}
             {activeView === 'transaksi' && 'Daftar Transaksi'}
+            {activeView === 'inquiry' && 'Inquiry Transaksi'}
             {activeView === 'transfer' && 'Transfer Akun'}
             {activeView === 'anggaran' && 'Plan Anggaran'}
+            {activeView === 'tabungan' && 'Sinking Funds'}
             {activeView === 'laporan' && 'Laporan Analitik'}
             {activeView === 'recurring' && 'Tagihan Rutin'}
             {activeView === 'master' && 'Master Data'}
@@ -61,6 +72,7 @@ export default function DashboardHeader({
             {activeView === 'transaksi' && 'Setiap rupiah memiliki cerita. Lihat jejak pengeluaran Anda.'}
             {activeView === 'transfer' && 'Optimalkan distribusi likuiditas antar instrumen keuangan.'}
             {activeView === 'anggaran' && 'Disiplin anggaran adalah kunci kebebasan finansial jangka panjang.'}
+            {activeView === 'tabungan' && 'Sisihkan untuk tujuan masa depan Anda.'}
             {activeView === 'laporan' && 'Visualisasi data membantu Anda mengambil keputusan yang lebih cerdas.'}
             {activeView === 'recurring' && 'Otomatisasi kewajiban agar fokus Anda tetap pada pertumbuhan.'}
             {activeView === 'master' && 'Fondasi data yang rapi menghasilkan analisis yang akurat.'}

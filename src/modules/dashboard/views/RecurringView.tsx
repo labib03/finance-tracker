@@ -1,16 +1,16 @@
+'use client';
+
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Plus } from 'lucide-react';
 import RecurringList from '@/modules/dashboard/components/RecurringList';
 
-export default function RecurringView({
-  setActiveModal,
-  setRecurringToEdit
-}: {
-  setActiveModal: (modal: string | null) => void;
-  setRecurringToEdit: (r: any) => void;
-}) {
+import { useFinanceStore } from '@/lib/store';
+
+export default function RecurringView() {
+  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+  const setRecurringToEdit = useFinanceStore((s) => s.setRecurringToEdit);
   return (
     <div className="space-y-6">
       <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float relative group">

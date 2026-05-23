@@ -20,15 +20,13 @@ import {
     SheetTrigger,
 } from '@/shared/ui/sheet';
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
-interface BottomNavProps {
-    activeView: string;
-    onViewChange: (view: string) => void;
-}
-
-export default function BottomNav({ activeView, onViewChange }: BottomNavProps) {
+export default function BottomNav() {
     const [open, setOpen] = useState(false);
     const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+    const pathname = usePathname();
 
     const mainNavItems = [
         { id: 'dashboard', label: 'Home', icon: LayoutDashboard },
@@ -43,14 +41,15 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
     return (
         <nav className="lg:hidden fixed bottom-0 left-0 right-0 min-h-[72px] bg-white/80 backdrop-blur-xl border-t border-border/40 z-50 px-6 flex items-center justify-between pb-[calc(env(safe-area-inset-bottom)+12px)] shadow-scandi transition-all duration-500 animate-in slide-in-from-bottom-5">
             {mainNavItems.map((item) => {
-                const isActive = activeView === item.id;
+                const path = item.id === 'dashboard' ? '/' : `/${item.id}`;
+                const isActive = pathname === path;
                 const Icon = item.icon;
                 return (
-                    <button
+                    <Link
                         key={item.id}
-                        onClick={() => onViewChange(item.id)}
+                        href={path}
                         className={cn(
-                            "flex flex-col items-center gap-1.5 transition-all duration-300 flex-1",
+                            "flex flex-col items-center justify-center gap-1.5 transition-all duration-300 flex-1",
                             isActive ? "text-indigo-600" : "text-muted-foreground/60 hover:text-foreground"
                         )}
                     >
@@ -61,7 +60,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                             <Icon size={20} strokeWidth={isActive ? 3 : 2} />
                         </div>
                         <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1">{item.label}</span>
-                    </button>
+                    </Link>
                 );
             })}
 
@@ -76,14 +75,15 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
             </div>
 
             {rightNavItems.map((item) => {
-                const isActive = activeView === item.id;
+                const path = item.id === 'dashboard' ? '/' : `/${item.id}`;
+                const isActive = pathname === path;
                 const Icon = item.icon;
                 return (
-                    <button
+                    <Link
                         key={item.id}
-                        onClick={() => onViewChange(item.id)}
+                        href={path}
                         className={cn(
-                            "flex flex-col items-center gap-1.5 transition-all duration-300 flex-1",
+                            "flex flex-col items-center justify-center gap-1.5 transition-all duration-300 flex-1",
                             isActive ? "text-indigo-600" : "text-muted-foreground/60 hover:text-foreground"
                         )}
                     >
@@ -94,7 +94,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                             <Icon size={20} strokeWidth={isActive ? 3 : 2} />
                         </div>
                         <span className="text-[9px] font-black uppercase tracking-[0.15em] leading-none mb-1">{item.label}</span>
-                    </button>
+                    </Link>
                 );
             })}
 
@@ -118,7 +118,7 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                         <div className="flex-1 overflow-y-auto scrollbar-none px-6 pb-12">
                             <div className="grid grid-cols-2 gap-4">
                                 {/* Extra items from Sidebar's navItems */}
-                                {[
+                                {([
                                     { id: 'anggaran', label: 'Budget', icon: Target, type: 'view' },
                                     { id: 'tabungan', label: 'Sinking', icon: PiggyBank, type: 'view' },
                                     { id: 'transfer', label: 'Transfer', icon: ArrowLeftRight, type: 'view' },
@@ -126,33 +126,50 @@ export default function BottomNav({ activeView, onViewChange }: BottomNavProps) 
                                     { id: 'recurring', label: 'Tagihan', icon: CalendarClock, type: 'view' },
                                     { id: 'master', label: 'Setup', icon: Settings2, type: 'view' },
                                     { id: 'cycle', label: 'Siklus', icon: CalendarDays, type: 'modal' },
-                                ].map((item) => (
-                                    <button
-                                        key={item.id}
-                                        onClick={() => {
-                                            if (item.type === 'modal') {
-                                                setActiveModal('cycle_settings');
-                                            } else {
-                                                onViewChange(item.id);
-                                            }
-                                            setOpen(false);
-                                        }}
-                                        className={cn(
-                                            "flex flex-col items-center justify-center gap-4 p-6 rounded-3xl transition-all duration-300 border",
-                                            activeView === item.id
-                                                ? "bg-indigo-50/50 border-indigo-100 text-indigo-600"
-                                                : "bg-muted/5 border-transparent text-muted-foreground hover:bg-muted/10"
-                                        )}
-                                    >
-                                        <div className={cn(
-                                            "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
-                                            activeView === item.id ? "bg-white shadow-scandi" : "bg-muted/20"
-                                        )}>
-                                            <item.icon size={24} strokeWidth={activeView === item.id ? 2.5 : 2} />
-                                        </div>
-                                        <span className="text-[10px] font-black uppercase tracking-[0.2em]">{item.label}</span>
-                                    </button>
-                                ))}
+                                ]).map((item) => {
+                                    const path = item.id === 'dashboard' ? '/' : `/${item.id}`;
+                                    const isActive = pathname === path;
+                                    
+                                    if (item.type === 'modal') {
+                                        return (
+                                            <button
+                                                key={item.id}
+                                                onClick={() => {
+                                                    setActiveModal('cycle_settings');
+                                                    setOpen(false);
+                                                }}
+                                                className="flex flex-col items-center justify-center gap-4 p-6 rounded-3xl transition-all duration-300 border bg-muted/5 border-transparent text-muted-foreground hover:bg-muted/10"
+                                            >
+                                                <div className="w-12 h-12 rounded-2xl flex items-center justify-center transition-all bg-muted/20">
+                                                    <item.icon size={24} strokeWidth={2} />
+                                                </div>
+                                                <span className="text-[10px] font-black uppercase tracking-[0.2em]">{item.label}</span>
+                                            </button>
+                                        );
+                                    }
+
+                                    return (
+                                        <Link
+                                            key={item.id}
+                                            href={path}
+                                            onClick={() => setOpen(false)}
+                                            className={cn(
+                                                "flex flex-col items-center justify-center gap-4 p-6 rounded-3xl transition-all duration-300 border",
+                                                isActive
+                                                    ? "bg-indigo-50/50 border-indigo-100 text-indigo-600"
+                                                    : "bg-muted/5 border-transparent text-muted-foreground hover:bg-muted/10"
+                                            )}
+                                        >
+                                            <div className={cn(
+                                                "w-12 h-12 rounded-2xl flex items-center justify-center transition-all",
+                                                isActive ? "bg-white shadow-scandi" : "bg-muted/20"
+                                            )}>
+                                                <item.icon size={24} strokeWidth={isActive ? 2.5 : 2} />
+                                            </div>
+                                            <span className="text-[10px] font-black uppercase tracking-[0.2em]">{item.label}</span>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
                     </SheetContent>
