@@ -82,7 +82,7 @@ export default function SinkingFundsList() {
                             return (
                                 <div 
                                     key={t.id_tabungan} 
-                                    className="bg-white rounded-2xl border border-gray-100 hover:border-indigo-100 shadow-sm hover:shadow-md transition-all duration-300 p-4 sm:p-5 flex flex-col gap-4 group relative"
+                                    className="bg-white rounded-[2rem] border border-border/40 hover:border-primary/30 shadow-scandi hover:shadow-float transition-all duration-500 p-5 sm:p-6 flex flex-col gap-5 group relative"
                                 >
                                     {/* Header Row */}
                                     <div className="flex items-center justify-between">
@@ -97,7 +97,7 @@ export default function SinkingFundsList() {
                                                 }
                                             </div>
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest truncate group-hover:text-indigo-700 transition-colors">
+                                                <h3 className="text-sm font-black text-foreground uppercase tracking-widest truncate group-hover:text-primary transition-colors">
                                                     {t.nama_tujuan}
                                                 </h3>
                                                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5 truncate">

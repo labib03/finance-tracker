@@ -12,7 +12,7 @@ export default function TabunganView() {
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
             {/* Header Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white/50 backdrop-blur-xl p-6 rounded-[2rem] border border-white shadow-scandi shrink-0">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-6 rounded-[2.5rem] border border-border/40 shadow-scandi shrink-0">
                 <div className="flex items-center gap-4">
                     <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0">
                         <PiggyBank size={24} />
@@ -28,7 +28,7 @@ export default function TabunganView() {
                 </div>
                 
                 <button
-                    className="flex text-xs items-center gap-2 px-5 py-3 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black uppercase tracking-widest transition-all shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-95 cursor-pointer w-full sm:w-auto justify-center"
+                    className="flex items-center gap-2 px-6 h-11 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-all shadow-scandi hover:shadow-float hover:scale-[1.02] active:scale-95 cursor-pointer w-full sm:w-auto justify-center"
                     onClick={() => {
                         setActiveModal("tabungan");
                     }}

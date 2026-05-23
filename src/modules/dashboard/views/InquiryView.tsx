@@ -342,7 +342,7 @@ export default function InquiryView() {
 
             {/* Smart Toolbar */}
             <div>
-                <div className="flex flex-col md:flex-row items-center gap-2 bg-white p-2 rounded-[2rem] md:rounded-full border border-border/40 shadow-sm shadow-black/5">
+                <div className="flex flex-col md:flex-row items-center gap-2 bg-white p-2 rounded-[2.5rem] md:rounded-full border border-border/40 shadow-scandi">
                     
                     {/* Primary Search */}
                     <div className="flex-1 w-full flex items-center relative px-2">
@@ -468,7 +468,7 @@ export default function InquiryView() {
             {activeFiltersCount > 0 && activeFiltersBadges}
 
             {/* Main Data View */}
-            <Card className="rounded-[2.5rem] border-border/40 shadow-xl shadow-foreground/5 overflow-hidden bg-white">
+            <Card className="rounded-[2.5rem] border-border/40 shadow-scandi hover:shadow-float overflow-hidden bg-white transition-all duration-500">
                 <div className="flex items-center justify-between p-6 border-b border-border/40 bg-muted/5">
                     <h3 className="font-black text-lg">Hasil Pencarian <span className="text-muted-foreground/60 ml-2 font-medium">({filteredTransactions.length})</span></h3>
                     <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-border/40 shadow-sm">
@@ -517,12 +517,12 @@ export default function InquiryView() {
                     {/* Desktop Table */}
                     <table className="w-full hidden md:table text-left border-collapse">
                         <thead>
-                            <tr className="border-b border-border/40 text-[10px] uppercase tracking-widest text-muted-foreground">
-                                <th className="py-5 px-6 font-bold w-[120px]">Tanggal</th>
-                                <th className="py-5 px-6 font-bold">Detail Transaksi</th>
-                                <th className="py-5 px-6 font-bold w-[180px]">Kategori</th>
-                                <th className="py-5 px-6 font-bold w-[160px]">Sumber</th>
-                                <th className="py-5 px-6 font-bold text-right w-[180px]">Nominal</th>
+                            <tr className="border-b border-border/40 text-[10px] uppercase tracking-[0.2em] text-muted-foreground/60">
+                                <th className="py-4 px-4 font-black w-[120px]">Tanggal</th>
+                                <th className="py-4 px-4 font-black">Detail Transaksi</th>
+                                <th className="py-4 px-4 font-black w-[180px]">Kategori</th>
+                                <th className="py-4 px-4 font-black w-[160px]">Sumber</th>
+                                <th className="py-4 px-4 font-black text-right w-[180px]">Nominal</th>
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-border/20">
@@ -545,12 +545,12 @@ export default function InquiryView() {
 
                                     return (
                                         <tr key={tx.id} onClick={() => setSelectedTxId(tx.id)} className="hover:bg-muted/5 transition-colors group cursor-pointer">
-                                            <td className="py-4 px-6 whitespace-nowrap">
+                                            <td className="py-4 px-4 whitespace-nowrap">
                                                 <span className="text-sm font-semibold text-foreground">
                                                     {format(parseISO(tx.tanggal), 'dd MMM yyyy', { locale: id })}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-6">
+                                            <td className="py-4 px-4">
                                                 <div className="flex items-start gap-3">
                                                     <div className={cn(
                                                         "w-8 h-8 rounded-full flex items-center justify-center mt-0.5 shrink-0 transition-transform group-hover:scale-110",
@@ -564,21 +564,21 @@ export default function InquiryView() {
                                                     </div>
                                                     <div>
                                                         <p className="font-bold text-base text-foreground leading-tight">{tx.label}</p>
-                                                        {tx.catatan && <p className="text-sm text-muted-foreground mt-1 truncate max-w-[280px]">{tx.catatan}</p>}
+                                                        {tx.catatan && <p className="text-[11px] sm:text-xs text-muted-foreground/80 font-medium line-clamp-1 mt-1 max-w-[280px]">{tx.catatan}</p>}
                                                     </div>
                                                 </div>
                                             </td>
-                                            <td className="py-4 px-6 whitespace-nowrap">
-                                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-muted/40 text-xs font-semibold text-foreground/80">
+                                            <td className="py-4 px-4 whitespace-nowrap">
+                                                <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-muted/40 text-[11px] sm:text-xs font-bold text-foreground/80 tracking-wide">
                                                     {kategori?.nama_kategori || '-'}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-6 whitespace-nowrap">
-                                                <span className="text-sm font-medium text-foreground/80">
+                                            <td className="py-4 px-4 whitespace-nowrap">
+                                                <span className="text-[11px] sm:text-xs font-bold uppercase tracking-widest text-muted-foreground">
                                                     {sumberDana?.nama_sumber || '-'}
                                                 </span>
                                             </td>
-                                            <td className="py-4 px-6 whitespace-nowrap text-right">
+                                            <td className="py-4 px-4 whitespace-nowrap text-right">
                                                 <span className={cn(
                                                     "font-black text-[17px] tracking-tight",
                                                     isIncome ? "text-emerald-600" : isExpense ? "text-foreground" : "text-indigo-600"
