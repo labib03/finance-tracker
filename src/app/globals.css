@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Google+Sans:ital,opsz,wght@0,17..18,400..700;1,17..18,400..700&family=Roboto+Slab:wght@100..900&display=swap');
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";
@@ -6,7 +6,8 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: 'Google Sans', var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-google-sans: 'Google Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-roboto-slab: "Roboto Slab", serif;
   --font-serif:
     var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, monospace;
 }
