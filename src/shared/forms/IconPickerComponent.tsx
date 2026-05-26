@@ -4,6 +4,7 @@ import { Controller, Control, FieldErrors } from 'react-hook-form';
 import { cn } from "@/lib/utils"
 import { Label } from '@/shared/ui/label';
 import { Input } from '@/shared/ui/input';
+import Link from 'next/link';
 
 // 1. Ekstrak nama icon dan ubah menjadi format Option { value, label } untuk SearchableSelect
 const iconOptions = (Object.keys(LucideIcons).filter(
@@ -15,8 +16,8 @@ const iconOptions = (Object.keys(LucideIcons).filter(
 
 // 2. Definisikan Interface untuk Props Komponen
 interface IconPickerProps {
-    control: Control<any>; // Gunakan <any> atau sesuaikan dengan interface Form Values Anda, misal: Control<FormValues>
-    errors: FieldErrors;
+    control: any; 
+    errors: any;
     inline?: boolean;
     watchedIcon?: string;
 }
@@ -48,14 +49,14 @@ export default function IconPickerComponent({
                 </Label>
                 
                 {/* Tautan untuk membuka halaman referensi icon di tab baru */}
-                <a 
+                <Link 
                     href="/referensi-icon" 
                     target="_blank" 
                     rel="noopener noreferrer"
                     className="text-[10px] font-bold text-primary hover:underline"
                 >
                     Lihat Galeri Icon &rarr;
-                </a>
+                </Link>
             </div>
             
             <div className="flex gap-4 items-center">
