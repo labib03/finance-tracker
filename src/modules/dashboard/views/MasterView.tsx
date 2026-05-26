@@ -2,30 +2,22 @@
 
 import React from 'react';
 import MasterDataManagement from '@/modules/dashboard/components/MasterDataManagement';
-
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 
 export default function MasterView() {
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setKategoriToEdit = useFinanceStore((s) => s.setKategoriToEdit);
-  const setSumberDanaToEdit = useFinanceStore((s) => s.setSumberDanaToEdit);
+  const router = useRouter();
+  
   return (
     <MasterDataManagement
       onAddKategori={() => {
         setKategoriToEdit(null);
-        setActiveModal('kategori');
+        router.push('/master/kategori/baru');
       }}
       onEditKategori={(k: any) => {
         setKategoriToEdit(k);
-        setActiveModal('kategori');
-      }}
-      onAddSumberDana={() => {
-        setSumberDanaToEdit(null);
-        setActiveModal('sumber_dana');
-      }}
-      onEditSumberDana={(s: any) => {
-        setSumberDanaToEdit(s);
-        setActiveModal('sumber_dana');
+        router.push(`/master/kategori/edit/${k.id_kategori}`);
       }}
     />
   );

@@ -4,19 +4,20 @@ import React from 'react';
 import { Button } from '@/shared/ui/button';
 import { Plus } from 'lucide-react';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
-
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 
 export default function TransaksiView() {
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <div className="flex justify-end">
         <Button 
           onClick={() => {
             setTransaksiToEdit(null);
-            setActiveModal('transaksi');
+            router.push('/transaksi/baru');
           }} 
           className="rounded-full px-6"
         >
@@ -31,9 +32,9 @@ export default function TransaksiView() {
         onEdit={(t: any) => {
           setTransaksiToEdit(t);
           if (t.jenis === 'Transfer') {
-            setActiveModal('transfer');
+            router.push(`/transfer/edit/${t.id}`);
           } else {
-            setActiveModal('transaksi');
+            router.push(`/transaksi/edit/${t.id}`);
           }
         }}
         title="Semua Transaksi" 

@@ -15,7 +15,6 @@ import { getToday } from '@/lib/utils';
 
 export default function DashboardView() {
   const router = useRouter();
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
 
   return (
@@ -41,7 +40,7 @@ export default function DashboardView() {
               catatan: r.catatan,
               id_target_dana: ''
             } as any);
-            setActiveModal('transaksi');
+            router.push('/transaksi/baru');
           }}
         />
       </div>
@@ -57,9 +56,9 @@ export default function DashboardView() {
         onEdit={(t: any) => {
           setTransaksiToEdit(t);
           if (t.jenis === 'Transfer') {
-            setActiveModal('transfer');
+            router.push(`/transfer/edit/${t.id}`);
           } else {
-            setActiveModal('transaksi');
+            router.push(`/transaksi/edit/${t.id}`);
           }
         }}
       />

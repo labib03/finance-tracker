@@ -3,11 +3,10 @@
 import React from 'react';
 import SinkingFundsList from '@/modules/dashboard/components/SinkingFundsList';
 import { PiggyBank, Plus } from 'lucide-react';
-
-import { useFinanceStore } from '@/lib/store';
+import { useRouter } from 'next/navigation';
 
 export default function TabunganView() {
-    const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+    const router = useRouter();
 
     return (
         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
@@ -30,7 +29,7 @@ export default function TabunganView() {
                 <button
                     className="flex items-center gap-2 px-6 h-11 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-all shadow-scandi hover:shadow-float hover:scale-[1.02] active:scale-95 cursor-pointer w-full sm:w-auto justify-center"
                     onClick={() => {
-                        setActiveModal("tabungan");
+                        router.push('/tabungan/baru');
                     }}
                 >
                     <Plus size={16} strokeWidth={3} />

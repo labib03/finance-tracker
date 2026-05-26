@@ -1,12 +1,14 @@
 'use client';
 
-import { useEffect } from "react";
-import { useForm, Controller } from "react-hook-form";
+import { useEffect, useState, useMemo } from "react";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useFinanceStore } from "@/lib/store";
-import { generateId, cn } from "@/lib/utils";
-import { Tabungan } from "@/lib/types";
+import { generateId, cn, formatRupiah } from "@/lib/utils";
+import type { Tabungan } from "@/lib/types";
 import { tabunganSchema, type TabunganFormData } from "@/lib/schemas";
+import { useRouter } from "next/navigation";
+import FormPageLayout from "@/shared/layout/FormPageLayout";
 
 // UI Components
 import { Button } from "@/shared/ui/button";
@@ -31,12 +33,14 @@ import {
     Smartphone,
     HeartPulse,
     CalendarIcon,
-    Save
+    Save,
+    Sparkles
 } from "lucide-react";
 
 interface TabunganFormProps {
   onClose: () => void;
   dataToEdit?: Tabungan | null;
+  inline?: boolean;
 }
 
 const ICONS = [
@@ -51,18 +55,19 @@ const ICONS = [
   { name: "HeartPulse", icon: HeartPulse },
 ];
 
-export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps) {
+export default function TabunganForm({ onClose, dataToEdit, inline = false }: TabunganFormProps) {
   const addTabungan = useFinanceStore((s) => s.addTabungan);
   const updateTabungan = useFinanceStore((s) => s.updateTabungan);
+  const router = useRouter();
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const {
       register,
       control,
       handleSubmit,
       reset,
-      watch,
       setValue,
-      formState: { errors, isSubmitting },
+      formState: { errors, isSubmitting, isDirty },
   } = useForm<any>({
       resolver: zodResolver(tabunganSchema),
       defaultValues: {
@@ -86,7 +91,14 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
     }
   }, [dataToEdit, reset]);
 
-  const selectedIcon = watch("icon");
+  const watchedNama = useWatch({ control, name: "nama_tujuan" }) || "";
+  const watchedTarget = useWatch({ control, name: "target_nominal" }) || 0;
+  const watchedTanggal = useWatch({ control, name: "tanggal_target" }) || "";
+  const watchedIcon = useWatch({ control, name: "icon" }) || "Target";
+
+  const SelectedIconComponent = useMemo(() => {
+    return ICONS.find(i => i.name === watchedIcon)?.icon || Target;
+  }, [watchedIcon]);
 
   const onSubmit = async (data: TabunganFormData) => {
     const payload: Tabungan = {
@@ -105,131 +117,227 @@ export default function TabunganForm({ onClose, dataToEdit }: TabunganFormProps)
       } else {
         await addTabungan(payload);
       }
-      onClose();
+      if (inline) {
+        setShowSuccess(true);
+      } else {
+        onClose();
+      }
     } catch (error) {
       console.error(error);
     }
   };
+
+  const formContent = (
+    <>
+      {/* Bento Item 1: Detail Identitas */}
+      <div className={cn(
+        "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-5 col-span-1 md:col-span-2",
+        inline ? "bg-white border-slate-200 hover:border-slate-300" : "bg-slate-50/50 border-slate-100"
+      )}>
+        
+        <div className="space-y-2">
+          <Label htmlFor="nama_tujuan" className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+            Nama Tujuan Tabungan
+          </Label>
+          <Input
+            id="nama_tujuan"
+            placeholder="Cth: Pembelian Laptop, Dana Darurat, Liburan..."
+            {...register("nama_tujuan")}
+            className={cn(
+              "h-14 rounded-2xl font-medium shadow-sm transition-all focus:scale-[1.01]",
+              inline ? "bg-slate-50 border-slate-200 text-slate-950 focus:border-primary/50 focus:ring-primary/20 focus:bg-white" : "bg-white border-slate-200 text-slate-950 focus:border-primary/50 focus:ring-primary/20",
+              errors.nama_tujuan && "border-destructive"
+            )}
+          />
+          {errors.nama_tujuan && <p className="text-xs font-semibold text-destructive mt-1">{(errors.nama_tujuan.message as string)}</p>}
+        </div>
+
+        <div className="space-y-2">
+          <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+            Estimasi Tanggal Pencapaian
+          </Label>
+          <Controller
+              name="tanggal_target"
+              control={control}
+              render={({ field }) => (
+                  <Popover>
+                      <PopoverTrigger
+                          className={cn(
+                              "flex h-14 w-full items-center justify-start rounded-2xl border px-4 py-2 text-sm font-medium transition-all outline-none disabled:cursor-not-allowed disabled:opacity-50 hover:scale-[1.01]",
+                              inline ? "bg-slate-50 border-slate-200 text-slate-950 focus:border-primary/50 focus:ring-primary/20 focus:bg-white" : "bg-white border-slate-200 text-slate-950 focus:border-primary/50 focus:ring-primary/20",
+                              !field.value && "text-muted-foreground/50",
+                              errors.tanggal_target && "border-destructive"
+                          )}
+                      >
+                          <CalendarIcon className="mr-3 h-4 w-4 shrink-0 opacity-40 text-slate-500" />
+                          <span className="font-bold text-slate-900">
+                              {field.value
+                                  ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                                  : "Pilih tanggal target"}
+                          </span>
+                      </PopoverTrigger>
+                      <PopoverContent className={cn("w-auto p-0 rounded-[1.5rem] shadow-2xl border-none ring-1 ring-black/5 bg-white text-slate-950")} align="start" sideOffset={8}>
+                          <Calendar
+                              mode="single"
+                              selected={field.value ? new Date(field.value) : undefined}
+                              onSelect={(date) => {
+                                  if (date) {
+                                      const year = date.getFullYear();
+                                      const month = String(date.getMonth() + 1).padStart(2, '0');
+                                      const day = String(date.getDate()).padStart(2, '0');
+                                      field.onChange(`${year}-${month}-${day}`);
+                                  }
+                              }}
+                              initialFocus
+                          />
+                      </PopoverContent>
+                  </Popover>
+              )}
+          />
+          {errors.tanggal_target && <p className="text-xs font-semibold text-destructive mt-1">{(errors.tanggal_target.message as string)}</p>}
+        </div>
+      </div>
+
+      {/* Bento Item 2: Nominal Target (NumericInput) */}
+      <div className={cn(
+        "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
+        inline ? "bg-white border-slate-200" : "bg-lime-50/20 border-lime-100"
+      )}>
+        <NumericInput
+          label="Target Nominal Rencana Tabungan"
+          name="target_nominal"
+          control={control as any}
+          error={(errors.target_nominal?.message as string)}
+          className={cn(
+            "text-3xl sm:text-4xl font-black h-16 sm:h-20 shadow-sm text-center tracking-tight",
+            inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:border-primary/50 focus:ring-primary/20 focus:bg-white" : "bg-primary/5 border-primary/20 text-primary"
+          )}
+        />
+      </div>
+
+      {/* Bento Item 3: Pemilih Ikon (Col Span 2) */}
+      <div className={cn(
+        "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
+        inline ? "bg-white border-slate-200" : "bg-white border-slate-100"
+      )}>
+          <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+              Pilih Representasi Visual (Ikon)
+          </Label>
+          <div className="grid grid-cols-5 gap-3 pt-1">
+            {ICONS.map((i) => {
+              const Icon = i.icon;
+              const isActive = watchedIcon === i.name;
+              return (
+                <button
+                  key={i.name}
+                  type="button"
+                  onClick={() => setValue("icon", i.name)}
+                  className={cn(
+                    "flex items-center justify-center aspect-square rounded-2xl border transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer",
+                    isActive 
+                      ? (inline ? "bg-emerald-500 border-emerald-500 text-white shadow-lg shadow-emerald-500/20" : "bg-primary border-primary text-primary-foreground shadow-lg") 
+                      : (inline ? "bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-650 hover:bg-slate-100" : "bg-slate-50 border-slate-155 text-slate-400 hover:bg-slate-100")
+                  )}
+                >
+                  <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                </button>
+              );
+            })}
+          </div>
+          {errors.icon && <p className="text-xs font-semibold text-destructive mt-1">{(errors.icon.message as string)}</p>}
+      </div>
+
+      {/* Action Row */}
+      <div className="col-span-1 md:col-span-2 flex justify-end pt-4 w-full">
+          <Button
+              type="submit"
+              disabled={isSubmitting}
+              className={cn(
+                  "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none",
+                  inline ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"
+              )}
+          >
+              <Save size={16} />
+              {isSubmitting ? 'Menyimpan...' : dataToEdit ? 'Simpan Perubahan' : 'Buat Sinking Fund'}
+          </Button>
+      </div>
+    </>
+  );
+
+  const previewContent = (
+    <div className="w-full flex flex-col gap-8 text-center items-center">
+      {/* 3D Holographic Progress Circle Preview */}
+      <div className="relative w-full aspect-square max-w-[280px] rounded-[2.5rem] p-6 border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 shadow-2xl flex flex-col items-center justify-center group overflow-hidden">
+        {/* Glow orbs */}
+        <div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-emerald-500/10 blur-[50px] opacity-35 group-hover:bg-emerald-500/20 transition-all duration-1000" />
+        <div className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full bg-emerald-400/10 blur-[50px] opacity-25" />
+
+        {/* Central interactive icon display */}
+        <div className="relative z-10 w-20 h-20 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mb-4 animate-pulse shadow-xs">
+            <SelectedIconComponent size={36} strokeWidth={2} />
+        </div>
+
+        <div className="relative z-10">
+          <span className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400">TARGET TABUNGAN</span>
+          <h4 className="text-md font-black text-slate-800 mt-1 max-w-[200px] truncate uppercase tracking-wider">{watchedNama || 'TABUNGAN BARU'}</h4>
+          
+          <div className="w-24 h-0.5 bg-slate-200 mx-auto my-3 rounded-full" />
+          
+          <p className="text-xl font-black text-emerald-600 tracking-tight display-number">{formatRupiah(watchedTarget)}</p>
+          
+          {watchedTanggal && (
+            <p className="text-[9px] font-black uppercase tracking-widest text-slate-450 mt-2">
+              EST. {new Date(watchedTanggal).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })}
+            </p>
+          )}
+        </div>
+
+        {/* Ring decoration */}
+        <div className="absolute inset-4 rounded-[2rem] border border-slate-100 pointer-events-none" />
+      </div>
+
+      {/* Smart Tip */}
+      <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs text-left w-full">
+        <div className="flex items-center gap-2 mb-2 text-emerald-600">
+            <Sparkles size={14} />
+            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-slate-400">Sinking Fund Method</span>
+        </div>
+        <p className="text-[11px] font-semibold text-slate-650 leading-relaxed">
+            Metode menabung Sinking Fund membantu Anda mempersiapkan biaya masa depan yang pasti terjadi (seperti liburan, pajak, ganti gadget) dengan cara mengalokasikan sejumlah dana kecil secara teratur.
+        </p>
+      </div>
+    </div>
+  );
+
+  if (inline) {
+    return (
+      <FormPageLayout
+        title={dataToEdit ? 'Edit Sinking Fund' : 'Sinking Fund Baru'}
+        description={dataToEdit ? 'Perbarui informasi dan target pencapaian tabungan Anda' : 'Rencanakan pos tabungan berjangka khusus untuk berbagai tujuan finansial'}
+        isDirty={isDirty}
+        previewPanel={previewContent}
+        formPanel={
+          <form onSubmit={handleSubmit(onSubmit as any)} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full pb-16">
+            {formContent}
+          </form>
+        }
+        onCancel={onClose}
+        showSuccessModal={showSuccess}
+        onSuccessConfirm={() => router.push('/tabungan')}
+        successMessage={`Sinking Fund "${watchedNama}" dengan target nominal ${formatRupiah(watchedTarget)} berhasil disimpan.`}
+      />
+    );
+  }
 
   return (
     <ResponsiveModal
       open={true}
       onOpenChange={onClose}
       title={dataToEdit ? 'Edit Tujuan Tabungan' : 'Buat Sinking Fund Baru'}
-      className="sm:max-w-md"
+      className="sm:max-w-md bg-white border-slate-100 text-slate-950"
     >
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 pt-2">
-          {/* Main Info Group */}
-          <div className="p-4 rounded-2xl border border-slate-100 bg-slate-50/50 space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="nama_tujuan" className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">
-                Nama Tujuan Sinking Fund
-              </Label>
-              <Input
-                id="nama_tujuan"
-                placeholder="Cth: Dana Darurat, Beli Laptop, dsb."
-                {...register("nama_tujuan")}
-                className={cn(
-                    "h-12 rounded-xl bg-white border-slate-200 focus:ring-4 focus:ring-blue-100 focus:border-blue-400 font-medium",
-                    errors.nama_tujuan && "border-destructive"
-                )}
-              />
-              {errors.nama_tujuan && <p className="text-[10px] font-bold text-destructive">{(errors.nama_tujuan.message as string)}</p>}
-            </div>
-
-            <div className="space-y-2">
-              <Label className="text-xs font-bold text-slate-500 uppercase tracking-widest leading-none">
-                Estimasi Tanggal Dicapai
-              </Label>
-              <Controller
-                  name="tanggal_target"
-                  control={control}
-                  render={({ field }) => (
-                      <Popover>
-                          <PopoverTrigger
-                              className={cn(
-                                  "flex h-12 w-full items-center justify-start rounded-xl border border-input bg-white px-4 py-2 text-sm font-normal transition-all outline-none focus:ring-4 focus:ring-blue-100 focus:border-blue-400 disabled:cursor-not-allowed disabled:opacity-50",
-                                  !field.value && "text-muted-foreground/50",
-                                  errors.tanggal_target && "border-destructive"
-                              )}
-                          >
-                              <CalendarIcon className="mr-3 h-4 w-4 shrink-0 opacity-40" />
-                              <span className="font-bold">
-                                  {field.value
-                                      ? new Date(field.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
-                                      : "Pilih tanggal target"}
-                              </span>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0 rounded-[1.5rem] shadow-2xl border-none ring-1 ring-black/5" align="start" sideOffset={8}>
-                              <Calendar
-                                  mode="single"
-                                  selected={field.value ? new Date(field.value) : undefined}
-                                  onSelect={(date) => {
-                                      if (date) {
-                                          const year = date.getFullYear();
-                                          const month = String(date.getMonth() + 1).padStart(2, '0');
-                                          const day = String(date.getDate()).padStart(2, '0');
-                                          field.onChange(`${year}-${month}-${day}`);
-                                      }
-                                  }}
-                                  initialFocus
-                              />
-                          </PopoverContent>
-                      </Popover>
-                  )}
-              />
-              {errors.tanggal_target && <p className="text-[10px] font-bold text-destructive">{(errors.tanggal_target.message as string)}</p>}
-            </div>
-          </div>
-
-          {/* Nominal Target */}
-          <div className="p-5 rounded-2xl border border-blue-100 bg-blue-50/30">
-            <NumericInput
-              label="Target Nominal Menabung"
-              name="target_nominal"
-              control={control as any}
-              error={(errors.target_nominal?.message as string)}
-              className="text-3xl font-black h-16 bg-white shadow-sm text-center border-blue-200 focus:ring-blue-200 text-blue-900"
-            />
-          </div>
-
-          {/* Icon Selector Grid */}
-          <div className="space-y-3">
-              <Label className="text-xs font-bold text-slate-500 uppercase tracking-widest">Pilih Ikon Tabungan</Label>
-              <div className="grid grid-cols-4 sm:grid-cols-5 gap-3">
-                {ICONS.map((i) => {
-                  const Icon = i.icon;
-                  const isActive = selectedIcon === i.name;
-                  return (
-                    <button
-                      key={i.name}
-                      type="button"
-                      onClick={() => setValue("icon", i.name)}
-                      className={cn(
-                        "flex items-center justify-center aspect-square rounded-2xl border transition-all duration-300",
-                        isActive 
-                          ? "bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30 scale-110 z-10" 
-                          : "bg-white border-slate-100 text-slate-400 hover:bg-slate-50 hover:border-slate-200"
-                      )}
-                    >
-                      <Icon size={24} strokeWidth={isActive ? 2.5 : 2} />
-                    </button>
-                  );
-                })}
-              </div>
-              {errors.icon && <p className="text-[10px] font-bold text-destructive">{(errors.icon.message as string)}</p>}
-          </div>
-
-          <div className="pt-2">
-            <Button
-              type="submit"
-              className="w-full h-14 rounded-2xl bg-blue-950 hover:bg-black text-white font-black uppercase tracking-widest text-xs shadow-xl shadow-blue-950/20 transition-all active:scale-[0.98]"
-              disabled={isSubmitting}
-            >
-              <Save size={18} className="mr-2 text-blue-400" />
-              {isSubmitting ? "Menyimpan..." : dataToEdit ? "Simpan Perubahan" : "Buat Sinking Fund"}
-            </Button>
-          </div>
+          {formContent}
         </form>
     </ResponsiveModal>
   );

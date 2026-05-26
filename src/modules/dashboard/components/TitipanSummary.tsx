@@ -29,6 +29,7 @@ import {
     DialogHeader, 
     DialogTitle 
 } from '@/shared/ui/dialog';
+import { useRouter } from 'next/navigation';
 
 interface TitipanSummaryProps {
     onAddClick?: () => void;
@@ -40,7 +41,7 @@ export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSumma
     const getSisaSaldoTitipan = useFinanceStore((s) => s.getSisaSaldoTitipan);
     const archiveTitipan = useFinanceStore((s) => s.archiveTitipan);
     const getTotalSaldoTitipanAktif = useFinanceStore((s) => s.getTotalSaldoTitipanAktif);
-    const setActiveModal = useFinanceStore((s) => s.setActiveModal);
+    const router = useRouter();
 
     const [detailId, setDetailId] = useState<string | null>(null);
     const [showArchive, setShowArchive] = useState(false);
@@ -49,7 +50,7 @@ export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSumma
     const totalSaldo = useMemo(() => getTotalSaldoTitipanAktif(), [getTotalSaldoTitipanAktif]);
 
     const handleAddTransactionFromDetail = (id: string) => {
-        setActiveModal('transaksi');
+        router.push('/transaksi/baru');
     };
 
     return (

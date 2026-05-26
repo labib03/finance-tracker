@@ -5,12 +5,13 @@ import { Card, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { Plus } from 'lucide-react';
 import RecurringList from '@/modules/dashboard/components/RecurringList';
-
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 
 export default function RecurringView() {
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setRecurringToEdit = useFinanceStore((s) => s.setRecurringToEdit);
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <Card className="bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all duration-500 hover:shadow-float relative group">
@@ -24,7 +25,7 @@ export default function RecurringView() {
           <Button 
             onClick={() => {
               setRecurringToEdit(null);
-              setActiveModal('recurring');
+              router.push('/recurring/baru');
             }} 
             className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0 w-full sm:w-auto"
           >
@@ -36,7 +37,7 @@ export default function RecurringView() {
       <RecurringList 
         onEdit={(r: any) => {
           setRecurringToEdit(r);
-          setActiveModal('recurring');
+          router.push(`/recurring/edit/${r.id}`);
         }}
       />
     </div>

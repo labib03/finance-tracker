@@ -68,7 +68,7 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
     const pengeluaranKategori = filteredKategori.filter(k => k.tipe === 'Pengeluaran');
     const pemasukanKategori = filteredKategori.filter(k => k.tipe === 'Pemasukan');
 
-    const KategoriTable = ({ list }: { list: Kategori[] }) => (
+    const renderKategoriTable = (list: Kategori[]) => (
         <div className="px-6 sm:px-10 py-6">
             <div className="hidden md:block overflow-hidden rounded-3xl border border-border/40 shadow-scandi bg-white">
                 <Table>
@@ -245,11 +245,11 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                     </div>
 
                     <TabsContent value="pengeluaran" className="mt-0">
-                        <KategoriTable list={pengeluaranKategori} />
+                        {renderKategoriTable(pengeluaranKategori)}
                     </TabsContent>
 
                     <TabsContent value="pemasukan" className="mt-0">
-                        <KategoriTable list={pemasukanKategori} />
+                        {renderKategoriTable(pemasukanKategori)}
                     </TabsContent>
                 </Tabs>
             </CardContent>

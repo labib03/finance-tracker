@@ -1,11 +1,12 @@
 'use client';
 
-import { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, hitungSaldoAkun } from '@/lib/utils';
-import { Banknote, CreditCard, Smartphone, Wallet, Plus } from 'lucide-react';
+import { Banknote, CreditCard, Smartphone, Wallet, Plus, Edit2, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
+import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { cn } from '@/lib/utils';
 
 const iconMap: Record<string, typeof Wallet> = {
@@ -17,11 +18,33 @@ const iconMap: Record<string, typeof Wallet> = {
 
 interface SaldoCardsProps {
     onAddAccount?: () => void;
+    onEditAccount?: (sumberDana: any) => void;
 }
 
-export default function SaldoCards({ onAddAccount }: SaldoCardsProps) {
+export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsProps) {
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
+    const recurringList = useFinanceStore((s) => s.recurringList);
+    const removeSumberDana = useFinanceStore((s) => s.removeSumberDana);
+
+    const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; name: string }>({
+        isOpen: false, id: '', name: ''
+    });
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [deleteRestricted, setDeleteRestricted] = useState(false);
+
+    const handleDeleteSumberDana = (id: string, nama: string) => {
+        const isUsed = transaksiList.some((t: any) => t.id_sumber_dana === id || t.id_target_dana === id) || (recurringList && recurringList.some((r: any) => r.id_sumber_dana === id));
+        setDeleteRestricted(isUsed);
+        setConfirmDelete({ isOpen: true, id, name: nama });
+    };
+
+    const confirmDeleteAction = async () => {
+        setIsDeleting(true);
+        await removeSumberDana(confirmDelete.id);
+        setIsDeleting(false);
+        setConfirmDelete({ ...confirmDelete, isOpen: false });
+    };
 
     const saldoAkun = useMemo(
         () => hitungSaldoAkun(sumberDanaList, transaksiList),
@@ -79,10 +102,30 @@ export default function SaldoCards({ onAddAccount }: SaldoCardsProps) {
                                         </span>
                                     </div>
 
-                                    <div className="flex items-center shrink-0 pr-2">
-                                        <p className="text-base font-black display-number text-slate-900 transition-colors">
-                                            {formatRupiah(akun.saldo)}
-                                        </p>
+                                    <div className="flex items-center shrink-0 gap-4">
+                                        <div className="text-right">
+                                            <p className="text-base font-black display-number text-slate-900 transition-colors">
+                                                {formatRupiah(akun.saldo)}
+                                            </p>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => onEditAccount && onEditAccount(akun)}
+                                                className="h-8 w-8 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-slate-100 bg-white border border-transparent hover:border-blue-100 shadow-sm transition-all"
+                                            >
+                                                <Edit2 size={14} />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                onClick={() => handleDeleteSumberDana(akun.id_sumber_dana, akun.nama_sumber)}
+                                                className="h-8 w-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 bg-white border border-transparent hover:border-rose-100 shadow-sm transition-all"
+                                            >
+                                                <Trash2 size={14} />
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
                             );
@@ -116,6 +159,21 @@ export default function SaldoCards({ onAddAccount }: SaldoCardsProps) {
                     </div>
                 </button>
             </div>
+
+            <ConfirmDialog
+                isOpen={confirmDelete.isOpen}
+                onClose={() => setConfirmDelete({ ...confirmDelete, isOpen: false })}
+                onConfirm={deleteRestricted ? () => setConfirmDelete({ ...confirmDelete, isOpen: false }) : confirmDeleteAction}
+                isLoading={isDeleting}
+                title={deleteRestricted ? "Tidak Bisa Menghapus" : `Hapus Rekening / Dompet?`}
+                confirmText={deleteRestricted ? "Mengerti" : "Hapus"}
+                variant={deleteRestricted ? "info" : "destructive"}
+                description={
+                    deleteRestricted
+                        ? `"${confirmDelete.name}" tidak bisa dihapus karena masih digunakan dalam riwayat transaksi atau jadwal rutin.`
+                        : `Apakah Anda yakin ingin menghapus "${confirmDelete.name}"?`
+                }
+            />
         </Card>
     );
 }

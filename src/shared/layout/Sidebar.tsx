@@ -240,10 +240,8 @@ export default function Sidebar() {
                         <div className={cn("flex flex-col gap-2", isSidebarCollapsed ? "px-0" : "px-2 whitespace-nowrap overflow-hidden")}>
                             <Tooltip key={`cycle-${isSidebarCollapsed}`} open={isSidebarCollapsed ? undefined : false}>
                                 <TooltipTrigger render={
-                                    <button
-                                        onClick={() => {
-                                            useFinanceStore.getState().setActiveModal('cycle_settings');
-                                        }}
+                                    <Link
+                                        href="/cycle-settings"
                                         className={cn(
                                             "group w-full flex items-center rounded-[2rem] transition-[padding,height,border-color,background-color] duration-300 border border-transparent hover:border-border/40 relative",
                                             isSidebarCollapsed
@@ -266,7 +264,7 @@ export default function Sidebar() {
                                             )}
                                         </div>
                                         {!isSidebarCollapsed && <ChevronRight size={14} className="text-muted-foreground/30 group-hover:translate-x-0.5 transition-transform" />}
-                                    </button>
+                                    </Link>
                                 } />
                                 <TooltipContent side="right" sideOffset={16} align="center">
                                     Pengaturan Siklus

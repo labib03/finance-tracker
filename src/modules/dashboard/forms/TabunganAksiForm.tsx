@@ -1,18 +1,21 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, getToday, hitungSaldoAkun, cn } from '@/lib/utils';
-import { Tabungan } from '@/lib/types';
-import { ResponsiveModal } from "@/shared/ui/responsive-modal";
+import type { Tabungan } from '@/lib/types';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Label } from '@/shared/ui/label';
 import NumericInput from '@/shared/forms/NumericInput';
 import { SearchableSelect } from '@/shared/ui/SearchableSelect';
+import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
+import FormPageLayout from '@/shared/layout/FormPageLayout';
+import { ResponsiveModal } from "@/shared/ui/responsive-modal";
 import { 
     PiggyBank, ShieldAlert, Banknote, Target, Car, Home, Plane, 
-    GraduationCap, Laptop, Smartphone, HeartPulse, SendHorizontal
+    GraduationCap, Laptop, Smartphone, HeartPulse, Sparkles, CheckCircle2
 } from 'lucide-react';
 
 type AksiType = 'alokasi_tabungan' | 'tarik_tabungan' | 'eksekusi_tabungan';
@@ -21,6 +24,7 @@ interface TabunganAksiFormProps {
     onClose: () => void;
     tabungan: Tabungan;
     defaultAksi?: AksiType;
+    inline?: boolean;
 }
 
 const ICON_MAP: Record<string, React.ElementType> = {
@@ -30,41 +34,43 @@ const ICON_MAP: Record<string, React.ElementType> = {
 const AKSI_CONFIG = {
     alokasi_tabungan: {
         label: 'Alokasi Dana',
-        color: 'blue',
+        color: 'emerald',
         icon: PiggyBank,
-        description: 'Sisihkan uang agar tidak terpakai untuk pengeluaran harian.',
+        description: 'Sisihkan uang dari rekening utama Anda untuk dialokasikan ke pos Sinking Fund ini.',
         buttonText: 'Alokasikan Dana',
-        buttonClass: 'bg-blue-600 hover:bg-blue-700 shadow-blue-600/30',
-        activeClass: 'bg-blue-600 border-blue-600 text-white shadow-lg shadow-blue-600/30 ring-4 ring-blue-50',
+        buttonClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/10',
+        activeClass: 'bg-emerald-50 border-emerald-500 text-emerald-600 shadow-xs ring-4 ring-emerald-500/10',
     },
     tarik_tabungan: {
         label: 'Tarik Darurat',
         color: 'amber',
         icon: ShieldAlert,
-        description: 'Kembalikan saldo tabungan ke rekening untuk keperluan mendesak.',
+        description: 'Kembalikan saldo tabungan Sinking Fund ke rekening Anda untuk keperluan mendesak.',
         buttonText: 'Tarik ke Rekening',
-        buttonClass: 'bg-amber-600 hover:bg-amber-700 shadow-amber-600/30',
-        activeClass: 'bg-amber-600 border-amber-600 text-white shadow-lg shadow-amber-600/30 ring-4 ring-amber-50',
+        buttonClass: 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/10',
+        activeClass: 'bg-amber-50 border-amber-500 text-amber-600 shadow-xs ring-4 ring-amber-500/10',
     },
     eksekusi_tabungan: {
         label: 'Eksekusi Tabungan',
-        color: 'emerald',
+        color: 'blue',
         icon: Banknote,
-        description: 'Bayar tujuan tabungan Anda. Saldo rekening bank akan terpotong nyata.',
+        description: 'Bayar tujuan tabungan Anda secara riil. Transaksi pengeluaran nyata akan dicatat.',
         buttonText: 'Eksekusi Pembelian',
-        buttonClass: 'bg-emerald-600 hover:bg-emerald-700 shadow-emerald-600/30',
-        activeClass: 'bg-emerald-600 border-emerald-600 text-white shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50',
+        buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10',
+        activeClass: 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-4 ring-blue-500/10',
     },
 };
 
-export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alokasi_tabungan' }: TabunganAksiFormProps) {
+export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alokasi_tabungan', inline = false }: TabunganAksiFormProps) {
     const addTransaksi = useFinanceStore((s) => s.addTransaksi);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const getSaldoTabungan = useFinanceStore((s) => s.getSaldoTabungan);
     const getProgresTabungan = useFinanceStore((s) => s.getProgresTabungan);
+    const router = useRouter();
+    const [showSuccess, setShowSuccess] = useState(false);
 
-    const { control, handleSubmit, watch, setValue, formState: { isSubmitting } } = useForm({
+    const { control, handleSubmit, watch, setValue, formState: { isSubmitting, isDirty } } = useForm({
         defaultValues: {
             aksi: defaultAksi,
             nominal: 0,
@@ -75,6 +81,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
 
     const aksi = watch('aksi') as AksiType;
     const idSumberDana = watch('id_sumber_dana');
+    const nominal = watch('nominal') || 0;
 
     const saldo = getSaldoTabungan(tabungan.id_tabungan);
     const progres = getProgresTabungan(tabungan.id_tabungan);
@@ -86,7 +93,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
     const resultBalances = selectedSource ? hitungSaldoAkun([selectedSource], transaksiList) : [];
     const saldoSumber = resultBalances.length > 0 ? resultBalances[0].saldo : 0;
 
-    const config = AKSI_CONFIG[aksi];
+    const config = AKSI_CONFIG[aksi] || AKSI_CONFIG.alokasi_tabungan;
     const TabIcon = ICON_MAP[tabungan.icon] || Target;
 
     const onSubmit = async (data: any) => {
@@ -103,171 +110,247 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                 catatan: data.catatan,
                 id_tabungan: tabungan.id_tabungan,
             });
-            onClose();
+            if (inline) {
+                setShowSuccess(true);
+            } else {
+                onClose();
+            }
         } catch (err) {
             console.error(err);
         }
     };
+
+    const formContent = (
+        <>
+            {/* Bento Grid Item 1: Pilihan Aksi Transaksi */}
+            <div className={cn(
+                "p-6 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
+                inline ? "bg-white border-slate-200 hover:border-slate-300" : "bg-white border-slate-100"
+            )}>
+                <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+                    Pilih Tipe Aksi Sinking Fund
+                </Label>
+                <div className="grid grid-cols-3 gap-3">
+                    {(['alokasi_tabungan', 'tarik_tabungan', 'eksekusi_tabungan'] as AksiType[]).map((a) => {
+                        const c = AKSI_CONFIG[a];
+                        const Icon = c.icon;
+                        const isActive = aksi === a;
+                        const isDisabled = a === 'eksekusi_tabungan' && !isTercapai;
+                        
+                        return (
+                            <button
+                                key={a}
+                                type="button"
+                                disabled={isDisabled}
+                                onClick={() => setValue('aksi', a)}
+                                className={cn(
+                                    'flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed group hover:scale-[1.02] active:scale-95',
+                                    isActive 
+                                        ? c.activeClass
+                                        : (inline ? 'bg-slate-50 border-slate-200 text-slate-400 hover:text-slate-700 hover:bg-slate-100' : 'bg-slate-50 border-slate-150 text-slate-400 hover:bg-slate-100')
+                                )}
+                            >
+                                <Icon size={20} strokeWidth={isActive ? 2.5 : 2} />
+                                <span className="text-[9px] font-black uppercase tracking-widest text-center leading-none px-1">{c.label.split(' ')[0]}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+                {/* Description Box */}
+                <div className={cn("p-4 rounded-xl text-[11px] font-semibold leading-relaxed border", inline ? "bg-slate-50 border-slate-250 text-slate-600" : "bg-slate-50 border-slate-100 text-slate-500")}>
+                    {config.description}
+                </div>
+            </div>
+
+            {/* Bento Grid Item 2: Nominal Input Pro Max */}
+            <div className={cn(
+                "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
+                inline ? "bg-white border-slate-200 hover:border-slate-350" : "bg-white border-slate-100"
+            )}>
+                <div className="flex items-center justify-between">
+                    <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+                        Nominal Aksi (Rp)
+                    </Label>
+                    {aksi === 'alokasi_tabungan' && sisaTarget > 0 && (
+                        <button
+                            type="button"
+                            onClick={() => setValue('nominal', sisaTarget)}
+                            className={cn(
+                                "text-[9px] font-black px-3 py-1.5 rounded-full border shadow-sm hover:scale-[1.03] active:scale-97 transition-all uppercase tracking-wider cursor-pointer",
+                                inline ? "text-emerald-600 bg-emerald-50 border-emerald-200 hover:bg-emerald-100" : "text-primary bg-primary/5 border-primary/10"
+                            )}
+                        >
+                            Selesaikan Target
+                        </button>
+                    )}
+                </div>
+                <NumericInput
+                    name="nominal"
+                    control={control as any}
+                    placeholder="0"
+                    className={cn(
+                        "text-3xl sm:text-4xl font-black h-16 sm:h-20 shadow-sm text-center tracking-tight border-none focus:ring-0 focus:bg-white focus:border-none",
+                        inline ? "bg-slate-50 text-emerald-600" : "bg-slate-50 text-slate-900",
+                        nominal > saldoSumber && "text-rose-500"
+                    )}
+                />
+                {nominal > saldoSumber && (
+                    <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest text-center animate-pulse pt-1">
+                        ⚠ Saldo sumber rekening tidak cukup ({formatRupiah(saldoSumber)})
+                    </p>
+                )}
+            </div>
+
+            {/* Bento Grid Item 3: Rekening & Catatan */}
+            <div className={cn(
+                "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-5 col-span-1 md:col-span-2",
+                inline ? "bg-white border-slate-200 hover:border-slate-350" : "bg-white border-slate-100"
+            )}>
+                <div className="space-y-2">
+                    <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+                        Rekening Utama
+                    </Label>
+                    <SearchableSelect
+                        options={sumberDanaList.map(s => ({
+                            value: s.id_sumber_dana,
+                            label: s.nama_sumber
+                        }))}
+                        value={idSumberDana}
+                        onValueChange={(val) => setValue('id_sumber_dana', val)}
+                        placeholder="Pilih rekening utama..."
+                        className={cn("rounded-xl h-12", inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white" : "bg-white border-slate-200")}
+                    />
+                    {selectedSource && (
+                        <p className={cn("text-[9px] font-black uppercase tracking-widest px-1", inline ? "text-slate-400" : "text-slate-400")}>
+                            Saldo Tersedia: {formatRupiah(saldoSumber)}
+                        </p>
+                    )}
+                </div>
+
+                <div className="space-y-2">
+                    <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+                        Catatan (Opsional)
+                    </Label>
+                    <Input
+                        placeholder="Alokasi dana untuk..."
+                        {...control.register('catatan')}
+                        className={cn(
+                            "h-12 rounded-xl font-medium",
+                            inline ? "bg-slate-50 border-slate-200 text-slate-950 focus:bg-white focus:border-primary/50" : "bg-white border-slate-200 text-slate-950"
+                        )}
+                    />
+                </div>
+            </div>
+
+            {/* Action Row */}
+            <div className="col-span-1 md:col-span-2 flex justify-end pt-4 w-full">
+                <Button
+                    type="submit"
+                    disabled={isSubmitting || !nominal || !idSumberDana}
+                    className={cn(
+                        "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none text-white",
+                        config.buttonClass
+                    )}
+                >
+                    {isSubmitting ? 'Memproses Transaksi...' : config.buttonText}
+                </Button>
+            </div>
+        </>
+    );
+
+    // Left preview content showing reactive sinking fund circle and target status
+    const previewContent = (
+        <div className="w-full flex flex-col gap-8 text-center items-center">
+            {/* Dynamic Interactive Envelope */}
+            <div className="relative w-full aspect-square max-w-[280px] rounded-[2.5rem] p-6 border border-slate-200/80 bg-gradient-to-br from-white to-slate-50 shadow-2xl flex flex-col items-center justify-center group overflow-hidden">
+                <div className="absolute -top-16 -right-16 w-36 h-36 rounded-full bg-emerald-500/10 blur-[50px] opacity-35 group-hover:bg-emerald-500/20 transition-all duration-1000" />
+                <div className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full bg-emerald-500/10 blur-[50px] opacity-25" />
+
+                {/* Progress Icon */}
+                <div className="relative z-10 w-20 h-20 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mb-4 shadow-xs">
+                    <TabIcon size={36} strokeWidth={2} />
+                </div>
+
+                <div className="relative z-10 space-y-1 w-full px-2">
+                    <span className="text-[9px] font-black uppercase tracking-[0.25em] text-slate-400">SINKING FUND</span>
+                    <h4 className="text-sm font-black text-slate-800 max-w-[200px] truncate mx-auto uppercase tracking-wide">{tabungan.nama_tujuan}</h4>
+                    
+                    <div className="w-16 h-0.5 bg-slate-200 mx-auto my-2 rounded-full" />
+                    
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-wider text-slate-400 pt-1">
+                        <span>TERKUMPUL</span>
+                        <span>TARGET</span>
+                    </div>
+                    
+                    <div className="flex justify-between items-baseline text-slate-800">
+                        <span className="text-lg font-black text-emerald-600 display-number">{formatRupiah(saldo)}</span>
+                        <span className="text-[10px] font-bold text-slate-450 display-number">{formatRupiah(tabungan.target_nominal)}</span>
+                    </div>
+
+                    <div className="h-2 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden shadow-inner mt-2">
+                        <div
+                            className="h-full rounded-full bg-emerald-500 transition-all duration-1000"
+                            style={{ width: `${Math.min(progres, 100)}%` }}
+                        />
+                    </div>
+
+                    <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-emerald-600 pt-1">
+                        <span>PROGRES</span>
+                        <span>{Math.min(progres, 100).toFixed(0)}%</span>
+                    </div>
+                </div>
+            </div>
+
+            {/* Smart Contextual Aksi Card */}
+            <div className="p-6 rounded-2xl bg-white border border-slate-200 shadow-xs text-left w-full">
+                <div className="flex items-center gap-2 mb-2 text-emerald-600">
+                    <Sparkles size={14} />
+                    <span className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em]">Estimasi Dampak</span>
+                </div>
+                <p className="text-[11px] font-semibold text-slate-650 leading-relaxed">
+                    {aksi === 'alokasi_tabungan' 
+                        ? `Alokasi ${formatRupiah(nominal)} akan meningkatkan progres tabungan menjadi ${Math.min(((saldo + nominal) / tabungan.target_nominal) * 100, 100).toFixed(0)}% dari target.`
+                        : aksi === 'tarik_tabungan'
+                        ? `Penarikan ${formatRupiah(nominal)} akan menyusutkan dana sinking fund ini menjadi ${formatRupiah(Math.max(0, saldo - nominal))}.`
+                        : `Mengeksekusi sinking fund ini berarti Anda secara resmi membelanjakan dana terkumpul sebesar ${formatRupiah(nominal)} untuk tujuan Anda.`
+                    }
+                </p>
+            </div>
+        </div>
+    );
+
+    if (inline) {
+        return (
+            <FormPageLayout
+                title={tabungan.nama_tujuan}
+                description="Kelola alokasi saldo masuk atau tarik darurat untuk tabungan berjangka Anda"
+                isDirty={isDirty}
+                previewPanel={previewContent}
+                formPanel={
+                    <form onSubmit={handleSubmit(onSubmit as any)} className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full pb-16">
+                        {formContent}
+                    </form>
+                }
+                onCancel={onClose}
+                showSuccessModal={showSuccess}
+                onSuccessConfirm={() => router.push('/tabungan')}
+                successMessage={`Aksi ${AKSI_CONFIG[aksi]?.label || 'Aksi'} sebesar ${formatRupiah(nominal)} berhasil diproses dan dicatat.`}
+            />
+        );
+    }
 
     return (
         <ResponsiveModal
             open={true}
             onOpenChange={onClose}
             title={tabungan.nama_tujuan}
-            className="sm:max-w-md"
+            className="sm:max-w-md bg-white border-slate-100 text-slate-950"
         >
-                <div className="space-y-6 pt-2 pb-2">
-                    {/* Progress Header Group */}
-                    <div className="p-5 rounded-[1.75rem] bg-blue-50/40 border border-blue-100/50 space-y-4">
-                        <div className="flex items-center gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-white flex items-center justify-center text-blue-600 shadow-sm">
-                                <TabIcon size={24} />
-                            </div>
-                            <div>
-                                <p className="text-[10px] font-black uppercase tracking-widest text-blue-400 leading-none mb-1">Status Sinking Fund</p>
-                                <p className="text-base font-black text-slate-800 leading-tight">{tabungan.nama_tujuan}</p>
-                            </div>
-                        </div>
-
-                        <div className="space-y-1.5">
-                            <div className="flex items-center justify-between text-[10px] font-black tracking-widest uppercase">
-                                <span className={cn(isTercapai ? 'text-emerald-600' : 'text-blue-600')}>
-                                    {formatRupiah(saldo)} terkumpul
-                                </span>
-                                <span className="text-slate-400">{formatRupiah(tabungan.target_nominal)}</span>
-                            </div>
-                            <div className="h-2.5 w-full bg-white rounded-full overflow-hidden shadow-inner ring-1 ring-black/3">
-                                <div
-                                    className={cn('h-full rounded-full transition-all duration-700 shadow-sm', isTercapai ? 'bg-emerald-500' : 'bg-blue-500')}
-                                    style={{ width: `${Math.min(progres, 100)}%` }}
-                                />
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Aksi Selection - Circular Buttons */}
-                    <div className="grid grid-cols-3 gap-3">
-                        {(['alokasi_tabungan', 'tarik_tabungan', 'eksekusi_tabungan'] as AksiType[]).map((a) => {
-                            const c = AKSI_CONFIG[a];
-                            const Icon = c.icon;
-                            const isActive = aksi === a;
-                            const isDisabled = a === 'eksekusi_tabungan' && !isTercapai;
-                            
-                            return (
-                                <button
-                                    key={a}
-                                    type="button"
-                                    disabled={isDisabled}
-                                    onClick={() => setValue('aksi', a)}
-                                    className={cn(
-                                        'flex flex-col items-center gap-2 py-4 px-2 rounded-3xl border transition-all duration-300 cursor-pointer disabled:opacity-30 disabled:cursor-not-allowed group',
-                                        isActive 
-                                            ? c.activeClass
-                                            : 'bg-white border-slate-100 text-slate-400 hover:bg-slate-50 hover:border-slate-200'
-                                    )}
-                                >
-                                    <Icon size={20} strokeWidth={isActive ? 2.5 : 2} className={cn(!isActive && "group-hover:text-slate-600")} />
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-center leading-none px-1">{c.label.split(' ')[0]}</span>
-                                </button>
-                            );
-                        })}
-                    </div>
-
-                    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                        {/* Description Box */}
-                        <div className="p-4 rounded-2xl bg-slate-50 border border-slate-100 flex gap-3">
-                            <div className="mt-0.5 text-blue-500 shrink-0">
-                                <ShieldAlert size={16} />
-                            </div>
-                            <p className="text-[11px] font-bold text-slate-500 leading-normal">
-                                {config.description}
-                            </p>
-                        </div>
-
-                        {/* Nominal Input Pro Max */}
-                        <div className={cn(
-                            "flex flex-col space-y-2 p-5 rounded-[2rem] border transition-all duration-500",
-                            aksi === 'alokasi_tabungan' ? "bg-blue-50/50 border-blue-100" : 
-                            aksi === 'tarik_tabungan' ? "bg-amber-50/50 border-amber-100" :
-                            "bg-emerald-50/50 border-emerald-100"
-                        )}>
-                            <div className="flex items-center justify-between mb-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">
-                                    Nominal Aksi (Rp)
-                                </Label>
-                                {aksi === 'alokasi_tabungan' && sisaTarget > 0 && (
-                                    <button
-                                        type="button"
-                                        onClick={() => setValue('nominal', sisaTarget)}
-                                        className="text-[9px] font-black text-blue-600 bg-white px-2 py-1 rounded-full border border-blue-100 shadow-sm hover:scale-105 active:scale-95 transition-all"
-                                    >
-                                        Selesaikan Target
-                                    </button>
-                                )}
-                            </div>
-                            <NumericInput
-                                name="nominal"
-                                control={control as any}
-                                placeholder="0"
-                                className={cn(
-                                    "text-3xl font-black h-16 bg-white shadow-sm text-center border-none focus:ring-0",
-                                    watch('nominal') > saldoSumber && "text-rose-600"
-                                )}
-                            />
-                            {watch('nominal') > saldoSumber && (
-                                <p className="text-[9px] font-black text-rose-500 uppercase tracking-widest text-center animate-pulse pt-2">
-                                    ⚠ Saldo Tidak Cukup ({formatRupiah(saldoSumber)})
-                                </p>
-                            )}
-                        </div>
-
-                        {/* Account and Notes Group */}
-                        <div className="p-4 rounded-3xl border border-slate-100 bg-slate-50/30 space-y-5">
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">
-                                    Rekening Sumber
-                                </Label>
-                                <SearchableSelect
-                                    options={sumberDanaList.map(s => ({
-                                        value: s.id_sumber_dana,
-                                        label: s.nama_sumber
-                                    }))}
-                                    value={idSumberDana}
-                                    onValueChange={(val) => setValue('id_sumber_dana', val)}
-                                    placeholder="Pilih rekening..."
-                                    className="bg-white rounded-xl h-12"
-                                />
-                                {selectedSource && (
-                                    <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest px-1">
-                                        Saldo Saat Ini: {formatRupiah(saldoSumber)}
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-slate-500 px-1">
-                                    Catatan (Opsional)
-                                </Label>
-                                <Input
-                                    placeholder="Alokasi dana untuk..."
-                                    {...control.register('catatan')}
-                                    className="h-12 rounded-xl bg-white border-slate-100 focus:ring-4 focus:ring-blue-50 font-medium"
-                                />
-                            </div>
-                        </div>
-
-                        <Button
-                            type="submit"
-                            disabled={isSubmitting || !watch('nominal') || !idSumberDana}
-                            className={cn(
-                                'w-full h-16 rounded-[2rem] text-white font-black uppercase tracking-widest text-xs transition-all active:scale-[0.98]',
-                                config.buttonClass
-                            )}
-                        >
-                            {isSubmitting ? 'Memproses Transaksi...' : config.buttonText}
-                        </Button>
-                    </form>
-                </div>
+            <div className="space-y-6 pt-2">
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+                    {formContent}
+                </form>
+            </div>
         </ResponsiveModal>
     );
 }

@@ -537,7 +537,7 @@ function TransactionsTableInner({
                 {filteredTransaksi.length > 0 && (
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between px-4 sm:px-8 py-5 border-t border-border/20 bg-muted/5 gap-4">
                         <div className="flex items-center justify-between sm:justify-start gap-3 w-full sm:w-auto">
-                            <span className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Baris:</span>
+                            <label className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">Baris:</label>
                             <Select
                                 value={itemsPerPage.toString()}
                                 onValueChange={(val) => {
@@ -545,7 +545,7 @@ function TransactionsTableInner({
                                     setCurrentPage(1);
                                 }}
                             >
-                                <SelectTrigger className="h-8 w-[70px] text-xs font-black tracking-widest rounded-xl bg-white border-border/40 text-foreground">
+                                <SelectTrigger aria-label="Jumlah baris" className="h-8 w-[70px] text-xs font-black tracking-widest rounded-xl bg-white border-border/40 text-foreground">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-xl border-border/40 shadow-float min-w-[70px]">

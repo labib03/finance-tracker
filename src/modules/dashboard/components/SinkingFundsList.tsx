@@ -12,10 +12,9 @@ import {
     DropdownMenuSeparator 
 } from '@/shared/ui/dropdown-menu';
 import { Tabungan } from '@/lib/types';
-import TabunganAksiForm from '@/modules/dashboard/forms/TabunganAksiForm';
-import TabunganForm from '@/modules/dashboard/forms/TabunganForm';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { toast } from 'sonner';
+import { useRouter } from 'next/navigation';
 
 type AksiType = 'alokasi_tabungan' | 'tarik_tabungan' | 'eksekusi_tabungan';
 
@@ -27,9 +26,8 @@ export default function SinkingFundsList() {
     const tabunganList = useFinanceStore((s) => s.tabunganList) || [];
     const getSaldoTabungan = useFinanceStore((s) => s.getSaldoTabungan);
     const getProgresTabungan = useFinanceStore((s) => s.getProgresTabungan);
+    const router = useRouter();
 
-    const [aksiModal, setAksiModal] = useState<{ tabungan: Tabungan; aksi: AksiType } | null>(null);
-    const [editModal, setEditModal] = useState<Tabungan | null>(null);
     const [confirmDelete, setConfirmDelete] = useState<Tabungan | null>(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -50,7 +48,7 @@ export default function SinkingFundsList() {
     };
 
     const openAksi = (tabungan: Tabungan, aksi: AksiType) => {
-        setAksiModal({ tabungan, aksi });
+        router.push(`/tabungan/aksi/${tabungan.id_tabungan}?aksi=${aksi}`);
     };
 
     const handleDelete = async () => {
@@ -144,7 +142,7 @@ export default function SinkingFundsList() {
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator className="bg-slate-100 my-1" />
                                                     <DropdownMenuItem
-                                                        onClick={() => setEditModal(t)}
+                                                        onClick={() => router.push(`/tabungan/edit/${t.id_tabungan}`)}
                                                         className="py-3 px-3 rounded-xl cursor-pointer font-bold text-xs uppercase tracking-widest text-slate-500 focus:bg-slate-50"
                                                     >
                                                         <Pencil className="mr-2.5 h-4 w-4" />
@@ -199,23 +197,6 @@ export default function SinkingFundsList() {
                     )}
                 </div>
             </div>
-
-            {/* Aksi Form Modal */}
-            {aksiModal && (
-                <TabunganAksiForm
-                    tabungan={aksiModal.tabungan}
-                    defaultAksi={aksiModal.aksi}
-                    onClose={() => setAksiModal(null)}
-                />
-            )}
-
-            {/* Edit Form Modal */}
-            {editModal && (
-                <TabunganForm
-                    dataToEdit={editModal}
-                    onClose={() => setEditModal(null)}
-                />
-            )}
 
             {/* Confirm Delete Dialog */}
             <ConfirmDialog

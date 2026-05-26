@@ -66,12 +66,12 @@ export default function BottomNav() {
 
             {/* Central FAB Placeholder for Layout */}
             <div className="flex-1 flex justify-center -mt-16 relative z-50">
-                <button
-                    onClick={() => setActiveModal('transaksi')}
+                <Link
+                    href="/transaksi/baru"
                     className="w-14 h-14 rounded-2xl bg-blue-600 text-white shadow-xl shadow-blue-600/30 flex items-center justify-center active:scale-90 transition-all duration-300 hover:rotate-90 hover:rounded-[2rem]"
                 >
                     <Plus size={28} strokeWidth={3} />
-                </button>
+                </Link>
             </div>
 
             {rightNavItems.map((item) => {
@@ -132,10 +132,10 @@ export default function BottomNav() {
                                     
                                     if (item.type === 'modal') {
                                         return (
-                                            <button
+                                            <Link
                                                 key={item.id}
+                                                href="/cycle-settings"
                                                 onClick={() => {
-                                                    setActiveModal('cycle_settings');
                                                     setOpen(false);
                                                 }}
                                                 className="flex flex-col items-center justify-center gap-4 p-6 rounded-3xl transition-all duration-300 border bg-muted/5 border-transparent text-muted-foreground hover:bg-muted/10"
@@ -144,7 +144,7 @@ export default function BottomNav() {
                                                     <item.icon size={24} strokeWidth={2} />
                                                 </div>
                                                 <span className="text-[10px] font-black uppercase tracking-[0.2em]">{item.label}</span>
-                                            </button>
+                                            </Link>
                                         );
                                     }
 

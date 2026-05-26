@@ -39,6 +39,11 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "FinanceTracker",
   },
+  openGraph: {
+    title: "FinanceTracker — Pemantau Keuangan Pribadi",
+    description: "Aplikasi web pemantau keuangan pribadi. Kelola transaksi, saldo, anggaran, dan laporan keuangan Anda dengan mudah dan elegan.",
+    type: "website",
+  },
 };
 
 export default function RootLayout({

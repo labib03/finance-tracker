@@ -4,6 +4,7 @@ import React, { useMemo } from 'react';
 import { Sparkles, Plus, Wallet, CreditCard, Banknote, Smartphone, ArrowRight } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, hitungSaldoAkun, getToday } from '@/lib/utils';
 
@@ -15,10 +16,10 @@ const iconMap: Record<string, typeof Wallet> = {
 };
 
 export default function TransferView() {
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
   const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
   const transaksiList = useFinanceStore((s) => s.transaksiList);
+  const router = useRouter();
 
   const saldoAkun = useMemo(
       () => hitungSaldoAkun(sumberDanaList, transaksiList),
@@ -51,7 +52,7 @@ export default function TransferView() {
                                 label: '',
                                 catatan: ''
                             });
-                            setActiveModal('transfer');
+                            router.push('/transfer/baru');
                         }}
                         className="group cursor-pointer relative p-6 rounded-[2rem] bg-blue-50/50 border border-blue-100 hover:bg-blue-600 hover:border-blue-600 hover:shadow-2xl hover:shadow-blue-600/30 transition-all duration-500 overflow-hidden flex flex-col justify-between min-h-[160px]"
                     >
@@ -97,7 +98,7 @@ export default function TransferView() {
           <Button
             onClick={() => {
               setTransaksiToEdit(null);
-              setActiveModal('transfer');
+              router.push('/transfer/baru');
             }}
             className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0"
           >
@@ -115,7 +116,7 @@ export default function TransferView() {
         filterType="Transfer"
         onEdit={(t: any) => {
           setTransaksiToEdit(t);
-          setActiveModal('transfer');
+          router.push(`/transfer/edit/${t.id}`);
         }}
         title="Riwayat Transfer" 
         description="Semua mutasi antar akun"

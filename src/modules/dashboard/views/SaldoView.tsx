@@ -4,25 +4,33 @@ import React from 'react';
 import SaldoCards from '@/modules/dashboard/components/SaldoCards';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
-
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 
 export default function SaldoView() {
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
   const setTitipanToEdit = useFinanceStore((s) => s.setTitipanToEdit);
+  const setSumberDanaToEdit = useFinanceStore((s) => s.setSumberDanaToEdit);
+  const router = useRouter();
+
   return (
     <div className="space-y-8">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <div className="h-full">
-          <SaldoCards onAddAccount={() => setActiveModal('sumber_dana')} />
+          <SaldoCards 
+            onAddAccount={() => router.push('/saldo/baru')} 
+            onEditAccount={(s) => {
+              setSumberDanaToEdit(s);
+              router.push(`/saldo/edit/${s.id_sumber_dana}`);
+            }}
+          />
         </div>
         <div className="h-full flex flex-col gap-8">
            <TitipanSummary 
-              onAddClick={() => setActiveModal('titipan')} 
+              onAddClick={() => router.push('/saldo/titipan/baru')} 
               onEditClick={(t) => {
                 setTitipanToEdit(t);
-                setActiveModal('titipan');
+                router.push(`/saldo/titipan/edit/${t.id_titipan}`);
               }}
            />
         </div>
@@ -35,9 +43,9 @@ export default function SaldoView() {
         onEdit={(t: any) => {
           setTransaksiToEdit(t);
           if (t.jenis === 'Transfer') {
-            setActiveModal('transfer');
+            router.push(`/transfer/edit/${t.id}`);
           } else {
-            setActiveModal('transaksi');
+            router.push(`/transaksi/edit/${t.id}`);
           }
         }}
         title="Log Transaksi Akun" 

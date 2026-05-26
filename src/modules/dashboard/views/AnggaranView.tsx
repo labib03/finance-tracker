@@ -2,22 +2,23 @@
 
 import React from 'react';
 import BudgetManagement from '@/modules/dashboard/components/BudgetManagement';
-
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 
 export default function AnggaranView() {
-  const setActiveModal = useFinanceStore((s) => s.setActiveModal);
   const setBudgetToEdit = useFinanceStore((s) => s.setBudgetToEdit);
+  const router = useRouter();
+
   return (
     <div className="space-y-6">
       <BudgetManagement 
         onAdd={() => {
             setBudgetToEdit(null);
-            setActiveModal('budget');
+            router.push('/anggaran/baru');
         }}
         onEdit={(b: any) => {
             setBudgetToEdit(b);
-            setActiveModal('budget');
+            router.push(`/anggaran/edit/${b.id_anggaran}`);
         }}
       />
     </div>

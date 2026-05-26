@@ -17,6 +17,7 @@ type Props = NumericFormatProps & UseControllerProps<any> & {
     label?: string;
     error?: string;
     hideCalculator?: boolean;
+    containerClassName?: string;
 };
 
 export default function NumericInput({
@@ -29,6 +30,7 @@ export default function NumericInput({
     error,
     className,
     hideCalculator,
+    containerClassName,
     ...inputProps
 }: Props) {
     const {
@@ -216,38 +218,46 @@ export default function NumericInput({
         </>
     );
 
+    const showHeader = !!label || !hideCalculator;
+
     return (
-        <div className="w-full space-y-2">
-            <div className="flex items-center justify-between">
-                {label && <Label className="text-sm font-medium">{label}</Label>}
-                {!hideCalculator && (
-                    isDesktop ? (
-                        <Popover open={isCalcOpen} onOpenChange={(open) => {
-                            setIsCalcOpen(open);
-                            if (!open) clearCalc();
-                        }}>
-                            <PopoverTrigger className={triggerClass}>
-                                {triggerContent}
-                            </PopoverTrigger>
-                            <PopoverContent className="w-80 p-0 overflow-hidden shadow-2xl border-none ring-1 ring-black/5 rounded-[2rem]" align="end" sideOffset={12}>
-                                {calculatorUI}
-                            </PopoverContent>
-                        </Popover>
-                    ) : (
-                        <Sheet open={isCalcOpen} onOpenChange={(open) => {
-                            setIsCalcOpen(open);
-                            if (!open) clearCalc();
-                        }}>
-                            <SheetTrigger className={triggerClass}>
-                                {triggerContent}
-                            </SheetTrigger>
-                            <SheetContent side="bottom" showCloseButton={true} className="p-0 overflow-hidden border-none rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] outline-none bg-white">
-                                {calculatorUI}
-                            </SheetContent>
-                        </Sheet>
-                    )
-                )}
-            </div>
+        <div className={cn(
+            "w-full flex flex-col",
+            showHeader ? "space-y-2" : "space-y-0 justify-center",
+            containerClassName
+        )}>
+            {showHeader && (
+                <div className="flex items-center justify-between">
+                    {label && <Label className="text-sm font-medium">{label}</Label>}
+                    {!hideCalculator && (
+                        isDesktop ? (
+                            <Popover open={isCalcOpen} onOpenChange={(open) => {
+                                setIsCalcOpen(open);
+                                if (!open) clearCalc();
+                            }}>
+                                <PopoverTrigger className={triggerClass}>
+                                    {triggerContent}
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80 p-0 overflow-hidden shadow-2xl border-none ring-1 ring-black/5 rounded-[2rem]" align="end" sideOffset={12}>
+                                    {calculatorUI}
+                                </PopoverContent>
+                            </Popover>
+                        ) : (
+                            <Sheet open={isCalcOpen} onOpenChange={(open) => {
+                                setIsCalcOpen(open);
+                                if (!open) clearCalc();
+                            }}>
+                                <SheetTrigger className={triggerClass}>
+                                    {triggerContent}
+                                </SheetTrigger>
+                                <SheetContent side="bottom" showCloseButton={true} className="p-0 overflow-hidden border-none rounded-t-[2.5rem] shadow-[0_-10px_40px_rgba(0,0,0,0.1)] outline-none bg-white">
+                                    {calculatorUI}
+                                </SheetContent>
+                            </Sheet>
+                        )
+                    )}
+                </div>
+            )}
             <NumericFormat
                 {...inputProps}
                 getInputRef={ref}
