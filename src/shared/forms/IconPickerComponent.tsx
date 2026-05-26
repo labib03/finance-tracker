@@ -3,7 +3,7 @@ import * as LucideIcons from 'lucide-react';
 import { Controller, Control, FieldErrors } from 'react-hook-form';
 import { cn } from "@/lib/utils"
 import { Label } from '@/shared/ui/label';
-import { SearchableSelect } from '@/shared/ui/SearchableSelect';
+import { Input } from '@/shared/ui/input';
 
 // 1. Ekstrak nama icon dan ubah menjadi format Option { value, label } untuk SearchableSelect
 const iconOptions = (Object.keys(LucideIcons).filter(
@@ -28,7 +28,7 @@ export default function IconPickerComponent({
     watchedIcon 
 }: IconPickerProps) {
     
-    // 2. Validasi untuk Preview Icon
+    // Validasi untuk memastikan string yang diketik/di-paste benar-benar ada di Lucide
     const isValidIcon = watchedIcon && watchedIcon in LucideIcons;
     const SelectedIcon = isValidIcon 
         ? LucideIcons[watchedIcon as keyof typeof LucideIcons] as React.ElementType 
@@ -39,14 +39,24 @@ export default function IconPickerComponent({
             "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
             inline ? "bg-white border-slate-200 hover:border-slate-300" : "bg-white border-slate-100"
         )}>
-            {/* Bento Card 3: Icon Picker */}
-            
-            <Label 
-                htmlFor="icon_name" 
-                className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}
-            >
-                Nama Icon Lucide (PascalCase)
-            </Label>
+            <div className="flex justify-between items-center">
+                <Label 
+                    htmlFor="icon_name" 
+                    className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}
+                >
+                    Nama Icon Lucide (PascalCase)
+                </Label>
+                
+                {/* Tautan untuk membuka halaman referensi icon di tab baru */}
+                <a 
+                    href="/referensi-icon" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-[10px] font-bold text-primary hover:underline"
+                >
+                    Lihat Galeri Icon &rarr;
+                </a>
+            </div>
             
             <div className="flex gap-4 items-center">
                 <div className="flex-1">
@@ -54,18 +64,14 @@ export default function IconPickerComponent({
                         name="icon_name"
                         control={control}
                         render={({ field }) => (
-                            <SearchableSelect
-                                options={iconOptions}
-                                value={field.value || ""} // Fallback ke string kosong jika undefined
-                                onValueChange={field.onChange}
-                                placeholder="Pilih icon..."
-                                searchPlaceholder="Cari nama icon..."
-                                error={!!errors.icon_name}
-                                // Menambahkan class h-14 dan rounded-2xl agar seragam dengan tinggi preview box 
-                                // dan input form Anda sebelumnya
+                            <Input
+                                {...field}
+                                id="icon_name"
+                                placeholder="Cth: ShoppingBag, Utensils, Wallet..."
                                 className={cn(
-                                    "h-14 rounded-2xl shadow-sm transition-all focus:scale-[1.01]",
-                                    inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white" : "bg-slate-50 border-slate-200 text-slate-950"
+                                    "h-14 rounded-2xl font-medium shadow-sm transition-all focus:scale-[1.01]",
+                                    inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white focus:border-primary/50" : "bg-slate-50 border-slate-200 text-slate-950",
+                                    errors.icon_name ? 'border-destructive' : ''
                                 )}
                             />
                         )}
@@ -85,7 +91,7 @@ export default function IconPickerComponent({
             </div>
             
             <p className={cn("text-[10px] font-bold uppercase tracking-wider", inline ? "text-slate-400" : "text-slate-400")}>
-                * Pilih icon yang merepresentasikan kategori keuangan Anda
+                * Paste nama icon yang Anda salin dari galeri ke dalam kolom ini
             </p>
             
             {errors.icon_name?.message && (

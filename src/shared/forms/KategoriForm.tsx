@@ -156,46 +156,6 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
 
             {/* Bento Card 3: Icon Picker */}
             <IconPickerComponent control={control} errors={errors} inline={inline} watchedIcon={watchedIcon} />
-            {/* <div className={cn(
-                "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
-                inline ? "bg-white border-slate-200 hover:border-slate-300" : "bg-white border-slate-100"
-            )}>
-                <Label htmlFor="icon_name" className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
-                    Nama Icon Lucide (PascalCase)
-                </Label>
-                <div className="flex gap-4 items-center">
-                    <div className="flex-1">
-                        <Controller
-                            name="icon_name"
-                            control={control}
-                            render={({ field }) => (
-                                <Input
-                                    {...field}
-                                    id="icon_name"
-                                    placeholder="Cth: ShoppingBag, Utensils, Home, Wallet..."
-                                    className={cn(
-                                        "h-14 rounded-2xl font-medium shadow-sm transition-all focus:scale-[1.01]",
-                                        inline ? "bg-slate-50 border-slate-200 text-slate-100 focus:bg-white focus:border-primary/50" : "bg-slate-50 border-slate-200 text-slate-950",
-                                        errors.icon_name ? 'border-destructive' : ''
-                                    )}
-                                />
-                            )}
-                        />
-                    </div>
-                    <div className={cn(
-                        "w-14 h-14 rounded-2xl border flex items-center justify-center shrink-0 shadow-inner",
-                        inline ? "bg-slate-50 border-slate-200 text-slate-950" : "bg-slate-100 border-slate-200 text-primary"
-                    )}>
-                        <CategoryIcon name={watchedIcon} size={24} />
-                    </div>
-                </div>
-                <p className={cn("text-[10px] font-bold uppercase tracking-wider", inline ? "text-slate-400" : "text-slate-400")}>
-                    * Tuliskan nama komponen dari Lucide React dalam PascalCase
-                </p>
-                {errors.icon_name && (
-                    <p className="text-xs font-semibold text-destructive mt-1">{errors.icon_name.message}</p>
-                )}
-            </div> */}
 
             {/* Action Row */}
             <div className="col-span-1 md:col-span-2 flex justify-end pt-4 w-full">
