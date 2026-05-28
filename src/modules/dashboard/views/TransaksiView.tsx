@@ -1,24 +1,36 @@
 'use client';
 
-import React from 'react';
+import React, { Suspense } from 'react';
 import { Button } from '@/shared/ui/button';
-import { Plus } from 'lucide-react';
+import { Plus, Layers3 } from 'lucide-react';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 
-export default function TransaksiView() {
+function TransaksiViewInner() {
   const setTransaksiToEdit = useFinanceStore((s) => s.setTransaksiToEdit);
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  const handleTambahTransaksi = () => {
+    setTransaksiToEdit(null);
+    const query = searchParams.toString();
+    router.push(`/transaksi/baru${query ? `?${query}` : ''}`);
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-3">
         <Button 
-          onClick={() => {
-            setTransaksiToEdit(null);
-            router.push('/transaksi/baru');
-          }} 
+          onClick={() => router.push('/transaksi/batch')} 
+          variant="outline"
+          className="rounded-full px-6 border-slate-200 hover:bg-slate-50 text-slate-700 h-10 flex items-center justify-center font-bold"
+        >
+          <Layers3 size={16} className="mr-2" />
+          Input Massal
+        </Button>
+        <Button 
+          onClick={handleTambahTransaksi} 
           className="rounded-full px-6"
         >
           <Plus size={18} className="mr-2" />
@@ -40,5 +52,13 @@ export default function TransaksiView() {
         title="Semua Transaksi" 
       />
     </div>
+  );
+}
+
+export default function TransaksiView() {
+  return (
+    <Suspense fallback={<div className="p-8 text-center text-muted-foreground font-black text-xs uppercase tracking-widest">Memuat daftar...</div>}>
+      <TransaksiViewInner />
+    </Suspense>
   );
 }
