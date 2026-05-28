@@ -101,7 +101,7 @@ export default function IconGalleryPage() {
                     <div className="flex flex-col items-center justify-center py-20 text-slate-500 gap-4">
                         <SearchX size={48} className="opacity-20" />
                         <p className="font-medium">
-                            Waduh, icon dengan kata kunci <span className="font-bold text-slate-800">"{search}"</span> tidak ditemukan.
+                            Waduh, icon dengan kata kunci <span className="font-bold text-slate-800">&quot;{search}&quot;</span> tidak ditemukan.
                         </p>
                     </div>
                 )}

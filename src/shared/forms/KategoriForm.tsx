@@ -136,14 +136,14 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
                             <TabsList className={cn("grid w-full grid-cols-2 p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")}>
                                 <TabsTrigger 
                                     value="Pengeluaran" 
-                                    className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 data-[state=active]:bg-rose-50 border-none data-[state=active]:text-rose-600 data-[state=active]:shadow-xs cursor-pointer"
+                                    className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500 dark:data-active:bg-rose-950/20 dark:data-active:text-rose-450 dark:data-active:border-rose-900/30 transition-all cursor-pointer"
                                 >
                                     <ArrowDownRight size={14} className="mr-1.5" />
                                     Pengeluaran
                                 </TabsTrigger>
                                 <TabsTrigger 
                                     value="Pemasukan" 
-                                    className="rounded-xl font-bold text-xs uppercase tracking-wider py-3 data-[state=active]:bg-emerald-50 border-none data-[state=active]:text-emerald-600 data-[state=active]:shadow-xs cursor-pointer"
+                                    className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500 dark:data-active:bg-emerald-950/20 dark:data-active:text-emerald-450 dark:data-active:border-emerald-900/30 transition-all cursor-pointer"
                                 >
                                     <ArrowUpRight size={14} className="mr-1.5" />
                                     Pemasukan

@@ -275,7 +275,7 @@ export default function NumericInput({
                 displayType="input"
                 customInput={Input}
                 className={cn(
-                    "display-number text-2xl font-black h-14 bg-slate-50 border-slate-200/60 rounded-xl px-5 transition-all focus:bg-white focus:border-blue-300 focus:ring-4 focus:ring-blue-100 self-center",
+                    "display-number text-2xl md:text-3xl font-black h-14 md:h-16 bg-slate-50 border-slate-200/60 rounded-xl px-5 transition-all focus:bg-white focus:border-blue-300 focus:ring-4 focus:ring-blue-100 self-center",
                     error && "border-rose-500 focus:ring-rose-100",
                     className
                 )}

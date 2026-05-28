@@ -81,7 +81,7 @@ export default function FormPageLayout({
                     initial={{ opacity: 0, x: -30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ type: 'spring', duration: 0.8, bounce: 0.1 }}
-                    className="w-full lg:sticky lg:top-[96px] h-auto lg:h-[calc(100vh-160px)] flex flex-col justify-between gap-6"
+                    className="w-full lg:sticky lg:top-[96px] h-fit flex flex-col gap-6"
                 >
                     {previewPanel}
                 </motion.div>

@@ -25,6 +25,7 @@ export interface TransactionFiltersProps {
     setDateFilter: (val: string) => void;
     kategoriList: Kategori[];
     sumberDanaList: SumberDana[];
+    onReset: () => void;
 }
 
 export default function TransactionFilters({
@@ -40,7 +41,8 @@ export default function TransactionFilters({
     dateFilter,
     setDateFilter,
     kategoriList,
-    sumberDanaList
+    sumberDanaList,
+    onReset
 }: TransactionFiltersProps) {
     const isTransferMode = filterMode === 'transfer';
 
@@ -49,6 +51,8 @@ export default function TransactionFilters({
         : kategoriList.filter(k => k.tipe === typeFilter);
 
     const [isExpanded, setIsExpanded] = useState(false);
+
+    const hasActiveFilters = search !== '' || typeFilter !== 'all' || categoryFilter !== 'all' || accountFilter !== 'all' || dateFilter !== 'all';
 
     return (
         <div className="px-6 sm:px-8 py-5 bg-muted/5 border-b border-border/10">
@@ -74,17 +78,30 @@ export default function TransactionFilters({
                     </div>
                     
                     {!isTransferMode && (
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => setIsExpanded(!isExpanded)}
-                            className={cn(
-                                "h-11 w-11 rounded-2xl border-border/40 shadow-scandi xl:hidden transition-all",
-                                isExpanded ? "bg-foreground text-background" : "bg-white text-foreground"
+                        <>
+                            {hasActiveFilters && (
+                                <Button
+                                    variant="outline"
+                                    size="icon"
+                                    onClick={onReset}
+                                    className="h-11 w-11 rounded-2xl bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 transition-all active:scale-95 shadow-scandi"
+                                    title="Reset Semua Filter"
+                                >
+                                    <X size={16} strokeWidth={2.5} />
+                                </Button>
                             )}
-                        >
-                            <Filter size={18} strokeWidth={2.5} />
-                        </Button>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                onClick={() => setIsExpanded(!isExpanded)}
+                                className={cn(
+                                    "h-11 w-11 rounded-2xl border-border/40 shadow-scandi xl:hidden transition-all",
+                                    isExpanded ? "bg-foreground text-background" : "bg-white text-foreground"
+                                )}
+                            >
+                                <Filter size={18} strokeWidth={2.5} />
+                            </Button>
+                        </>
                     )}
                 </div>
 
@@ -104,7 +121,6 @@ export default function TransactionFilters({
                                     value={typeFilter} 
                                     onValueChange={(val) => {
                                         setTypeFilter(val || 'all');
-                                        setCategoryFilter('all');
                                     }} 
                                     modal={false}
                                 >
@@ -177,7 +193,29 @@ export default function TransactionFilters({
                                     />
                                 )}
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 rounded-2xl shadow-float border-border/40" align={isTransferMode ? "end" : "center"}>
+                            <PopoverContent className="w-auto p-0 rounded-2xl shadow-float border-border/40 bg-white overflow-hidden" align={isTransferMode ? "end" : "center"}>
+                                <div className="p-2 border-b border-border/10 flex justify-between items-center bg-muted/5">
+                                    <button 
+                                        type="button"
+                                        onClick={() => {
+                                            const today = new Date();
+                                            const year = today.getFullYear();
+                                            const month = String(today.getMonth() + 1).padStart(2, '0');
+                                            const day = String(today.getDate()).padStart(2, '0');
+                                            setDateFilter(`${year}-${month}-${day}`);
+                                        }}
+                                        className="text-[10px] font-black uppercase tracking-widest text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition-colors cursor-pointer"
+                                    >
+                                        Hari Ini
+                                    </button>
+                                    <button 
+                                        type="button"
+                                        onClick={() => setDateFilter('all')}
+                                        className="text-[10px] font-black uppercase tracking-widest text-muted-foreground hover:text-foreground px-3 py-1.5 rounded-lg hover:bg-muted/10 transition-colors cursor-pointer"
+                                    >
+                                        Semua
+                                    </button>
+                                </div>
                                 <Calendar
                                     mode="single"
                                     selected={dateFilter !== 'all' ? new Date(dateFilter) : undefined}
@@ -196,6 +234,26 @@ export default function TransactionFilters({
                             </PopoverContent>
                         </Popover>
                     </div>
+
+                    {!isTransferMode && (
+                        <div className="col-span-1">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                onClick={onReset}
+                                disabled={!hasActiveFilters}
+                                className={cn(
+                                    "h-11 w-full text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-2xl border transition-all duration-300 flex items-center justify-center gap-2",
+                                    hasActiveFilters 
+                                        ? "bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-600 hover:text-white hover:border-rose-600 shadow-scandi active:scale-95 cursor-pointer" 
+                                        : "bg-muted/10 border-border/20 text-muted-foreground/40 cursor-not-allowed"
+                                )}
+                            >
+                                <X size={14} strokeWidth={2.5} />
+                                <span>Reset Filter</span>
+                            </Button>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

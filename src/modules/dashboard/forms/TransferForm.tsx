@@ -391,99 +391,101 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
             </div>
         </>
     );
-
     // Dynamic Left Panel: Futuristic Interactive Transfer flow preview
     const previewContent = (
-        <div className="flex flex-col justify-between h-full gap-8 p-8 sm:p-10 rounded-[2.5rem] bg-gradient-to-br from-white to-slate-50 border border-slate-200/80 shadow-2xl relative overflow-hidden group">
-            {/* Top design accent */}
-            <div className="absolute top-[-20px] left-[-20px] w-48 h-48 rounded-full bg-blue-100/10 blur-3xl pointer-events-none" />
+        <div className="flex flex-col gap-6 h-fit w-full">
+            {/* Main Interactive Transfer Card */}
+            <div className="flex flex-col justify-between gap-6 p-8 sm:p-10 rounded-[2.5rem] bg-gradient-to-br from-white to-slate-50 border border-slate-200/80 relative overflow-hidden group">
+                {/* Top design accent */}
+                <div className="absolute top-[-20px] left-[-20px] w-48 h-48 rounded-full bg-blue-100/10 blur-3xl pointer-events-none" />
 
-            {/* Holographic blue blur */}
-            <div className="absolute top-[25%] left-[25%] w-[50%] h-[40%] rounded-full blur-[100px] pointer-events-none opacity-20 bg-blue-500/20" />
+                {/* Holographic blue blur */}
+                <div className="absolute top-[25%] left-[25%] w-[50%] h-[40%] rounded-full blur-[100px] pointer-events-none opacity-20 bg-blue-500/20" />
 
-            {/* Top row: header */}
-            <div className="flex justify-between items-center relative z-10 w-full">
-                <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-blue-600 flex items-center justify-center shadow-xs">
-                        <TrendingUp size={20} className="text-blue-500" />
+                {/* Top row: header */}
+                <div className="flex justify-between items-center relative z-10 w-full">
+                    <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-blue-600 flex items-center justify-center shadow-xs">
+                            <TrendingUp size={20} className="text-blue-500" />
+                        </div>
+                        <div className="text-left">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">PREVIEW DATA</span>
+                            <h4 className="text-xs font-bold text-slate-650 mt-1 uppercase tracking-widest">Transfer Dana</h4>
+                        </div>
                     </div>
-                    <div className="text-left">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">PREVIEW DATA</span>
-                        <h4 className="text-xs font-bold text-slate-650 mt-1 uppercase tracking-widest">Transfer Dana</h4>
+                    <div className="px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-200 text-blue-600 bg-blue-50 shadow-xs flex items-center gap-2">
+                        <ArrowLeftRight size={10} strokeWidth={3} />
+                        MUTASI
                     </div>
                 </div>
-                <div className="px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border border-blue-200 text-blue-600 bg-blue-50 shadow-xs flex items-center gap-2">
-                    <ArrowLeftRight size={10} strokeWidth={3} />
-                    MUTASI
+
+                {/* Giant Live numeric value */}
+                <div className="text-center py-4 relative z-10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2">Estimasi Nominal</p>
+                    <h2 className="text-5xl sm:text-6xl font-black display-number tracking-tighter truncate px-2 select-all text-blue-600">
+                        {formatRupiah(watchedNominal)}
+                    </h2>
+                    <div className="w-32 h-0.5 bg-slate-200 mx-auto mt-4 rounded-full" />
+                </div>
+
+                {/* Interactive flow map: Source Account -> Target Account */}
+                <div className="relative z-10 flex items-center justify-between gap-4 py-4 px-6 bg-white/80 rounded-2xl border border-slate-200 shadow-xs backdrop-blur-md">
+                    {/* Source wallet card bubble */}
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-xs">
+                            <Wallet size={20} />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-center truncate max-w-[100px]">
+                            {sourceAccountName}
+                        </span>
+                    </div>
+
+                    {/* Animated Spring arrow flow */}
+                    <div className="flex flex-col items-center gap-1 min-w-[60px]">
+                        <motion.div
+                            animate={{ x: [0, 8, 0] }}
+                            transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+                            className="text-blue-500 shrink-0"
+                        >
+                            <ArrowRight size={24} strokeWidth={3} />
+                        </motion.div>
+                    </div>
+
+                    {/* Target wallet card bubble */}
+                    <div className="flex-1 flex flex-col items-center gap-2">
+                        <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-xs">
+                            <Wallet size={20} />
+                        </div>
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 text-center truncate max-w-[100px]">
+                            {targetAccountName}
+                        </span>
+                    </div>
+                </div>
+
+                {/* Receipt Summary Details */}
+                <div className="space-y-4 relative z-10 bg-white/80 p-6 rounded-2xl border border-slate-200 shadow-xs backdrop-blur-md">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Judul Transfer</span>
+                        <span className="text-xs font-bold text-slate-800 truncate max-w-[200px]">{watchedLabel || 'Belum diisi'}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Biaya Administrasi</span>
+                        <span className="text-xs font-bold text-slate-800">{formatRupiah(watchedBiayaAdmin)}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tanggal</span>
+                        <span className="text-xs font-bold text-slate-800 display-number">
+                            {watchedTanggal 
+                                ? new Date(watchedTanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                                : new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                            }
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Giant Live numeric value */}
-            <div className="text-center py-4 relative z-10">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2">Estimasi Nominal</p>
-                <h2 className="text-5xl sm:text-6xl font-black display-number tracking-tighter truncate px-2 select-all text-blue-600">
-                    {formatRupiah(watchedNominal)}
-                </h2>
-                <div className="w-32 h-0.5 bg-slate-200 mx-auto mt-4 rounded-full" />
-            </div>
-
-            {/* Interactive flow map: Source Account -> Target Account */}
-            <div className="relative z-10 flex items-center justify-between gap-4 py-4 px-6 bg-white/80 rounded-2xl border border-slate-200 shadow-xs backdrop-blur-md">
-                {/* Source wallet card bubble */}
-                <div className="flex-1 flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-xs">
-                        <Wallet size={20} />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 text-center truncate max-w-[100px]">
-                        {sourceAccountName}
-                    </span>
-                </div>
-
-                {/* Animated Spring arrow flow */}
-                <div className="flex flex-col items-center gap-1 min-w-[60px]">
-                    <motion.div
-                        animate={{ x: [0, 8, 0] }}
-                        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-                        className="text-blue-500 shrink-0"
-                    >
-                        <ArrowRight size={24} strokeWidth={3} />
-                    </motion.div>
-                </div>
-
-                {/* Target wallet card bubble */}
-                <div className="flex-1 flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-blue-600 shadow-xs">
-                        <Wallet size={20} />
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 text-center truncate max-w-[100px]">
-                        {targetAccountName}
-                    </span>
-                </div>
-            </div>
-
-            {/* Receipt Summary Details */}
-            <div className="space-y-4 relative z-10 bg-white/80 p-6 rounded-2xl border border-slate-200 shadow-xs backdrop-blur-md">
-                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Judul Transfer</span>
-                    <span className="text-xs font-bold text-slate-800 truncate max-w-[200px]">{watchedLabel || 'Belum diisi'}</span>
-                </div>
-                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Biaya Administrasi</span>
-                    <span className="text-xs font-bold text-slate-800">{formatRupiah(watchedBiayaAdmin)}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tanggal</span>
-                    <span className="text-xs font-bold text-slate-800 display-number">
-                        {watchedTanggal 
-                            ? new Date(watchedTanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
-                            : new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
-                        }
-                    </span>
-                </div>
-            </div>
-
-            {/* Smart Contextual Tip */}
-            <div className="relative z-10 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs text-left">
+            {/* Smart Contextual Tip (Sits outside, in its own container) */}
+            <div className="relative z-10 p-5 rounded-[1.5rem] bg-white border border-slate-200/80 text-left transition-all duration-300">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Tips Keuangan Cerdas</p>
                 <p className="text-[11px] font-semibold text-slate-650 leading-relaxed">
                     Mutasi saldo antar rekening pribadi Anda tidak akan merubah total kekayaan bersih (Net Worth) di dashboard. Tindakan ini hanya mendistribusikan aset likuid Anda untuk kemudahan alokasi tunai atau transaksi terpisah.

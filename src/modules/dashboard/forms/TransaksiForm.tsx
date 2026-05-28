@@ -203,11 +203,17 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                         }}
                         className="w-full sm:w-auto"
                     >
-                        <TabsList className={cn("grid w-full grid-cols-2", inline ? "bg-slate-100 border border-slate-200" : "bg-slate-100")}>
-                            <TabsTrigger value="Pengeluaran" className="text-xs uppercase tracking-widest font-black py-2.5">
+                        <TabsList className={cn("grid w-full grid-cols-2 p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")}>
+                            <TabsTrigger 
+                                value="Pengeluaran" 
+                                className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500 dark:data-active:bg-rose-950/20 dark:data-active:text-rose-450 dark:data-active:border-rose-900/30 transition-all cursor-pointer"
+                            >
                                 💸 Keluar
                             </TabsTrigger>
-                            <TabsTrigger value="Pemasukan" className="text-xs uppercase tracking-widest font-black py-2.5">
+                            <TabsTrigger 
+                                value="Pemasukan" 
+                                className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500 dark:data-active:bg-emerald-950/20 dark:data-active:text-emerald-450 dark:data-active:border-emerald-900/30 transition-all cursor-pointer"
+                            >
                                 💰 Masuk
                             </TabsTrigger>
                         </TabsList>
@@ -220,7 +226,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                         control={control as any}
                         error={errors.nominal?.message}
                         className={cn(
-                            "text-4xl sm:text-6xl font-black h-20 sm:h-28 text-center bg-transparent border-none focus:ring-0 focus:border-none shadow-none display-number tracking-tighter w-full overflow-hidden transition-all duration-300",
+                            "text-4xl sm:text-8xl font-black h-20 sm:h-32 text-center bg-transparent border-none focus:ring-0 focus:border-none shadow-none display-number tracking-tighter w-full overflow-hidden transition-all duration-300",
                             activeJenis === 'Pemasukan' ? "text-emerald-600" : "text-rose-600"
                         )}
                         placeholder="Rp 0"
@@ -493,75 +499,78 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
 
     // Dynamic Left Panel: Futuristic Interactive Receipt preview (Premium Light/Glow styled)
     const previewContent = (
-        <div className="flex flex-col justify-between h-full gap-8 p-8 sm:p-10 rounded-[2.5rem] bg-gradient-to-br from-white to-slate-50 border border-slate-200/80 shadow-2xl relative overflow-hidden group">
-            {/* Top design accent */}
-            <div className="absolute top-[-20px] right-[-20px] w-48 h-48 rounded-full bg-blue-100/10 blur-3xl pointer-events-none" />
+        <div className="flex flex-col gap-6 h-fit w-full">
+            {/* Main Interactive Receipt Card */}
+            <div className="flex flex-col justify-between gap-6 p-8 sm:p-10 rounded-[2.5rem] bg-gradient-to-br from-white to-slate-50 border border-slate-200/80 relative overflow-hidden group">
+                {/* Top design accent */}
+                <div className="absolute top-[-20px] right-[-20px] w-48 h-48 rounded-full bg-blue-100/10 blur-3xl pointer-events-none" />
 
-            {/* holographic orb behind value */}
-            <div className={cn(
-                "absolute top-[25%] left-[25%] w-[50%] h-[40%] rounded-full blur-[100px] pointer-events-none opacity-20 transition-colors duration-1000",
-                activeJenis === 'Pemasukan' ? "bg-emerald-500/20" : "bg-rose-500/20"
-            )} />
-
-            {/* Top row: mock bank badge */}
-            <div className="flex justify-between items-center relative z-10 w-full">
-                <div className="flex items-center gap-3">
-                    <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-800 flex items-center justify-center shadow-xs">
-                        <TrendingUp size={20} className={activeJenis === 'Pemasukan' ? "text-emerald-500" : "text-rose-500"} />
-                    </div>
-                    <div className="text-left">
-                        <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">PREVIEW DATA</span>
-                        <h4 className="text-xs font-bold text-slate-600 mt-1 uppercase tracking-widest">{activeJenis}</h4>
-                    </div>
-                </div>
+                {/* holographic orb behind value */}
                 <div className={cn(
-                    "px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-xs flex items-center gap-2",
-                    activeJenis === 'Pemasukan' ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-rose-50 border-rose-200 text-rose-600"
-                )}>
-                    {activeJenis === 'Pemasukan' ? <ArrowUpRight size={10} strokeWidth={3} /> : <ArrowDownRight size={10} strokeWidth={3} />}
-                    {activeJenis}
+                    "absolute top-[25%] left-[25%] w-[50%] h-[40%] rounded-full blur-[100px] pointer-events-none opacity-20 transition-colors duration-1000",
+                    activeJenis === 'Pemasukan' ? "bg-emerald-500/20" : "bg-rose-500/20"
+                )} />
+
+                {/* Top row: mock bank badge */}
+                <div className="flex justify-between items-center relative z-10 w-full">
+                    <div className="flex items-center gap-3">
+                        <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-800 flex items-center justify-center shadow-xs">
+                            <TrendingUp size={20} className={activeJenis === 'Pemasukan' ? "text-emerald-500" : "text-rose-500"} />
+                        </div>
+                        <div className="text-left">
+                            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">PREVIEW DATA</span>
+                            <h4 className="text-xs font-bold text-slate-650 mt-1 uppercase tracking-widest">{activeJenis}</h4>
+                        </div>
+                    </div>
+                    <div className={cn(
+                        "px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-xs flex items-center gap-2",
+                        activeJenis === 'Pemasukan' ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-rose-50 border-rose-200 text-rose-600"
+                    )}>
+                        {activeJenis === 'Pemasukan' ? <ArrowUpRight size={10} strokeWidth={3} /> : <ArrowDownRight size={10} strokeWidth={3} />}
+                        {activeJenis}
+                    </div>
+                </div>
+
+                {/* Giant Live numeric value */}
+                <div className="text-center py-6 relative z-10">
+                    <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2">Estimasi Nominal</p>
+                    <h2 className={cn(
+                        "text-5xl sm:text-6xl font-black display-number tracking-tighter truncate px-2 select-all",
+                        activeJenis === 'Pemasukan' ? "text-emerald-600" : "text-rose-600"
+                    )}>
+                        {formatRupiah(watchedNominal)}
+                    </h2>
+                    <div className="w-32 h-0.5 bg-slate-200 mx-auto mt-4 rounded-full" />
+                </div>
+
+                {/* Holographic Receipt Details */}
+                <div className="space-y-4 relative z-10 bg-white/80 p-6 rounded-2xl border border-slate-200 shadow-xs backdrop-blur-md">
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Judul Transaksi</span>
+                        <span className="text-xs font-bold text-slate-800 truncate max-w-[200px]">{watchedLabel || 'Belum diisi'}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sumber Dana</span>
+                        <span className="text-xs font-bold text-slate-800">{sourceAccountName}</span>
+                    </div>
+                    <div className="flex justify-between items-center border-b border-slate-100 pb-2">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Kategori</span>
+                        <span className="text-xs font-bold text-slate-800">{categoryName}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tanggal</span>
+                        <span className="text-xs font-bold text-slate-800 display-number">
+                            {watchedTanggal 
+                                ? new Date(watchedTanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                                : new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
+                            }
+                        </span>
+                    </div>
                 </div>
             </div>
 
-            {/* Giant Live numeric value */}
-            <div className="text-center py-8 relative z-10">
-                <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2">Estimasi Nominal</p>
-                <h2 className={cn(
-                    "text-5xl sm:text-6xl font-black display-number tracking-tighter truncate px-2 select-all",
-                    activeJenis === 'Pemasukan' ? "text-emerald-600" : "text-rose-600"
-                )}>
-                    {formatRupiah(watchedNominal)}
-                </h2>
-                <div className="w-32 h-0.5 bg-slate-200 mx-auto mt-4 rounded-full" />
-            </div>
-
-            {/* Holographic Receipt Details */}
-            <div className="space-y-4 relative z-10 bg-white/80 p-6 rounded-2xl border border-slate-200 shadow-xs backdrop-blur-md">
-                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Judul Transaksi</span>
-                    <span className="text-xs font-bold text-slate-800 truncate max-w-[200px]">{watchedLabel || 'Belum diisi'}</span>
-                </div>
-                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Sumber Dana</span>
-                    <span className="text-xs font-bold text-slate-800">{sourceAccountName}</span>
-                </div>
-                <div className="flex justify-between items-center border-b border-slate-100 pb-2">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Kategori</span>
-                    <span className="text-xs font-bold text-slate-800">{categoryName}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Tanggal</span>
-                    <span className="text-xs font-bold text-slate-800 display-number">
-                        {watchedTanggal 
-                            ? new Date(watchedTanggal).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
-                            : new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })
-                        }
-                    </span>
-                </div>
-            </div>
-
-            {/* Smart Contextual Tip */}
-            <div className="relative z-10 p-5 rounded-2xl bg-white border border-slate-200 shadow-xs text-left">
+            {/* Smart Contextual Tip (Sits outside, in its own container) */}
+            <div className="relative z-10 p-5 rounded-[1.5rem] bg-white border border-slate-200/80 text-left transition-all duration-300">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Tips Keuangan Cerdas</p>
                 <p className="text-[11px] font-semibold text-slate-650 leading-relaxed">
                     {activeJenis === 'Pengeluaran'
