@@ -199,25 +199,21 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {/* AI Advisor Prompt Generator Card (Opsi B) */}
-            <div className="bg-slate-900 text-white rounded-[2rem] sm:rounded-[2.5rem] border border-slate-800 shadow-xl overflow-hidden relative group/ai p-6 sm:p-8">
-                {/* Background ambient glowing effect */}
-                <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] -mr-32 -mt-32 transition-all group-hover/ai:bg-blue-500/15 pointer-events-none" />
-                <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-emerald-500/5 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none" />
-                
-                <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <div className="space-y-4 max-w-2xl text-left">
+            {/* AI Advisor Prompt Generator Card (Swiss Brutalist Style) */}
+            <div className="bg-black text-white rounded-none border-2 sm:border-4 border-white shadow-[8px_8px_0px_0px_rgba(255,255,255,0.15)] relative overflow-hidden p-6 sm:p-8 transition-all duration-300">
+                <div className="relative flex flex-col lg:flex-row lg:items-start justify-between gap-8">
+                    <div className="space-y-4 max-w-3xl text-left">
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-sm animate-pulse">
-                                <Sparkles size={18} strokeWidth={2.5} />
+                            <div className="w-8 h-8 rounded-none border-2 border-white flex items-center justify-center text-white bg-zinc-900">
+                                <Sparkles size={16} strokeWidth={3} />
                             </div>
-                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-400">Asisten Pintar AI</span>
+                            <span className="text-[10px] font-mono font-black uppercase tracking-[0.3em] text-white/80">AI.ADVISOR.PROMPT // CONNECTED</span>
                         </div>
-                        <h3 className="text-xl sm:text-2xl font-black uppercase tracking-widest text-slate-100 leading-tight">
-                            Konsultan Finansial AI Pribadi Anda
+                        <h3 className="text-2xl sm:text-4xl font-mono font-black uppercase tracking-tighter text-white leading-none">
+                            FINANCIAL ADVISOR CONSOLE
                         </h3>
-                        <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
-                            Ingin mendapatkan saran ahli dan rekomendasi finansial taktis? Cukup salin kalimat prompt laporan lengkap Anda di bawah ini, lalu kirimkan ke AI favorit Anda (DeepSeek, Claude, ChatGPT, atau Gemini) untuk mendapatkan audit keuangan instan!
+                        <p className="text-xs sm:text-sm text-zinc-400 font-mono leading-relaxed">
+                            KOMPARASIKAN KELAYAKAN CASHFLOW, REALISASI ANGGARAN, TARGET TABUNGAN, DAN RENCANA TAGIHAN AKTIF. SALIN PROMPT TERSTRUKTUR DI BAWAH INI UNTUK DIKIRIMKAN KE AI FAVORIT ANDA (DEEPSEEK, CLAUDE, CHATGPT, GEMINI) GUNA AUDIT KEUANGAN INSTAN.
                         </p>
                     </div>
 
@@ -231,35 +227,37 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
                                 setTimeout(() => setIsCopied(false), 2000);
                             }}
                             className={cn(
-                                "flex items-center justify-center gap-2 h-14 px-8 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 cursor-pointer shadow-md select-none border w-full sm:flex-1 lg:w-[260px]",
+                                "flex items-center justify-center gap-3 h-14 px-8 rounded-none font-mono font-black text-xs uppercase tracking-widest transition-all duration-100 cursor-pointer select-none border-2 w-full sm:flex-1 lg:w-[280px]",
                                 isCopied
-                                    ? "bg-emerald-500 border-emerald-400 text-white shadow-emerald-500/20"
-                                    : "bg-white border-slate-250 text-slate-900 hover:bg-slate-50 shadow-slate-900/15"
+                                    ? "bg-emerald-500 border-emerald-400 text-white shadow-none translate-x-[2px] translate-y-[2px]"
+                                    : "bg-white border-white text-black shadow-[4px_4px_0px_0px_rgba(255,255,255,0.4)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
                             )}
                         >
                             {isCopied ? (
                                 <>
                                     <Check size={16} strokeWidth={3} className="animate-in zoom-in" />
-                                    Tersalin ke Clipboard!
+                                    COPIED TO CLIPBOARD
                                 </>
                             ) : (
                                 <>
-                                    <Copy size={16} strokeWidth={2.5} />
-                                    Salin Prompt AI
+                                    <Copy size={16} strokeWidth={3} />
+                                    COPY ADVISOR PROMPT
                                 </>
                             )}
                         </button>
                     </div>
                 </div>
 
-                {/* Styled Preview area */}
-                <div className="mt-6 border-t border-slate-800/80 pt-6">
-                    <div className="flex items-center justify-between mb-3">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Pratinjau Prompt AI Kalimat Lengkap</span>
-                        <span className="text-[9px] font-bold text-blue-500/80 uppercase tracking-wider italic">Bulan Aktif: {activeMonthLabel}</span>
+                {/* Styled Preview area - Brutalist Log Terminal */}
+                <div className="mt-6 border-t-2 border-zinc-800 pt-6">
+                    <div className="flex items-center justify-between mb-3 font-mono">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-zinc-500">{"// RAW_PROMPT_PREVIEW.LOG"}</span>
+                        <span className="text-[9px] font-black text-white/60 uppercase tracking-wider bg-zinc-800 px-2 py-0.5 border border-zinc-700">
+                            ACTIVE_MONTH: {activeMonthLabel.toUpperCase()}
+                        </span>
                     </div>
-                    <div className="bg-slate-950/80 rounded-2xl p-4 border border-slate-800/50 max-h-36 overflow-y-auto scrollbar-none text-left">
-                        <pre className="font-mono text-[10px] text-slate-400 leading-relaxed whitespace-pre-wrap select-all font-bold">
+                    <div className="bg-zinc-950 rounded-none p-4 border border-zinc-800 max-h-36 overflow-y-auto scrollbar-none text-left">
+                        <pre className="font-mono text-[10px] text-zinc-300 leading-relaxed whitespace-pre-wrap select-all font-bold">
                             {compiledAiPrompt}
                         </pre>
                     </div>
