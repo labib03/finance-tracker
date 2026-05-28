@@ -199,25 +199,25 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
-            {/* AI Advisor Prompt Generator Card (Swiss Brutalist Yellow Style) */}
-            <div className="bg-[#FFE359] text-black rounded-none border-2 sm:border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] relative overflow-hidden p-6 sm:p-8 transition-all duration-300">
+            {/* AI Advisor Prompt Generator Card (App Consistent Minimalist Style) */}
+            <div className="bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] shadow-scandi border border-border/40 relative overflow-hidden transition-all duration-500 hover:shadow-float">
                 <div className="relative flex flex-col lg:flex-row lg:items-start justify-between gap-8">
                     <div className="space-y-4 max-w-3xl text-left">
-                        <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-none border-2 border-black flex items-center justify-center text-[#FFE359] bg-black">
-                                <Sparkles size={16} strokeWidth={3} />
+                        <div className="flex items-center gap-3 text-primary">
+                            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center">
+                                <Sparkles size={20} strokeWidth={2} />
                             </div>
-                            <span className="text-[10px] font-mono font-black uppercase tracking-[0.3em] text-black/80">AI.ADVISOR.PROMPT // CONNECTED</span>
+                            <span className="text-xs font-bold uppercase tracking-widest text-primary/80">AI Advisor Prompt</span>
                         </div>
-                        <h3 className="text-2xl sm:text-4xl font-mono font-black uppercase tracking-tighter text-black leading-none">
-                            FINANCIAL ADVISOR CONSOLE
+                        <h3 className="text-2xl sm:text-3xl font-black text-foreground tracking-tight leading-tight">
+                            Generate Prompt Laporan Keuangan
                         </h3>
-                        <p className="text-xs sm:text-sm text-black/80 font-mono leading-relaxed">
-                            KOMPARASIKAN KELAYAKAN CASHFLOW, REALISASI ANGGARAN, TARGET TABUNGAN, DAN RENCANA TAGIHAN AKTIF. SALIN PROMPT TERSTRUKTUR DI BAWAH INI UNTUK DIKIRIMKAN KE AI FAVORIT ANDA (DEEPSEEK, CLAUDE, CHATGPT, GEMINI) GUNA AUDIT KEUANGAN INSTAN.
+                        <p className="text-sm text-muted-foreground leading-relaxed">
+                            Salin prompt di bawah ini untuk dikirimkan ke AI (ChatGPT, Claude, dsb.) untuk mendapatkan analisis, masukan, dan saran finansial dari data keuangan bulan ini.
                         </p>
                     </div>
 
-                    <div className="flex flex-col sm:flex-row lg:flex-col gap-4 shrink-0 justify-end w-full lg:w-auto">
+                    <div className="flex flex-col sm:flex-row lg:flex-col gap-4 shrink-0 justify-end w-full lg:w-auto mt-2">
                         <button
                             type="button"
                             onClick={() => {
@@ -227,37 +227,37 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
                                 setTimeout(() => setIsCopied(false), 2000);
                             }}
                             className={cn(
-                                "flex items-center justify-center gap-3 h-14 px-8 rounded-none font-mono font-black text-xs uppercase tracking-widest transition-all duration-100 cursor-pointer select-none border-2 w-full sm:flex-1 lg:w-[280px]",
+                                "flex py-1.5 items-center justify-center gap-3 h-14 px-6 rounded-2xl font-bold text-sm transition-all duration-300 w-full sm:flex-1 lg:w-[200px]",
                                 isCopied
-                                    ? "bg-emerald-600 border-black text-white shadow-none translate-x-[2px] translate-y-[2px]"
-                                    : "bg-black border-black text-white shadow-[4px_4px_0px_0px_rgba(0,0,0,0.25)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-none active:translate-x-[4px] active:translate-y-[4px] active:shadow-none"
+                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-200"
+                                    : "bg-secondary text-secondary-foreground border-2 border-secondary hover:bg-white hover:cursor-pointer"
                             )}
                         >
                             {isCopied ? (
                                 <>
-                                    <Check size={16} strokeWidth={3} className="animate-in zoom-in" />
-                                    COPIED TO CLIPBOARD
+                                    <Check size={18} strokeWidth={2.5} className="animate-in zoom-in" />
+                                    Berhasil Disalin
                                 </>
                             ) : (
                                 <>
-                                    <Copy size={16} strokeWidth={3} />
-                                    COPY ADVISOR PROMPT
+                                    <Copy size={18} strokeWidth={2} />
+                                    Salin Prompt AI
                                 </>
                             )}
                         </button>
                     </div>
                 </div>
 
-                {/* Styled Preview area - Brutalist Log Terminal */}
-                <div className="mt-6 border-t-2 border-black/20 pt-6">
-                    <div className="flex items-center justify-between mb-3 font-mono">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-black/50">{"// RAW_PROMPT_PREVIEW.LOG"}</span>
-                        <span className="text-[9px] font-black text-black uppercase tracking-wider bg-[#FFE359] px-2 py-0.5 border-2 border-black shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]">
-                            ACTIVE_MONTH: {activeMonthLabel.toUpperCase()}
+                {/* Styled Preview area - Minimalist Log */}
+                <div className="mt-8 pt-6 border-t border-border/50">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground/60">{"// RAW PROMPT PREVIEW"}</span>
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-secondary/50 text-secondary-foreground px-2.5 py-1 rounded-md">
+                            Bulan: {activeMonthLabel}
                         </span>
                     </div>
-                    <div className="bg-[#0F1015] rounded-none p-4 border-2 border-black max-h-36 overflow-y-auto scrollbar-none text-left shadow-[4px_4px_0px_0px_rgba(0,0,0,0.15)]">
-                        <pre className="font-mono text-[10px] text-slate-300 leading-relaxed whitespace-pre-wrap select-all font-bold">
+                    <div className="bg-secondary/30 rounded-2xl p-5 border border-border/50 max-h-40 overflow-y-auto text-left relative group">
+                        <pre className="font-mono text-[11px] text-muted-foreground leading-relaxed whitespace-pre-wrap select-all transition-colors group-hover:text-foreground/80">
                             {compiledAiPrompt}
                         </pre>
                     </div>
