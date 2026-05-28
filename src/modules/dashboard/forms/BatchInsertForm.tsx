@@ -433,7 +433,7 @@ export default function BatchInsertForm() {
                                                 render={({ field: nField }) => (
                                                     <NumericInput
                                                         name={nField.name}
-                                                        control={control}
+                                                        control={control as any}
                                                         error={rowHasError && (nField.value || 0) <= 0 ? "Nominal harus valid" : undefined}
                                                         className={cn(
                                                             "bg-slate-50 border-slate-200/60 focus:bg-white rounded-xl h-12 text-sm text-right px-4",
