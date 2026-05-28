@@ -28,6 +28,7 @@ import { Calendar } from '@/shared/ui/calendar';
 import { SearchableSelect } from '@/shared/ui/SearchableSelect';
 import { Card, CardContent } from '@/shared/ui/card';
 import { Label } from '@/shared/ui/label';
+import { Textarea } from '@/shared/ui/textarea';
 
 interface BatchRow {
     tanggal: string;
@@ -234,210 +235,248 @@ export default function BatchInsertForm() {
 
             {/* Main Interactive spreadsheet grid Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-                <div className="bg-white rounded-[2.5rem] border border-border/40 shadow-scandi overflow-hidden transition-all">
-                    <div className="overflow-x-auto min-w-full">
-                        <table className="w-full text-left table-auto border-collapse">
-                            <thead>
-                                <tr className="border-b border-slate-100 bg-slate-50/50">
-                                    <th className="pl-8 pr-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[8%]">Tipe</th>
-                                    <th className="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[14%]">Tanggal</th>
-                                    <th className="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[18%]">Metode / Akun</th>
-                                    <th className="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[18%]">Kategori</th>
-                                    <th className="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[20%]">Deskripsi</th>
-                                    <th className="px-3 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[18%] text-right">Nominal</th>
-                                    <th className="pl-3 pr-8 py-5 text-center text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60 w-[4%]">Hapus</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                {fields.map((field, index) => {
-                                    const rowJenis = watchedItems[index]?.jenis || 'Pengeluaran';
-                                    const isPemasukan = rowJenis === 'Pemasukan';
-                                    const availableKategori = kategoriList.filter(k => k.tipe === rowJenis);
-                                    
-                                    const rowHasError = validationErrors.some(err => err.startsWith(`Baris ${index + 1}:`));
+                <div className="space-y-6">
+                    {fields.map((field, index) => {
+                        const rowJenis = watchedItems[index]?.jenis || 'Pengeluaran';
+                        const isPemasukan = rowJenis === 'Pemasukan';
+                        const availableKategori = kategoriList.filter(k => k.tipe === rowJenis);
+                        
+                        const rowHasError = validationErrors.some(err => err.startsWith(`Baris ${index + 1}:`));
 
-                                    return (
-                                        <tr 
-                                            key={field.id} 
-                                            className={cn(
-                                                "group transition-colors duration-200 hover:bg-slate-50/30",
-                                                rowHasError && "bg-rose-50/10 hover:bg-rose-50/20"
-                                            )}
+                        return (
+                            <div 
+                                key={field.id} 
+                                className={cn(
+                                    "group relative bg-white rounded-[2rem] border border-slate-200/80 shadow-scandi p-6 sm:p-8 transition-all duration-300 hover:shadow-scandi-lg",
+                                    rowHasError && "border-rose-250 bg-rose-50/10 hover:border-rose-350"
+                                )}
+                            >
+                                {/* Card Header: Transaction Title & Delete Button */}
+                                <div className="flex items-center justify-between pb-4 border-b border-slate-100 mb-6">
+                                    <div className="flex items-center gap-3">
+                                        <div className={cn(
+                                            "w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center shadow-xs border select-none",
+                                            isPemasukan 
+                                                ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                                                : "bg-rose-50 text-rose-600 border-rose-100"
+                                        )}>
+                                            {index + 1}
+                                        </div>
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Transaksi #{index + 1}</span>
+                                    </div>
+                                    
+                                    {fields.length > 1 && (
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="icon-xs"
+                                            onClick={() => remove(index)}
+                                            className="text-slate-400 hover:text-rose-500 hover:bg-rose-50/50 rounded-xl w-8 h-8 flex items-center justify-center transition-all cursor-pointer shrink-0"
+                                            title="Hapus transaksi ini"
                                         >
-                                            {/* Column 1: Jenis Selector Toggle */}
-                                            <td className="pl-8 pr-3 py-6 align-middle">
+                                            <Trash2 size={14} strokeWidth={2.5} />
+                                        </Button>
+                                    )}
+                                </div>
+
+                                {/* Grid Inputs Layout */}
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Column 1: Tipe Selector Toggle & Tanggal Picker */}
+                                    <div className="flex flex-col gap-4">
+                                        {/* Tipe Selector Label */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Tipe Transaksi</Label>
+                                            <div className="flex gap-2">
                                                 <button
                                                     type="button"
                                                     onClick={() => {
-                                                        const nextJenis = rowJenis === 'Pengeluaran' ? 'Pemasukan' : 'Pengeluaran';
-                                                        setValue(`items.${index}.jenis`, nextJenis);
+                                                        setValue(`items.${index}.jenis`, 'Pengeluaran');
                                                         setValue(`items.${index}.id_kategori`, ''); // reset category on type switch
                                                     }}
                                                     className={cn(
-                                                        "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-all duration-300 font-bold active:scale-95 cursor-pointer text-sm select-none",
-                                                        isPemasukan 
-                                                            ? "bg-emerald-50 text-emerald-600 border-emerald-100 hover:bg-emerald-100" 
-                                                            : "bg-rose-50 text-rose-600 border-rose-100 hover:bg-rose-100"
+                                                        "flex-1 py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all duration-300 border cursor-pointer active:scale-95 select-none",
+                                                        rowJenis === 'Pengeluaran'
+                                                            ? "bg-rose-50 border-rose-200 text-rose-600 font-extrabold shadow-xs"
+                                                            : "bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-650"
                                                     )}
-                                                    title={isPemasukan ? "Tipe: Pemasukan (Klik untuk ubah)" : "Tipe: Pengeluaran (Klik untuk ubah)"}
                                                 >
-                                                    {isPemasukan ? "💰" : "💸"}
+                                                    💸 Pengeluaran
                                                 </button>
-                                            </td>
-
-                                            {/* Column 2: Date Picker Popover */}
-                                            <td className="px-3 py-6 align-middle">
-                                                <Controller
-                                                    name={`items.${index}.tanggal`}
-                                                    control={control}
-                                                    render={({ field: dateField }) => (
-                                                        <Popover>
-                                                            <PopoverTrigger
-                                                                className={cn(
-                                                                    "flex h-12 w-full items-center justify-between rounded-xl border px-3 text-xs font-bold transition-all duration-300 outline-none select-none bg-slate-50 border-slate-200/60 hover:border-slate-350 text-slate-800 focus:bg-white focus:border-blue-300",
-                                                                    !dateField.value && "text-muted-foreground/40",
-                                                                    !dateField.value && rowHasError && "border-rose-300 bg-rose-50/50"
-                                                                )}
-                                                            >
-                                                                <span className="truncate">
-                                                                    {dateField.value
-                                                                        ? new Date(dateField.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
-                                                                        : "Pilih tanggal"}
-                                                                </span>
-                                                                <CalendarIcon size={12} className="opacity-45 shrink-0 text-slate-500" />
-                                                            </PopoverTrigger>
-                                                            <PopoverContent className="w-auto p-0 rounded-[1.5rem] shadow-2xl border-none ring-1 ring-black/5 z-50 bg-white" align="start" sideOffset={8}>
-                                                                <Calendar
-                                                                    mode="single"
-                                                                    selected={dateField.value ? new Date(dateField.value) : undefined}
-                                                                    onSelect={(date) => {
-                                                                        if (date) {
-                                                                            const year = date.getFullYear();
-                                                                            const month = String(date.getMonth() + 1).padStart(2, '0');
-                                                                            const day = String(date.getDate()).padStart(2, '0');
-                                                                            dateField.onChange(`${year}-${month}-${day}`);
-                                                                        }
-                                                                    }}
-                                                                    initialFocus
-                                                                />
-                                                            </PopoverContent>
-                                                        </Popover>
-                                                    )}
-                                                />
-                                            </td>
-
-                                            {/* Column 3: Sumber Dana Select */}
-                                            <td className="px-3 py-6 align-middle">
-                                                <Controller
-                                                    name={`items.${index}.id_sumber_dana`}
-                                                    control={control}
-                                                    render={({ field: sField }) => (
-                                                        <SearchableSelect
-                                                            options={sumberDanaList.map(s => ({
-                                                                value: s.id_sumber_dana,
-                                                                label: s.nama_sumber
-                                                            }))}
-                                                            value={sField.value}
-                                                            onValueChange={sField.onChange}
-                                                            placeholder="Pilih Metode..."
-                                                            searchPlaceholder="Cari..."
-                                                            error={rowHasError && !sField.value}
-                                                            className="bg-slate-50 border-slate-200/60 text-slate-900 focus:bg-white text-xs h-12"
-                                                        />
-                                                    )}
-                                                />
-                                            </td>
-
-                                            {/* Column 4: Kategori Select (Filtered by Type) */}
-                                            <td className="px-3 py-6 align-middle">
-                                                <Controller
-                                                    name={`items.${index}.id_kategori`}
-                                                    control={control}
-                                                    render={({ field: kField }) => (
-                                                        <SearchableSelect
-                                                            options={availableKategori.map(k => ({
-                                                                value: k.id_kategori,
-                                                                label: k.nama_kategori
-                                                            }))}
-                                                            value={kField.value}
-                                                            onValueChange={kField.onChange}
-                                                            placeholder="Pilih Kategori..."
-                                                            searchPlaceholder="Cari..."
-                                                            error={rowHasError && !kField.value}
-                                                            className="bg-slate-50 border-slate-200/60 text-slate-900 focus:bg-white text-xs h-12"
-                                                        />
-                                                    )}
-                                                />
-                                            </td>
-
-                                            {/* Column 5: Deskripsi / Label */}
-                                            <td className="px-3 py-6 align-middle">
-                                                <Input
-                                                    placeholder="Contoh: Belanja Baju, Makan Siang..."
-                                                    {...register(`items.${index}.label`)}
-                                                    className="bg-slate-50 border-slate-200/60 focus:bg-white h-12 rounded-xl text-xs font-bold text-slate-900"
-                                                />
-                                            </td>
-
-                                            {/* Column 6: Nominal Input (Spacious desktop font) */}
-                                            <td className="px-3 py-6 align-middle text-right">
-                                                <Controller
-                                                    name={`items.${index}.nominal`}
-                                                    control={control}
-                                                    render={({ field: nField }) => (
-                                                        <NumericInput
-                                                            name={nField.name}
-                                                            control={control}
-                                                            error={rowHasError && (nField.value || 0) <= 0 ? "Nominal harus valid" : undefined}
-                                                            className={cn(
-                                                                "bg-slate-50 border-slate-200/60 focus:bg-white rounded-xl h-12 text-sm text-right px-4",
-                                                                isPemasukan ? "text-emerald-600 focus:text-emerald-700" : "text-rose-600 focus:text-rose-700"
-                                                            )}
-                                                        />
-                                                    )}
-                                                />
-                                            </td>
-
-                                            {/* Column 7: Action Delete Row Button */}
-                                            <td className="pl-3 pr-8 py-6 align-middle text-center">
-                                                <Button
+                                                <button
                                                     type="button"
-                                                    variant="ghost"
-                                                    size="icon-xs"
-                                                    disabled={fields.length === 1}
-                                                    onClick={() => remove(index)}
-                                                    className="text-rose-500 hover:bg-rose-50 rounded-xl w-10 h-10 flex items-center justify-center disabled:opacity-20 transition-all cursor-pointer shrink-0"
-                                                    title="Hapus baris transaksi ini"
+                                                    onClick={() => {
+                                                        setValue(`items.${index}.jenis`, 'Pemasukan');
+                                                        setValue(`items.${index}.id_kategori`, ''); // reset category on type switch
+                                                    }}
+                                                    className={cn(
+                                                        "flex-1 py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all duration-300 border cursor-pointer active:scale-95 select-none",
+                                                        rowJenis === 'Pemasukan'
+                                                            ? "bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold shadow-xs"
+                                                            : "bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-650"
+                                                    )}
                                                 >
-                                                    <Trash2 size={16} strokeWidth={2.5} />
-                                                </Button>
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-
-                                {/* Add Row dashed trigger button inside table */}
-                                <tr 
-                                    onClick={() => append({
-                                        tanggal: watchedItems[watchedItems.length - 1]?.tanggal || getToday(),
-                                        jenis: watchedItems[watchedItems.length - 1]?.jenis || 'Pengeluaran',
-                                        id_kategori: '',
-                                        id_sumber_dana: watchedItems[watchedItems.length - 1]?.id_sumber_dana || '',
-                                        nominal: 0,
-                                        label: '',
-                                        catatan: ''
-                                    })}
-                                    className="cursor-pointer hover:bg-slate-50/50 transition-colors"
-                                >
-                                    <td colSpan={7} className="px-8 py-5">
-                                        <div className="flex items-center justify-center gap-2 border-2 border-dashed border-slate-200 rounded-2xl py-3 text-slate-400 font-black uppercase text-[10px] tracking-widest hover:border-slate-350 hover:text-slate-650 transition-all">
-                                            <Plus size={14} strokeWidth={3} />
-                                            Tambah Transaksi Baru
+                                                    💰 Pemasukan
+                                                </button>
+                                            </div>
                                         </div>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+                                        {/* Tanggal Picker */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Tanggal</Label>
+                                            <Controller
+                                                name={`items.${index}.tanggal`}
+                                                control={control}
+                                                render={({ field: dateField }) => (
+                                                    <Popover>
+                                                        <PopoverTrigger
+                                                            className={cn(
+                                                                "flex h-12 w-full items-center justify-between rounded-xl border px-3 text-xs font-bold transition-all duration-300 outline-none select-none bg-slate-50 border-slate-200/60 hover:border-slate-350 text-slate-800 focus:bg-white focus:border-blue-300",
+                                                                !dateField.value && "text-muted-foreground/40",
+                                                                !dateField.value && rowHasError && "border-rose-300 bg-rose-50/50"
+                                                            )}
+                                                        >
+                                                            <span className="truncate">
+                                                                {dateField.value
+                                                                    ? new Date(dateField.value).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })
+                                                                    : "Pilih tanggal"}
+                                                            </span>
+                                                            <CalendarIcon size={12} className="opacity-45 shrink-0 text-slate-500" />
+                                                        </PopoverTrigger>
+                                                        <PopoverContent className="w-auto p-0 rounded-[1.5rem] shadow-2xl border-none ring-1 ring-black/5 z-50 bg-white" align="start" sideOffset={8}>
+                                                            <Calendar
+                                                                mode="single"
+                                                                selected={dateField.value ? new Date(dateField.value) : undefined}
+                                                                onSelect={(date) => {
+                                                                    if (date) {
+                                                                        const year = date.getFullYear();
+                                                                        const month = String(date.getMonth() + 1).padStart(2, '0');
+                                                                        const day = String(date.getDate()).padStart(2, '0');
+                                                                        dateField.onChange(`${year}-${month}-${day}`);
+                                                                    }
+                                                                }}
+                                                                initialFocus
+                                                            />
+                                                        </PopoverContent>
+                                                    </Popover>
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Column 2: Sumber Dana & Kategori Selects */}
+                                    <div className="flex flex-col gap-4">
+                                        {/* Sumber Dana / Metode */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Metode / Akun</Label>
+                                            <Controller
+                                                name={`items.${index}.id_sumber_dana`}
+                                                control={control}
+                                                render={({ field: sField }) => (
+                                                    <SearchableSelect
+                                                        options={sumberDanaList.map(s => ({
+                                                            value: s.id_sumber_dana,
+                                                            label: s.nama_sumber
+                                                        }))}
+                                                        value={sField.value}
+                                                        onValueChange={sField.onChange}
+                                                        placeholder="Pilih Metode..."
+                                                        searchPlaceholder="Cari..."
+                                                        error={rowHasError && !sField.value}
+                                                        className="bg-slate-50 border-slate-200/60 text-slate-900 focus:bg-white text-xs h-12"
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+
+                                        {/* Kategori */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Kategori</Label>
+                                            <Controller
+                                                name={`items.${index}.id_kategori`}
+                                                control={control}
+                                                render={({ field: kField }) => (
+                                                    <SearchableSelect
+                                                        options={availableKategori.map(k => ({
+                                                            value: k.id_kategori,
+                                                            label: k.nama_kategori
+                                                        }))}
+                                                        value={kField.value}
+                                                        onValueChange={kField.onChange}
+                                                        placeholder="Pilih Kategori..."
+                                                        searchPlaceholder="Cari..."
+                                                        error={rowHasError && !kField.value}
+                                                        className="bg-slate-50 border-slate-200/60 text-slate-900 focus:bg-white text-xs h-12"
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Column 3: Deskripsi & Nominal Input */}
+                                    <div className="flex flex-col gap-4">
+                                        {/* Deskripsi */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Deskripsi Transaksi</Label>
+                                            <Input
+                                                placeholder="Contoh: Belanja Baju, Makan Siang..."
+                                                {...register(`items.${index}.label`)}
+                                                className="bg-slate-50 border-slate-200/60 focus:bg-white h-12 rounded-xl text-xs font-bold text-slate-900"
+                                            />
+                                        </div>
+
+                                        {/* Nominal */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Nominal</Label>
+                                            <Controller
+                                                name={`items.${index}.nominal`}
+                                                control={control}
+                                                render={({ field: nField }) => (
+                                                    <NumericInput
+                                                        name={nField.name}
+                                                        control={control}
+                                                        error={rowHasError && (nField.value || 0) <= 0 ? "Nominal harus valid" : undefined}
+                                                        className={cn(
+                                                            "bg-slate-50 border-slate-200/60 focus:bg-white rounded-xl h-12 text-sm text-right px-4",
+                                                            isPemasukan ? "text-emerald-600 focus:text-emerald-700 font-extrabold" : "text-rose-600 focus:text-rose-700 font-extrabold"
+                                                        )}
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Column 1-3 Full Width Row: Catatan Detail */}
+                                    <div className="flex flex-col gap-2 md:col-span-3">
+                                        <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Catatan Detail</Label>
+                                        <Textarea
+                                            placeholder="Tambahkan catatan tambahan terperinci untuk transaksi ini (misalnya: rincian barang, catatan toko, dll.)..."
+                                            {...register(`items.${index}.catatan`)}
+                                            className="bg-slate-50 border-slate-200/60 focus-visible:bg-white rounded-xl text-xs font-bold text-slate-900 min-h-16 py-2.5 px-3 focus-visible:ring-blue-100 focus-visible:border-blue-300"
+                                            rows={2}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+
+                    {/* Add Transaction dashed trigger button */}
+                    <div 
+                        onClick={() => append({
+                            tanggal: watchedItems[watchedItems.length - 1]?.tanggal || getToday(),
+                            jenis: watchedItems[watchedItems.length - 1]?.jenis || 'Pengeluaran',
+                            id_kategori: '',
+                            id_sumber_dana: watchedItems[watchedItems.length - 1]?.id_sumber_dana || '',
+                            nominal: 0,
+                            label: '',
+                            catatan: ''
+                        })}
+                        className="cursor-pointer hover:bg-slate-50/50 transition-all active:scale-[0.99] duration-300"
+                    >
+                        <div className="flex items-center justify-center gap-2 border-2 border-dashed border-slate-250 rounded-[2rem] py-5 bg-white text-slate-400 font-black uppercase text-[10px] tracking-widest hover:border-slate-350 hover:text-slate-650 hover:shadow-scandi transition-all duration-300">
+                            <Plus size={14} strokeWidth={3} />
+                            Tambah Transaksi Baru
+                        </div>
                     </div>
                 </div>
 
