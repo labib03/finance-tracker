@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import {
     hitungPerbandinganKategori,
@@ -35,8 +35,12 @@ import {
     BarChart3,
     LineChart as LineChartIcon,
     ArrowUpRight,
-    ArrowDownRight
+    ArrowDownRight,
+    Sparkles,
+    Copy,
+    Check
 } from 'lucide-react';
+import { toast } from 'sonner';
 
 export default function CategoryReport() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
@@ -45,8 +49,17 @@ export default function CategoryReport() {
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const removeTransaksi = useFinanceStore((s) => s.removeTransaksi);
 
+    const budgetList = useFinanceStore((s) => s.budgetList);
+    const tabunganList = useFinanceStore((s) => s.tabunganList);
+    const recurringList = useFinanceStore((s) => s.recurringList);
+    const getSaldoTabungan = useFinanceStore((s) => s.getSaldoTabungan);
+    const getProgresTabungan = useFinanceStore((s) => s.getProgresTabungan);
+
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
     const [selectedDetail, setSelectedDetail] = useState<Transaksi | null>(null);
+
+    // State untuk menyalin prompt AI
+    const [isCopied, setIsCopied] = useState(false);
 
     const perbandinganData = useMemo(
         () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
@@ -73,6 +86,103 @@ export default function CategoryReport() {
     const selisihTotal = totalBulanIni - totalBulanLalu;
     const persentaseTotal = totalBulanLalu > 0 ? Math.round((selisihTotal / totalBulanLalu) * 100) : 100;
 
+    // Hitung total pemasukan bulan ini secara manual dari transaksiList
+    const totalPemasukan = useMemo(() => {
+        return transaksiList
+            .filter(t => t.tanggal.includes(activeMonth) && t.jenis === 'Pemasukan')
+            .reduce((sum, t) => sum + t.nominal, 0);
+    }, [transaksiList, activeMonth]);
+
+    // Ekstrak Tahun & Bulan dari activeMonth string
+    const [activeYear, activeMonthNum] = useMemo(() => {
+        if (!activeMonth) return [new Date().getFullYear(), new Date().getMonth() + 1];
+        const parts = activeMonth.split('-');
+        return [parseInt(parts[0]), parseInt(parts[1])];
+    }, [activeMonth]);
+
+    // Nama Bulan Terbaca (id-ID)
+    const activeMonthLabel = useMemo(() => {
+        if (!activeMonth) return '';
+        const d = new Date(activeYear, activeMonthNum - 1, 1);
+        return d.toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
+    }, [activeYear, activeMonthNum, activeMonth]);
+
+    // Cari anggaran aktif bulan ini
+    const activeBudgets = useMemo(() => {
+        return budgetList.filter(b => b.bulan === activeMonthNum && b.tahun === activeYear);
+    }, [budgetList, activeMonthNum, activeYear]);
+
+    // Nama kategori helper
+    const getKategoriName = useCallback((id: string) => {
+        return kategoriList.find(k => k.id_kategori === id)?.nama_kategori || id;
+    }, [kategoriList]);
+
+    // Susun prompt AI lengkap
+    const compiledAiPrompt = useMemo(() => {
+        // 1. Ringkasan Cashflow
+        const surplusDefisit = totalPemasukan - totalBulanIni;
+        const cashflowText = `1. RINGKASAN CASHFLOW BULAN INI (${activeMonthLabel})
+- Total Pemasukan: ${formatRupiah(totalPemasukan)}
+- Total Pengeluaran: ${formatRupiah(totalBulanIni)}
+- Saldo Bersih Bulanan (Surplus/Defisit): ${formatRupiah(surplusDefisit)} (${surplusDefisit >= 0 ? 'Surplus' : 'Defisit'})`;
+
+        // 2. 4 Kategori Terbesar
+        const topCats = perbandinganData.slice(0, 4);
+        const categoriesText = `2. KATEGORI PENGELUARAN TERBESAR (Top 4)
+${topCats.length > 0 
+    ? topCats.map((item, idx) => `- [Rank ${idx + 1}] ${item.nama_kategori}: ${formatRupiah(item.totalAktif)} (${Math.round((item.totalAktif / totalBulanIni) * 100)}% dari total pengeluaran, perubahan vs bulan lalu: ${item.selisih > 0 ? '+' : ''}${item.persentase}%)`).join('\n')
+    : '- Tidak ada data pengeluaran terdaftar untuk bulan ini.'}`;
+
+        // 3. Anggaran Belanja (Budget)
+        const budgetText = `3. STATUS ANGGARAN BELANJA (BUDGET)
+${activeBudgets.length > 0 
+    ? activeBudgets.map(b => {
+        const catName = getKategoriName(b.id_kategori);
+        const spent = transaksiList
+            .filter(t => t.tanggal.includes(activeMonth) && t.id_kategori === b.id_kategori && t.jenis === 'Pengeluaran')
+            .reduce((sum, t) => sum + t.nominal, 0);
+        return `- ${catName}: Terpakai ${formatRupiah(spent)} dari batas ${formatRupiah(b.nominal_limit)} (${Math.round((spent / b.nominal_limit) * 100)}%)`;
+      }).join('\n')
+    : '- Tidak ada data anggaran belanja aktif untuk bulan ini.'}`;
+
+        // 4. Target Tabungan (Savings Goals)
+        const activeTabungan = tabunganList.filter(t => t.status === 'aktif');
+        const tabunganText = `4. TARGET TABUNGAN SAAT INI (SAVINGS GOALS)
+${activeTabungan.length > 0 
+    ? activeTabungan.map(t => {
+        const saldo = getSaldoTabungan(t.id_tabungan);
+        const progres = getProgresTabungan(t.id_tabungan);
+        return `- ${t.nama_tujuan}: Terkumpul ${formatRupiah(saldo)} dari target ${formatRupiah(t.target_nominal)} (${Math.round(progres)}%, Target Waktu: ${new Date(t.tanggal_target).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' })})`;
+      }).join('\n')
+    : '- Tidak ada data target tabungan/transaksi rutin aktif saat ini.'}`;
+
+        // 5. Transaksi Berulang (Recurring Bills)
+        const activeRecurring = recurringList.filter(r => r.aktif);
+        const recurringText = `5. TRANSAKSI BERULANG AKTIF (RECURRING BILLS)
+${activeRecurring.length > 0 
+    ? activeRecurring.map(r => {
+        const typeLabel = r.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran';
+        return `- [${typeLabel}] ${r.label}: ${formatRupiah(r.nominal)} (${r.frekuensi}, Jadwal Berikutnya: ${new Date(r.tanggal_berikutnya).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })})`;
+      }).join('\n')
+    : '- Tidak ada transaksi berulang aktif saat ini.'}`;
+
+        // Gabungkan seluruh teks prompt AI secara elegan
+        return `Halo AI Financial Planner!
+Tolong berikan analisis kesehatan keuangan mendalam, evaluasi pola pengeluaran, serta minimal 3 saran tindakan taktis untuk mengoptimalkan kondisi finansial saya berdasarkan data laporan keuangan bulan aktif berikut:
+
+${cashflowText}
+
+${categoriesText}
+
+${budgetText}
+
+${tabunganText}
+
+${recurringText}
+
+Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi finansial terbaik bagi saya. Terima kasih!`;
+    }, [totalPemasukan, totalBulanIni, activeMonthLabel, perbandinganData, activeBudgets, transaksiList, activeMonth, tabunganList, getSaldoTabungan, getProgresTabungan, recurringList, getKategoriName]);
+
     if (perbandinganData.length === 0) {
         return (
             <Card className="border-none shadow-sm flex flex-col items-center justify-center py-20 px-6">
@@ -89,6 +199,73 @@ export default function CategoryReport() {
 
     return (
         <div className="space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
+            {/* AI Advisor Prompt Generator Card (Opsi B) */}
+            <div className="bg-slate-900 text-white rounded-[2rem] sm:rounded-[2.5rem] border border-slate-800 shadow-xl overflow-hidden relative group/ai p-6 sm:p-8">
+                {/* Background ambient glowing effect */}
+                <div className="absolute top-0 right-0 w-[300px] h-[300px] bg-blue-500/10 rounded-full blur-[100px] -mr-32 -mt-32 transition-all group-hover/ai:bg-blue-500/15 pointer-events-none" />
+                <div className="absolute bottom-0 left-0 w-[200px] h-[200px] bg-emerald-500/5 rounded-full blur-[80px] -ml-20 -mb-20 pointer-events-none" />
+                
+                <div className="relative flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <div className="space-y-4 max-w-2xl text-left">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-blue-400 shadow-sm animate-pulse">
+                                <Sparkles size={18} strokeWidth={2.5} />
+                            </div>
+                            <span className="text-[10px] font-black uppercase tracking-[0.25em] text-blue-400">Asisten Pintar AI</span>
+                        </div>
+                        <h3 className="text-xl sm:text-2xl font-black uppercase tracking-widest text-slate-100 leading-tight">
+                            Konsultan Finansial AI Pribadi Anda
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-400 leading-relaxed">
+                            Ingin mendapatkan saran ahli dan rekomendasi finansial taktis? Cukup salin kalimat prompt laporan lengkap Anda di bawah ini, lalu kirimkan ke AI favorit Anda (DeepSeek, Claude, ChatGPT, atau Gemini) untuk mendapatkan audit keuangan instan!
+                        </p>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row lg:flex-col gap-4 shrink-0 justify-end w-full lg:w-auto">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                navigator.clipboard.writeText(compiledAiPrompt);
+                                setIsCopied(true);
+                                toast.success("Prompt laporan keuangan disalin ke clipboard!");
+                                setTimeout(() => setIsCopied(false), 2000);
+                            }}
+                            className={cn(
+                                "flex items-center justify-center gap-2 h-14 px-8 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 active:scale-95 cursor-pointer shadow-md select-none border w-full sm:flex-1 lg:w-[260px]",
+                                isCopied
+                                    ? "bg-emerald-500 border-emerald-400 text-white shadow-emerald-500/20"
+                                    : "bg-white border-slate-250 text-slate-900 hover:bg-slate-50 shadow-slate-900/15"
+                            )}
+                        >
+                            {isCopied ? (
+                                <>
+                                    <Check size={16} strokeWidth={3} className="animate-in zoom-in" />
+                                    Tersalin ke Clipboard!
+                                </>
+                            ) : (
+                                <>
+                                    <Copy size={16} strokeWidth={2.5} />
+                                    Salin Prompt AI
+                                </>
+                            )}
+                        </button>
+                    </div>
+                </div>
+
+                {/* Styled Preview area */}
+                <div className="mt-6 border-t border-slate-800/80 pt-6">
+                    <div className="flex items-center justify-between mb-3">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Pratinjau Prompt AI Kalimat Lengkap</span>
+                        <span className="text-[9px] font-bold text-blue-500/80 uppercase tracking-wider italic">Bulan Aktif: {activeMonthLabel}</span>
+                    </div>
+                    <div className="bg-slate-950/80 rounded-2xl p-4 border border-slate-800/50 max-h-36 overflow-y-auto scrollbar-none text-left">
+                        <pre className="font-mono text-[10px] text-slate-400 leading-relaxed whitespace-pre-wrap select-all font-bold">
+                            {compiledAiPrompt}
+                        </pre>
+                    </div>
+                </div>
+            </div>
+
             {/* Quick Stats Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
                 {/* Minimalist Total Belanja */}
