@@ -61,6 +61,7 @@ interface TransactionsTableProps {
     showSearch?: boolean;
     preselectedCategory?: string;
     hideHeader?: boolean;
+    onTransactionClick?: (transaksi: Transaksi) => void;
 }
 
 function TransactionsTableInner({
@@ -74,6 +75,7 @@ function TransactionsTableInner({
     showSearch = true,
     preselectedCategory,
     hideHeader = false,
+    onTransactionClick,
 }: TransactionsTableProps) {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
@@ -115,7 +117,16 @@ function TransactionsTableInner({
     const dateFilter = searchParams.get('date') || 'all';
 
     const setSearch = (val: string) => updateFilter('q', val);
-    const setTypeFilter = (val: string) => updateFilter('type', val);
+    const setTypeFilter = (val: string) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (val && val !== 'all') {
+            params.set('type', val);
+        } else {
+            params.delete('type');
+        }
+        params.delete('category'); // Reset category when type changes
+        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
+    };
     const setCategoryFilter = (val: string) => {
         if (val === 'all') {
             updateFilter('category', 'all');
@@ -133,6 +144,34 @@ function TransactionsTableInner({
         }
     };
     const setDateFilter = (val: string) => updateFilter('date', val);
+
+    const resetAllFilters = () => {
+        if (typeof window !== 'undefined') {
+            sessionStorage.removeItem('transactions_filters');
+        }
+        router.replace(pathname, { scroll: false });
+    };
+
+    // Restore saved filters from sessionStorage on mount if URL is empty
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const currentQuery = searchParams.toString();
+            const savedQuery = sessionStorage.getItem('transactions_filters');
+            if (!currentQuery && savedQuery) {
+                router.replace(`${pathname}?${savedQuery}`, { scroll: false });
+            }
+        }
+    }, [pathname, router, searchParams]);
+
+    // Save active filters to sessionStorage
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const currentQuery = searchParams.toString();
+            if (currentQuery) {
+                sessionStorage.setItem('transactions_filters', currentQuery);
+            }
+        }
+    }, [searchParams]);
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, id: string }>({
         isOpen: false,
@@ -263,6 +302,7 @@ function TransactionsTableInner({
                     setDateFilter={setDateFilter}
                     kategoriList={kategoriList}
                     sumberDanaList={sumberDanaList}
+                    onReset={resetAllFilters}
                 />
             )}
             <CardContent className="p-0">
@@ -296,18 +336,12 @@ function TransactionsTableInner({
                                         </div>
                                         <p className="text-sm font-black uppercase tracking-widest text-foreground">Tidak ada transaksi</p>
                                         <p className="text-xs font-medium uppercase tracking-widest text-muted-foreground mt-1">Coba sesuaikan filter pencarian Anda</p>
-                                        {(search || typeFilter !== 'all' || categoryFilter !== 'all') && (
+                                        {(search || typeFilter !== 'all' || categoryFilter !== 'all' || accountFilter !== 'all' || dateFilter !== 'all') && (
                                             <Button
                                                 variant="link"
                                                 size="sm"
                                                 className="mt-4 text-xs font-black uppercase tracking-widest text-primary hover:no-underline"
-                                                onClick={() => {
-                                                    setSearch('');
-                                                    setTypeFilter('all');
-                                                    setCategoryFilter('all');
-                                                    setAccountFilter('all');
-                                                    setDateFilter('all');
-                                                }}
+                                                onClick={resetAllFilters}
                                             >
                                                 Bersihkan semua filter
                                             </Button>
@@ -325,7 +359,13 @@ function TransactionsTableInner({
                                     <TableRow
                                         key={t.id}
                                         className="group hover:bg-muted/10 border-b border-border/20 transition-all cursor-pointer"
-                                        onClick={() => setSelectedDetail(t)}
+                                        onClick={() => {
+                                            if (onTransactionClick) {
+                                                onTransactionClick(t);
+                                            } else {
+                                                setSelectedDetail(t);
+                                            }
+                                        }}
                                     >
                                         <TableCell className="px-8 py-5">
                                             <div className={cn(
@@ -429,7 +469,11 @@ function TransactionsTableInner({
                                                         size="icon-xs"
                                                         onClick={(e) => {
                                                             e.stopPropagation();
-                                                            setSelectedDetail(t);
+                                                            if (onTransactionClick) {
+                                                                onTransactionClick(t);
+                                                            } else {
+                                                                setSelectedDetail(t);
+                                                            }
                                                         }}
                                                         className="opacity-0 group-hover:opacity-100 transition-all text-muted-foreground hover:bg-muted/50 rounded-xl"
                                                     >
@@ -478,7 +522,13 @@ function TransactionsTableInner({
                                 <div
                                     key={t.id}
                                     className="group relative bg-white p-4 rounded-[1.5rem] border border-slate-100 hover:border-slate-200 transition-all duration-300 flex items-center justify-between gap-4 shadow-sm active:scale-[0.98] cursor-pointer"
-                                    onClick={() => setSelectedDetail(t)}
+                                    onClick={() => {
+                                        if (onTransactionClick) {
+                                            onTransactionClick(t);
+                                        } else {
+                                            setSelectedDetail(t);
+                                        }
+                                    }}
                                 >
                                     <div className="flex items-center gap-4 min-w-0 flex-1">
                                         <div className={cn(

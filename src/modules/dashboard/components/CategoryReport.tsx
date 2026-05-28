@@ -26,6 +26,8 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/sha
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/shared/ui/dialog';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
 import { CategoryIcon } from '@/shared/ui/CategoryIcon';
+import { TransactionDetailDialog } from '@/modules/dashboard/components/TransactionDetailDialog';
+import type { Transaksi } from '@/lib/types';
 import {
     TrendingUp,
     TrendingDown,
@@ -41,8 +43,10 @@ export default function CategoryReport() {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+    const removeTransaksi = useFinanceStore((s) => s.removeTransaksi);
 
     const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+    const [selectedDetail, setSelectedDetail] = useState<Transaksi | null>(null);
 
     const perbandinganData = useMemo(
         () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
@@ -397,11 +401,19 @@ export default function CategoryReport() {
                                 showSearch={false}
                                 preselectedCategory={selectedCategory}
                                 hideHeader={true}
+                                onTransactionClick={(t) => setSelectedDetail(t)}
                             />
                         )}
                     </div>
                 </DialogContent>
             </Dialog>
+
+            <TransactionDetailDialog
+                transaksi={selectedDetail}
+                open={!!selectedDetail}
+                onOpenChange={(open) => !open && setSelectedDetail(null)}
+                onDelete={removeTransaksi}
+            />
         </div>
     );
 }

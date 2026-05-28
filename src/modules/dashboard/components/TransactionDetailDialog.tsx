@@ -66,7 +66,8 @@ export function TransactionDetailDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
-                className="sm:max-w-[420px] bg-white p-0 rounded-[2.5rem] border-none shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[90vh]"
+                className="sm:max-w-[420px] bg-white p-0 rounded-[2.5rem] border-none shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden flex flex-col max-h-[90vh] z-[60]"
+                overlayClassName="z-[60] bg-black/40 backdrop-blur-[4px]"
                 showCloseButton={true}
             >
                 {/* Minimalist Top Header (Fixed) */}
@@ -203,6 +204,8 @@ export function TransactionDetailDialog({
                     }}
                     title="Hapus Transaksi?"
                     description="Tindakan ini permanen. Catatan ini akan dihapus dari riwayat keuangan Anda."
+                    className="z-[70]"
+                    overlayClassName="z-[70] bg-black/50 backdrop-blur-[6px]"
                 />
             </DialogContent>
         </Dialog>

@@ -22,6 +22,8 @@ export interface ConfirmDialogProps {
     cancelText?: string;
     variant?: 'destructive' | 'default' | 'info';
     isLoading?: boolean;
+    className?: string;
+    overlayClassName?: string;
 }
 
 export function ConfirmDialog({
@@ -33,11 +35,13 @@ export function ConfirmDialog({
     confirmText = "Hapus",
     cancelText = "Batal",
     variant = 'destructive',
-    isLoading = false
+    isLoading = false,
+    className,
+    overlayClassName,
 }: ConfirmDialogProps) {
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !isLoading && !open && onClose()}>
-            <DialogContent className="sm:max-w-[400px] border-none shadow-2xl overflow-hidden p-0" showCloseButton={!isLoading}>
+            <DialogContent className={cn("sm:max-w-[400px] border-none shadow-2xl overflow-hidden p-0", className)} overlayClassName={overlayClassName} showCloseButton={!isLoading}>
                 <div className="p-6 pb-2">
                     <DialogHeader className="flex flex-col items-center text-center">
                         <div className={cn(
