@@ -72,6 +72,12 @@ export const kategoriSchema = z.object({
   icon_name: z.string().optional().default("circle"),
 });
 
+export const tipeSchema = z.object({
+  id_tipe: z.string().optional(),
+  label: z.string().min(1, "Nama / Label tipe wajib diisi"),
+  master_tipe: z.string().nullable().optional(),
+});
+
 export const sumberDanaSchema = z.object({
   id_sumber_dana: z.string().min(1, "ID Sumber Dana wajib diisi"),
   nama_sumber: z.string().min(1, "Nama sumber dana wajib diisi"),
@@ -92,6 +98,7 @@ export type TransferFormData = z.infer<typeof transferSchema>;
 export type RecurringFormData = z.infer<typeof recurringSchema>;
 export type BudgetFormData = z.infer<typeof budgetSchema>;
 export type KategoriFormData = z.infer<typeof kategoriSchema>;
+export type TipeFormData = z.infer<typeof tipeSchema>;
 export type SumberDanaFormData = z.infer<typeof sumberDanaSchema>;
 export type TitipanFormData = z.infer<typeof titipanSchema>;
 

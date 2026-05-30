@@ -2,6 +2,7 @@
 import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 import {
     Edit2,
@@ -34,6 +35,7 @@ export default function MasterDataManagement({
     onAddKategori,
     onEditKategori,
 }: MasterDataManagementProps) {
+    const router = useRouter();
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const recurringList = useFinanceStore((s) => s.recurringList);
@@ -43,6 +45,7 @@ export default function MasterDataManagement({
 
     const [searchKategori, setSearchKategori] = useState('');
     const [kategoriTipe, setKategoriTipe] = useState<KategoriTipe>('all');
+    const [activeTab, setActiveTab] = useState('kategori');
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; name: string }>({
         isOpen: false, id: '', name: ''
@@ -94,9 +97,41 @@ export default function MasterDataManagement({
                         Konfigurasi Struktur Data Aplikasi
                     </p>
                 </div>
+                
+                <div className="flex items-center gap-3">
+                    <button 
+                        onClick={() => router.push('/master/tipe/baru')}
+                        className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all duration-300 border border-transparent active:scale-[0.98] shrink-0"
+                    >
+                        <div className="flex flex-col text-left">
+                            <span className="text-xs font-bold">Tambah Tipe</span>
+                        </div>
+                        <div className="w-6 h-6 rounded-full bg-slate-200/50 flex items-center justify-center">
+                            <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" />
+                        </div>
+                    </button>
+                    <button 
+                        onClick={() => {
+                            if (activeTab !== 'kategori') {
+                                setActiveTab('kategori');
+                                setTimeout(() => onAddKategori(), 100);
+                            } else {
+                                onAddKategori();
+                            }
+                        }}
+                        className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-700 transition-all duration-300 border border-transparent active:scale-[0.98] shrink-0"
+                    >
+                        <div className="flex flex-col text-left">
+                            <span className="text-xs font-bold">Tambah Kategori</span>
+                        </div>
+                        <div className="w-6 h-6 rounded-full bg-blue-200/50 flex items-center justify-center">
+                            <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" />
+                        </div>
+                    </button>
+                </div>
             </div>
 
-            <Tabs defaultValue="kategori" className="w-full">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                 <TabsList className="bg-slate-100/80 p-1.5 rounded-2xl mb-6 flex space-x-2 w-fit border border-slate-200/60">
                     <TabsTrigger value="tipe" className="rounded-xl px-6 py-2.5 text-xs font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all text-slate-500">
                         Tipe Transaksi
@@ -112,20 +147,6 @@ export default function MasterDataManagement({
 
                 <TabsContent value="kategori" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
                     <div className="space-y-6">
-                        <div className="flex justify-end">
-                            <button 
-                                onClick={onAddKategori}
-                                className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all duration-300 border border-transparent active:scale-[0.98] shrink-0"
-                            >
-                                <div className="flex flex-col text-left">
-                                    <span className="text-xs font-bold">Tambah Kategori</span>
-                                </div>
-                                <div className="w-6 h-6 rounded-full bg-slate-200/50 flex items-center justify-center">
-                                    <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" />
-                                </div>
-                            </button>
-                        </div>
-
             {/* Main Content (Full Width) */}
             <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col h-full min-h-[600px] relative">
                 <CardHeader className="p-8 pb-6 shrink-0 relative z-20 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-6">

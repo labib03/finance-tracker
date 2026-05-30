@@ -307,10 +307,6 @@ export default function InquiryView() {
         <div className="space-y-8 animate-in fade-in duration-500 pb-10">
             {/* Header section with minimal styling */}
             <div className="flex flex-col gap-8">
-                <div>
-                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">Inquiry.</h1>
-                    <p className="text-muted-foreground mt-2 font-medium">Audit seluruh data finansial historis Anda secara real-time.</p>
-                </div>
                 
                 {/* Minimalist Summary KPI Cards */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

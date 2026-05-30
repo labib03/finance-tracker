@@ -2,6 +2,7 @@
 import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 import {
     Edit2,
@@ -22,10 +23,9 @@ import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/shared/ui/dialog';
-import { Label } from '@/shared/ui/label';
 
 export function MasterTipeTab() {
+    const router = useRouter();
     const tipeList = useFinanceStore((s) => s.tipeList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
@@ -41,11 +41,6 @@ export function MasterTipeTab() {
     });
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteRestricted, setDeleteRestricted] = useState(false);
-
-    // Form State
-    const [isFormOpen, setIsFormOpen] = useState(false);
-    const [isSubmitting, setIsSubmitting] = useState(false);
-    const [formData, setFormData] = useState<Partial<TipeTransaksi>>({});
 
     const rootTipes = useMemo(() => tipeList.filter(t => !t.master_tipe), [tipeList]);
 
@@ -75,37 +70,6 @@ export function MasterTipeTab() {
         setConfirmDelete({ ...confirmDelete, isOpen: false });
     };
 
-    const handleOpenForm = (tipe?: TipeTransaksi) => {
-        if (tipe) {
-            setFormData(tipe);
-        } else {
-            setFormData({ master_tipe: null }); // default
-        }
-        setIsFormOpen(true);
-    };
-
-    const handleSave = async () => {
-        if (!formData.label) return;
-        setIsSubmitting(true);
-        
-        if (formData.id_tipe) {
-            // Edit
-            await updateTipeTransaksi(formData as TipeTransaksi);
-        } else {
-            // Add
-            const newTipe: TipeTransaksi = {
-                id_tipe: `TIPE_${generateId()}`,
-                label: formData.label,
-                master_tipe: formData.master_tipe || null,
-                tanggal_dibuat: new Date().toISOString()
-            };
-            await addTipeTransaksi(newTipe);
-        }
-        
-        setIsSubmitting(false);
-        setIsFormOpen(false);
-    };
-
     const getMasterTipeIcon = (id_tipe: string) => {
         const rootLabel = getRootLabel(tipeList, id_tipe);
         if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) return <ArrowUpRight size={20} className="text-emerald-600" />;
@@ -124,25 +88,6 @@ export function MasterTipeTab() {
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-                <div>
-                    <h3 className="text-base font-black uppercase tracking-widest text-slate-900">Tipe Transaksi</h3>
-                    <p className="text-xs font-medium text-slate-500 mt-1">
-                        Kelola struktur dasar transaksi Anda
-                    </p>
-                </div>
-                <button 
-                    onClick={() => handleOpenForm()}
-                    className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all duration-300 border border-transparent active:scale-[0.98] shrink-0"
-                >
-                    <div className="flex flex-col text-left">
-                        <span className="text-xs font-bold">Tambah Tipe</span>
-                    </div>
-                    <div className="w-6 h-6 rounded-full bg-slate-200/50 flex items-center justify-center">
-                        <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" />
-                    </div>
-                </button>
-            </div>
 
             <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col min-h-[500px] relative">
                 <CardHeader className="p-8 pb-6 shrink-0 relative z-20 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-6">
@@ -229,7 +174,7 @@ export function MasterTipeTab() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => handleOpenForm(t)}
+                                                onClick={() => router.push(`/master/tipe/edit/${t.id_tipe}`)}
                                                 className="h-8 w-8 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-colors border border-transparent hover:border-blue-100"
                                             >
                                                 <Edit2 size={14} />
@@ -273,83 +218,8 @@ export function MasterTipeTab() {
                         : `Apakah Anda yakin ingin menghapus "${confirmDelete.name}"?`
                 }
             />
-
-            {/* Modal Form */}
-            <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-                <DialogContent className="sm:max-w-[425px] rounded-[2rem] p-6">
-                    <DialogHeader className="mb-4">
-                        <DialogTitle className="text-xl font-black text-slate-900 tracking-tight">
-                            {formData.id_tipe ? 'Edit Tipe' : 'Tambah Tipe Baru'}
-                        </DialogTitle>
-                    </DialogHeader>
-                    <div className="grid gap-6 py-4">
-                        <div className="grid gap-3">
-                            <Label htmlFor="label" className="text-xs font-black uppercase tracking-wider text-slate-600">
-                                Nama / Label Tipe
-                            </Label>
-                            <Input
-                                id="label"
-                                value={formData.label || ''}
-                                onChange={(e) => setFormData({ ...formData, label: e.target.value })}
-                                placeholder="Contoh: Belanja Bulanan"
-                                className="h-12 rounded-xl bg-slate-50 border-slate-200"
-                            />
-                        </div>
-                        <div className="grid gap-3">
-                            <Label className="text-xs font-black uppercase tracking-wider text-slate-600">
-                                Master Tipe (Parent)
-                            </Label>
-                            <div className="grid grid-cols-2 gap-3">
-                                <button
-                                    type="button"
-                                    onClick={() => setFormData({ ...formData, master_tipe: null })}
-                                    className={cn(
-                                        "px-4 py-3 rounded-xl text-xs font-bold capitalize transition-all border",
-                                        !formData.master_tipe
-                                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                            : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-                                    )}
-                                >
-                                    -- Master Tipe (Root) --
-                                </button>
-                                {rootTipes.filter(t => t.id_tipe !== formData.id_tipe).map((t) => (
-                                    <button
-                                        key={t.id_tipe}
-                                        type="button"
-                                        onClick={() => setFormData({ ...formData, master_tipe: t.id_tipe })}
-                                        className={cn(
-                                            "px-4 py-3 rounded-xl text-xs font-bold capitalize transition-all border",
-                                            formData.master_tipe === t.id_tipe
-                                                ? "bg-slate-900 text-white border-slate-900 shadow-sm"
-                                                : "bg-white text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-                                        )}
-                                    >
-                                        {t.label}
-                                    </button>
-                                ))}
-                            </div>
-                        </div>
-                    </div>
-                    <DialogFooter className="mt-4">
-                        <Button 
-                            type="button" 
-                            variant="outline" 
-                            onClick={() => setIsFormOpen(false)}
-                            className="h-12 rounded-xl px-6"
-                        >
-                            Batal
-                        </Button>
-                        <Button 
-                            type="button" 
-                            onClick={handleSave} 
-                            disabled={!formData.label || isSubmitting}
-                            className="h-12 rounded-xl px-6 bg-blue-600 hover:bg-blue-700 text-white"
-                        >
-                            {isSubmitting ? 'Menyimpan...' : 'Simpan'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }
+
+MasterTipeTab.displayName = "MasterTipeTab";
