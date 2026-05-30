@@ -91,9 +91,41 @@ export default function FormPageLayout({
                     initial={{ opacity: 0, x: 30 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ type: 'spring', duration: 0.8, bounce: 0.1, delay: 0.15 }}
-                    className="w-full"
+                    className="w-full flex flex-col gap-6"
                 >
                     {formPanel}
+
+                    <AnimatePresence>
+                        {showSuccessModal && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="border border-emerald-200 bg-emerald-50 rounded-[2rem] shadow-sm"
+                            >
+                                <div className="p-6 flex flex-col sm:flex-row items-center gap-4 justify-between">
+                                    <div className="flex items-center gap-4 w-full">
+                                        <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs shrink-0">
+                                            <CheckCircle2 size={24} strokeWidth={2.5} />
+                                        </div>
+                                        <div className="text-left flex-1">
+                                            <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800">
+                                                Sukses Menyimpan!
+                                            </h4>
+                                            <p className="text-xs text-emerald-700/80 font-bold mt-0.5">
+                                                {successMessage}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <Button
+                                        onClick={onSuccessConfirm}
+                                        className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-emerald-500 text-white font-black hover:bg-emerald-600 border-none transition-all duration-300 shadow-md shadow-emerald-500/20 active:scale-[0.98] text-xs uppercase tracking-widest shrink-0"
+                                    >
+                                        Selesai
+                                    </Button>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
             </main>
 
@@ -108,42 +140,6 @@ export default function FormPageLayout({
                 cancelText="Kembali"
                 variant="destructive"
             />
-
-            {/* Premium Dynamic Success Modal */}
-            <AnimatePresence>
-                {showSuccessModal && (
-                    <div className="fixed inset-0 bg-slate-950/40 backdrop-blur-md z-50 flex items-center justify-center p-6">
-                        <motion.div
-                            initial={{ scale: 0.9, opacity: 0, y: 40 }}
-                            animate={{ scale: 1, opacity: 1, y: 0 }}
-                            exit={{ scale: 0.95, opacity: 0, y: 20 }}
-                            transition={{ type: 'spring', duration: 0.5, bounce: 0.2 }}
-                            className="bg-white border border-slate-100 rounded-[2.5rem] p-8 max-w-md w-full shadow-2xl text-center relative overflow-hidden"
-                        >
-                            {/* Sparkling orb */}
-                            <div className="absolute -top-12 -left-12 w-24 h-24 rounded-full bg-emerald-500/10 blur-xl pointer-events-none" />
-
-                            <div className="w-20 h-20 rounded-[2rem] bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-emerald-500/5">
-                                <CheckCircle2 size={40} strokeWidth={2} />
-                            </div>
-
-                            <h3 className="text-2xl font-black text-slate-900 uppercase tracking-wider mb-3">
-                                Sukses Menyimpan!
-                            </h3>
-                            <p className="text-sm font-semibold text-slate-500 leading-relaxed mb-8 px-4">
-                                {successMessage}
-                            </p>
-
-                            <Button
-                                onClick={onSuccessConfirm}
-                                className="w-full h-14 rounded-2xl bg-emerald-500 text-white font-black hover:bg-emerald-600 border-none transition-all duration-300 shadow-lg shadow-emerald-500/20 active:scale-[0.98] text-xs uppercase tracking-widest"
-                            >
-                                Selesai
-                            </Button>
-                        </motion.div>
-                    </div>
-                )}
-            </AnimatePresence>
         </div>
     );
 }
