@@ -16,6 +16,7 @@ import { Input } from "@/shared/ui/input";
 import { Label } from "@/shared/ui/label";
 import { ResponsiveModal } from "@/shared/ui/responsive-modal";
 import NumericInput from "@/shared/forms/NumericInput";
+import { SearchableSelect } from "@/shared/ui/SearchableSelect";
 import {
     Popover,
     PopoverContent,
@@ -34,7 +35,9 @@ import {
     HeartPulse,
     CalendarIcon,
     Save,
-    Sparkles
+    Sparkles,
+    Wallet,
+    Building
 } from "lucide-react";
 
 interface TabunganFormProps {
@@ -58,6 +61,7 @@ const ICONS = [
 export default function TabunganForm({ onClose, dataToEdit, inline = false }: TabunganFormProps) {
   const addTabungan = useFinanceStore((s) => s.addTabungan);
   const updateTabungan = useFinanceStore((s) => s.updateTabungan);
+  const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
   const router = useRouter();
   const [showSuccess, setShowSuccess] = useState(false);
 
@@ -77,6 +81,8 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
           tanggal_target: "",
           icon: "Target",
           status: "aktif",
+          is_external: true,
+          id_nama_dompet: null,
       },
   });
 
@@ -87,6 +93,8 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
         target_nominal: dataToEdit.target_nominal,
         tanggal_target: dataToEdit.tanggal_target,
         icon: dataToEdit.icon,
+        is_external: dataToEdit.is_external ?? true,
+        id_nama_dompet: dataToEdit.id_nama_dompet ?? null,
       });
     }
   }, [dataToEdit, reset]);
@@ -95,6 +103,8 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
   const watchedTarget = useWatch({ control, name: "target_nominal" }) || 0;
   const watchedTanggal = useWatch({ control, name: "tanggal_target" }) || "";
   const watchedIcon = useWatch({ control, name: "icon" }) || "Target";
+  const watchedIsExternal = useWatch({ control, name: "is_external" });
+  const watchedDompet = useWatch({ control, name: "id_nama_dompet" });
 
   const SelectedIconComponent = useMemo(() => {
     return ICONS.find(i => i.name === watchedIcon)?.icon || Target;
@@ -109,6 +119,8 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
       icon: data.icon,
       status: dataToEdit?.status || "aktif",
       tanggal_dibuat: dataToEdit?.tanggal_dibuat || new Date().toISOString().split("T")[0],
+      is_external: data.is_external,
+      id_nama_dompet: data.is_external ? null : data.id_nama_dompet,
     };
 
     try {
@@ -247,11 +259,70 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
           {errors.icon && <p className="text-xs font-semibold text-destructive mt-1">{(errors.icon.message as string)}</p>}
       </div>
 
+      {/* Bento Item 4: Lokasi Penyimpanan Dana */}
+      <div className={cn(
+        "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-5 col-span-1 md:col-span-2",
+        inline ? "bg-white border-slate-200" : "bg-white border-slate-100"
+      )}>
+          <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+              Lokasi Penyimpanan Tabungan
+          </Label>
+          <div className="grid grid-cols-2 gap-3">
+              <button
+                  type="button"
+                  onClick={() => setValue("is_external", true)}
+                  className={cn(
+                      "flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all duration-300 hover:scale-[1.02] active:scale-95",
+                      watchedIsExternal 
+                          ? (inline ? "bg-blue-50 border-blue-500 text-blue-600 ring-2 ring-blue-500/20" : "bg-primary/10 border-primary text-primary") 
+                          : (inline ? "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100" : "bg-slate-50 border-slate-200 text-slate-400")
+                  )}
+              >
+                  <Building size={20} strokeWidth={watchedIsExternal ? 2.5 : 2} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-center">Eksternal</span>
+                  <span className="text-[8px] font-semibold text-center opacity-80 leading-tight px-2">Di luar aplikasi (Bank lain, Reksadana, dsb)</span>
+              </button>
+              <button
+                  type="button"
+                  onClick={() => setValue("is_external", false)}
+                  className={cn(
+                      "flex flex-col items-center gap-2 py-4 px-2 rounded-2xl border transition-all duration-300 hover:scale-[1.02] active:scale-95",
+                      !watchedIsExternal 
+                          ? (inline ? "bg-emerald-50 border-emerald-500 text-emerald-600 ring-2 ring-emerald-500/20" : "bg-primary/10 border-primary text-primary") 
+                          : (inline ? "bg-slate-50 border-slate-200 text-slate-400 hover:bg-slate-100" : "bg-slate-50 border-slate-200 text-slate-400")
+                  )}
+              >
+                  <Wallet size={20} strokeWidth={!watchedIsExternal ? 2.5 : 2} />
+                  <span className="text-[10px] font-black uppercase tracking-widest text-center">Internal</span>
+                  <span className="text-[8px] font-semibold text-center opacity-80 leading-tight px-2">Disimpan di salah satu dompet di aplikasi</span>
+              </button>
+          </div>
+          
+          {!watchedIsExternal && (
+              <div className="space-y-2 mt-2 animate-in slide-in-from-top-2 fade-in duration-300">
+                  <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+                      Pilih Dompet / Sumber Dana
+                  </Label>
+                  <SearchableSelect
+                      options={sumberDanaList.map(s => ({
+                          value: s.id_sumber_dana,
+                          label: s.nama_sumber
+                      }))}
+                      value={watchedDompet || ""}
+                      onValueChange={(val) => setValue('id_nama_dompet', val)}
+                      placeholder="Pilih dompet tempat dana disimpan..."
+                      className={cn("rounded-xl h-12", inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white" : "bg-white border-slate-200")}
+                  />
+                  {errors.id_nama_dompet && <p className="text-xs font-semibold text-destructive mt-1">Pilih dompet internal terlebih dahulu.</p>}
+              </div>
+          )}
+      </div>
+
       {/* Action Row */}
       <div className="col-span-1 md:col-span-2 flex justify-end pt-4 w-full">
           <Button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isSubmitting || showSuccess}
               className={cn(
                   "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none",
                   inline ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"

@@ -115,7 +115,7 @@ export default function TitipanForm({ onClose, titipanToEdit, inline = false }: 
             <div className="col-span-1 flex justify-end pt-4">
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || showSuccess}
                     className={cn(
                         "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none",
                         inline ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-amber-500 hover:bg-amber-600 text-white"

@@ -379,7 +379,7 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
                 </Button>
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || showSuccess}
                     className={cn(
                         "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
                         "bg-blue-600 text-white hover:bg-blue-700"

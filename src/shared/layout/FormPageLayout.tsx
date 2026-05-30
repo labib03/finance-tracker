@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '@/shared/ui/button';
@@ -48,6 +48,19 @@ export default function FormPageLayout({
         if (onCancel) onCancel();
         else router.back();
     };
+
+    useEffect(() => {
+        if (showSuccessModal) {
+            const timer = setTimeout(() => {
+                if (onSuccessConfirm) {
+                    onSuccessConfirm();
+                } else {
+                    router.back();
+                }
+            }, 1500);
+            return () => clearTimeout(timer);
+        }
+    }, [showSuccessModal, onSuccessConfirm, router]);
 
     return (
         <div className="min-h-screen text-slate-900 flex flex-col relative overflow-hidden pb-12">
@@ -116,12 +129,6 @@ export default function FormPageLayout({
                                             </p>
                                         </div>
                                     </div>
-                                    <Button
-                                        onClick={onSuccessConfirm}
-                                        className="w-full sm:w-auto h-12 px-8 rounded-2xl bg-emerald-500 text-white font-black hover:bg-emerald-600 border-none transition-all duration-300 shadow-md shadow-emerald-500/20 active:scale-[0.98] text-xs uppercase tracking-widest shrink-0"
-                                    >
-                                        Selesai
-                                    </Button>
                                 </div>
                             </motion.div>
                         )}

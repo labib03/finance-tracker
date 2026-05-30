@@ -542,7 +542,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                 </Button>
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || showSuccess}
                     className={cn(
                         "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
                         activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-500 text-white hover:bg-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-primary text-primary-foreground hover:bg-primary/90"

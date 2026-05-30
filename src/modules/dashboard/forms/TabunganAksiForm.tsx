@@ -75,6 +75,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const getSaldoTabungan = useFinanceStore((s) => s.getSaldoTabungan);
     const getProgresTabungan = useFinanceStore((s) => s.getProgresTabungan);
+    const tabunganList = useFinanceStore((s) => s.tabunganList);
 
     const router = useRouter();
     const [showSuccess, setShowSuccess] = useState(false);
@@ -100,7 +101,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
     // Get current source balance
     const selectedSource = sumberDanaList.find(s => s.id_sumber_dana === idSumberDana);
     const tipeList = useFinanceStore(s => s.tipeList);
-    const resultBalances = selectedSource ? hitungSaldoAkun([selectedSource], transaksiList, tipeList) : [];
+    const resultBalances = selectedSource ? hitungSaldoAkun([selectedSource], transaksiList, tipeList, tabunganList) : [];
     const saldoSumber = resultBalances.length > 0 ? resultBalances[0].saldo : 0;
 
     const config = AKSI_CONFIG[aksi] || AKSI_CONFIG.alokasi_tabungan;
