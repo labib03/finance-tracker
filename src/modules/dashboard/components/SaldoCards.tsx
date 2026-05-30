@@ -4,7 +4,6 @@ import React, { useMemo, useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, hitungSaldoAkun } from '@/lib/utils';
 import { Banknote, CreditCard, Smartphone, Wallet, Plus, Edit2, Trash2 } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { cn } from '@/lib/utils';
@@ -15,6 +14,14 @@ const iconMap: Record<string, typeof Wallet> = {
     ATM: CreditCard,
     'E-Wallet': Smartphone,
 };
+
+const colorMap: Record<string, string> = {
+    Cash: 'bg-emerald-50 text-emerald-600',
+    Mandiri: 'bg-blue-50 text-blue-600',
+    ATM: 'bg-amber-50 text-amber-600',
+    'E-Wallet': 'bg-purple-50 text-purple-600',
+};
+
 
 interface SaldoCardsProps {
     onAddAccount?: () => void;
@@ -59,123 +66,119 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
     }, [saldoAkun]);
 
     return (
-        <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col h-full min-h-[500px] max-h-[600px] relative">
-            <CardHeader className="p-8 pb-6 shrink-0 relative z-20 border-b border-slate-100">
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 rounded-[1rem] bg-slate-100 flex items-center justify-center border border-slate-200/50 text-slate-900 shadow-sm relative">
-                            <Wallet size={24} strokeWidth={2.5} />
-                            <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white animate-pulse" />
-                        </div>
-                        <div>
-                            <p className="text-[10px] font-bold uppercase tracking-[0.15em] text-slate-500 leading-none mb-2">
-                                Status Saldo Likuid
-                            </p>
-                            <CardTitle className="text-3xl font-black display-number text-slate-950 tracking-tight leading-none">
-                                {formatRupiah(totalSaldo)}
-                            </CardTitle>
-                        </div>
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-600 relative">
+                        <Wallet size={24} strokeWidth={2} />
+                        <div className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-400 border-2 border-white" />
+                    </div>
+                    <div>
+                        <p className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-1">
+                            Status Saldo Likuid
+                        </p>
+                        <h2 className="text-2xl font-black display-number text-slate-900 leading-none">
+                            {formatRupiah(totalSaldo)}
+                        </h2>
                     </div>
                 </div>
-            </CardHeader>
+                {onAddAccount && (
+                    <Button 
+                        variant="outline" 
+                        onClick={onAddAccount}
+                        className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl hidden sm:flex items-center gap-2"
+                    >
+                        <Plus size={16} />
+                        <span>Tambah Akun</span>
+                    </Button>
+                )}
+            </div>
             
-            <CardContent className="p-4 flex-1 overflow-y-auto overflow-x-hidden relative z-10 scroll-smooth custom-scrollbar">
-                {saldoAkun.length === 0 ? (
-                    <div className="flex flex-col items-center justify-center h-full text-center p-8">
-                            <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4 border border-dashed border-slate-200">
-                            <Wallet size={24} className="text-slate-300" />
-                            </div>
-                            <p className="text-sm font-bold text-slate-400">Belum ada akun dompet</p>
-                    </div>
-                ) : (
-                    <div className="space-y-3 pb-2">
-                        {saldoAkun.map((akun) => {
-                            const Icon = iconMap[akun.nama_sumber] || Wallet;
-                            return (
-                                <div 
-                                    key={akun.id_sumber_dana}
-                                    className="group relative p-4 rounded-[1.5rem] bg-slate-50 border border-slate-100/50 hover:bg-slate-100 hover:border-slate-200 transition-all duration-300 flex items-center justify-between gap-4"
-                                >
-                                    <div className="flex items-center gap-4 min-w-0 flex-1">
-                                        <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm bg-white border border-slate-100 text-slate-600 group-hover:text-slate-900">
-                                            <Icon size={18} strokeWidth={2.5} />
-                                        </div>
-                                        <div className="flex flex-col min-w-0">
-                                            <span className="text-sm font-bold truncate text-slate-800 transition-colors">
-                                                {akun.nama_sumber}
-                                            </span>
-                                            {tabunganList.filter(t => !t.is_external && t.id_nama_dompet === akun.id_sumber_dana).length > 0 && (
-                                                <div className="mt-1 space-y-0.5">
-                                                    {tabunganList.filter(t => !t.is_external && t.id_nama_dompet === akun.id_sumber_dana).map(t => (
-                                                        <p key={t.id_tabungan} className="text-[10px] text-slate-500 truncate flex items-center gap-1">
-                                                            <span className="w-1 h-1 rounded-full bg-blue-400 shrink-0" />
-                                                            {t.nama_tujuan} ({formatRupiah(getSaldoTabungan(t.id_tabungan))})
-                                                        </p>
-                                                    ))}
-                                                </div>
-                                            )}
-                                        </div>
+            {saldoAkun.length === 0 ? (
+                <div className="flex flex-col items-center justify-center py-12 text-center bg-white rounded-3xl border border-slate-100">
+                     <div className="w-16 h-16 rounded-full bg-slate-50 flex items-center justify-center mb-4">
+                        <Wallet size={24} className="text-slate-300" />
+                     </div>
+                     <p className="text-sm font-medium text-slate-500">Belum ada akun dompet</p>
+                     {onAddAccount && (
+                         <Button variant="ghost" onClick={onAddAccount} className="mt-4 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50">
+                             Tambah Sekarang
+                         </Button>
+                     )}
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {saldoAkun.map((akun) => {
+                        const Icon = iconMap[akun.nama_sumber] || Wallet;
+                        const colorClass = colorMap[akun.nama_sumber] || 'bg-slate-50 text-slate-600';
+                        return (
+                            <div 
+                                key={akun.id_sumber_dana}
+                                className="group relative p-5 rounded-[1.5rem] bg-white border border-slate-100 hover:border-slate-200 hover:shadow-sm transition-all duration-200 flex flex-col gap-4"
+                            >
+                                <div className="flex items-center justify-between">
+                                    <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", colorClass)}>
+                                        <Icon size={18} strokeWidth={2} />
                                     </div>
-
-                                    <div className="flex flex-col shrink-0 gap-2 items-end">
-                                        <div className="flex items-center gap-4">
-                                            <div className="text-right">
-                                                <p className="text-base font-black display-number text-slate-900 transition-colors">
-                                                    {formatRupiah(akun.saldo)}
-                                                </p>
-                                            </div>
-                                            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => onEditAccount && onEditAccount(akun)}
-                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-slate-100 bg-white border border-transparent hover:border-blue-100 shadow-sm transition-all"
-                                                >
-                                                    <Edit2 size={14} />
-                                                </Button>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="icon"
-                                                    onClick={() => handleDeleteSumberDana(akun.id_sumber_dana, akun.nama_sumber)}
-                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 bg-white border border-transparent hover:border-rose-100 shadow-sm transition-all"
-                                                >
-                                                    <Trash2 size={14} />
-                                                </Button>
-                                            </div>
-                                        </div>
+                                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => onEditAccount && onEditAccount(akun)}
+                                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50"
+                                        >
+                                            <Edit2 size={14} />
+                                        </Button>
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => handleDeleteSumberDana(akun.id_sumber_dana, akun.nama_sumber)}
+                                            className="h-7 w-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50"
+                                        >
+                                            <Trash2 size={14} />
+                                        </Button>
                                     </div>
                                 </div>
-                            );
-                        })}
-                    </div>
-                )}
-            </CardContent>
 
-            <div className="p-4 shrink-0 relative z-20 border-t border-slate-100 bg-white">
-                <button 
-                    onClick={onAddAccount}
-                    className="w-full group/add relative flex items-center justify-between p-4 rounded-[1.5rem] bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98]"
-                >
-                    <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shadow-sm text-white group-hover/add:bg-white/20 transition-colors border border-white/5">
-                            <Plus size={18} strokeWidth={2.5} />
-                        </div>
-                        <div className="text-left">
-                            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 group-hover/add:text-slate-300 leading-none mb-1.5">
-                                Aksi Baru
-                            </p>
-                            <p className="text-xs font-bold text-white group-hover/add:text-white">
-                                Tambah Akun / Dompet
-                            </p>
-                        </div>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-                            <Plus size={14} className="text-white group-hover/add:rotate-90 transition-transform duration-300" />
-                        </div>
-                    </div>
-                </button>
-            </div>
+                                <div>
+                                    <span className="text-xs font-semibold text-slate-500 block mb-1">
+                                        {akun.nama_sumber}
+                                    </span>
+                                    <p className="text-lg font-bold display-number text-slate-900">
+                                        {formatRupiah(akun.saldo)}
+                                    </p>
+                                </div>
+
+                                {tabunganList.filter(t => !t.is_external && t.id_nama_dompet === akun.id_sumber_dana).length > 0 && (
+                                    <div className="mt-auto pt-3 border-t border-slate-50 space-y-1">
+                                        {tabunganList.filter(t => !t.is_external && t.id_nama_dompet === akun.id_sumber_dana).map(t => (
+                                            <div key={t.id_tabungan} className="flex justify-between items-center text-[10px]">
+                                                <span className="text-slate-500 truncate pr-2 flex items-center gap-1.5">
+                                                    <span className="w-1 h-1 rounded-full bg-slate-300 shrink-0" />
+                                                    {t.nama_tujuan}
+                                                </span>
+                                                <span className="font-semibold text-slate-600 display-number">{formatRupiah(getSaldoTabungan(t.id_tabungan))}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })}
+                    
+                    {onAddAccount && (
+                        <button 
+                            onClick={onAddAccount}
+                            className="sm:hidden flex flex-col items-center justify-center gap-3 p-5 rounded-[1.5rem] border-2 border-dashed border-slate-200 text-slate-400 hover:text-indigo-600 hover:border-indigo-200 hover:bg-indigo-50/50 transition-colors"
+                        >
+                            <div className="w-10 h-10 rounded-full bg-slate-50 flex items-center justify-center">
+                                <Plus size={20} />
+                            </div>
+                            <span className="text-xs font-semibold">Tambah Akun</span>
+                        </button>
+                    )}
+                </div>
+            )}
 
             <ConfirmDialog
                 isOpen={confirmDelete.isOpen}
@@ -191,6 +194,6 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
                         : `Apakah Anda yakin ingin menghapus "${confirmDelete.name}"?`
                 }
             />
-        </Card>
+        </div>
     );
 }
