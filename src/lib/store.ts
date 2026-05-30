@@ -8,6 +8,7 @@ import type {
   Budget,
   Titipan,
   Tabungan,
+  TipeTransaksi,
 } from "@/lib/types";
 import {
   fetchKategori,
@@ -38,7 +39,11 @@ import {
   fetchTabungan,
   tambahTabungan,
   updateTabungan,
-  deleteTabungan
+  deleteTabungan,
+  fetchTipeTransaksi,
+  tambahTipeTransaksi,
+  updateTipeTransaksi,
+  hapusTipeTransaksi,
 } from "@/lib/actions";
 import { getCurrentMonth, generateId, formatRupiah, getJadwalTerdekat } from "@/lib/utils";
 
@@ -52,6 +57,7 @@ interface FinanceState {
   budgetList: Budget[];
   titipanList: Titipan[];
   tabunganList: Tabungan[];
+  tipeList: TipeTransaksi[];
 
   // UI State
   isLoading: boolean;
@@ -118,6 +124,11 @@ interface FinanceState {
   updateTabungan: (data: Tabungan) => Promise<void>;
   removeTabungan: (id: string) => Promise<void>;
 
+  // Actions - TipeTransaksi CRUD
+  addTipeTransaksi: (data: TipeTransaksi) => Promise<void>;
+  updateTipeTransaksi: (data: TipeTransaksi) => Promise<void>;
+  removeTipeTransaksi: (id: string) => Promise<void>;
+
   // Modal Edit States
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   titipanToEdit: any;
@@ -147,6 +158,10 @@ interface FinanceState {
   sumberDanaToEdit: any;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setSumberDanaToEdit: (val: any) => void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  tipeToEdit: any;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setTipeToEdit: (val: any) => void;
 
   setActiveModal: (modal: string | null) => void;
   setCycleStartDay: (day: number) => void;
@@ -190,6 +205,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   budgetList: [],
   titipanList: [],
   tabunganList: [],
+  tipeList: [],
   isLoading: true,
   isInitialized: false,
   cycleStartDay: 25, // Default
@@ -204,6 +220,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   budgetToEdit: null,
   kategoriToEdit: null,
   sumberDanaToEdit: null,
+  tipeToEdit: null,
 
   setTitipanToEdit: (val) => set({ titipanToEdit: val }),
   setTabunganToEdit: (val) => set({ tabunganToEdit: val }),
@@ -212,6 +229,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   setBudgetToEdit: (val) => set({ budgetToEdit: val }),
   setKategoriToEdit: (val) => set({ kategoriToEdit: val }),
   setSumberDanaToEdit: (val) => set({ sumberDanaToEdit: val }),
+  setTipeToEdit: (val) => set({ tipeToEdit: val }),
 
   // ======================== Data Fetching ========================
 
@@ -240,7 +258,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       activeMonth: getCurrentMonth(savedDay)
     });
     try {
-      const [kategori, sumberDana, transaksi, recurring, budgets, titipan, tabungan] =
+      const [kategori, sumberDana, transaksi, recurring, budgets, titipan, tabungan, tipes] =
         await Promise.all([
           fetchKategori(),
           fetchSumberDana(),
@@ -249,6 +267,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           fetchBudgets(),
           fetchTitipan(),
           fetchTabungan(),
+          fetchTipeTransaksi(),
         ]);
 
       set({
@@ -259,6 +278,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         budgetList: budgets,
         titipanList: titipan,
         tabunganList: tabungan,
+        tipeList: tipes,
         isLoading: false,
         isInitialized: true,
       });
@@ -274,7 +294,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   refreshData: async () => {
     try {
-      const [transaksi, recurring, budgets, kategori, sumberDana, titipan, tabungan] =
+      const [transaksi, recurring, budgets, kategori, sumberDana, titipan, tabungan, tipes] =
         await Promise.all([
           fetchTransaksi(),
           fetchRecurring(),
@@ -283,6 +303,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
           fetchSumberDana(),
           fetchTitipan(),
           fetchTabungan(),
+          fetchTipeTransaksi(),
         ]);
 
       set({
@@ -293,6 +314,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         sumberDanaList: sumberDana.sort((a, b) => a.nama_sumber.localeCompare(b.nama_sumber)),
         titipanList: titipan,
         tabunganList: tabungan,
+        tipeList: tipes,
       });
     } catch (error) {
       console.error("Failed to refresh:", error);
@@ -301,13 +323,15 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   refreshMasterData: async () => {
     try {
-      const [kategori, sumberDana] = await Promise.all([
+      const [kategori, sumberDana, tipes] = await Promise.all([
         fetchKategori(),
         fetchSumberDana(),
+        fetchTipeTransaksi(),
       ]);
       set({ 
         kategoriList: kategori.sort((a, b) => a.nama_kategori.localeCompare(b.nama_kategori)), 
-        sumberDanaList: sumberDana.sort((a, b) => a.nama_sumber.localeCompare(b.nama_sumber)) 
+        sumberDanaList: sumberDana.sort((a, b) => a.nama_sumber.localeCompare(b.nama_sumber)),
+        tipeList: tipes,
       });
     } catch (error) {
       console.error("Failed to refresh master data:", error);
@@ -373,10 +397,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     is_titipan = null,
   ) => {
     const id = generateId();
+    const tipeTransfer = get().tipeList.find(t => t.label.toLowerCase() === "transfer" && !t.master_tipe)?.id_tipe 
+      || get().tipeList.find(t => t.label.toLowerCase() === "transfer")?.id_tipe 
+      || "Transfer";
+
     const transferTx: Transaksi = {
       id,
       tanggal,
-      jenis: "Transfer",
+      jenis: tipeTransfer,
       id_sumber_dana: id_sumber_dana_asal,
       id_target_dana,
       id_kategori: "TRANSFER",
@@ -392,10 +420,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     if (biaya_admin > 0) {
       adminFeeId = generateId();
       const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
+      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran" && !t.master_tipe)?.id_tipe 
+        || get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran")?.id_tipe 
+        || "Pengeluaran";
+        
       const adminTx: Transaksi = {
         id: adminFeeId,
         tanggal,
-        jenis: "Pengeluaran",
+        jenis: tipePengeluaran,
         id_sumber_dana: id_sumber_dana_asal,
         id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
         nominal: biaya_admin,
@@ -422,10 +454,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
     if (biaya_admin > 0) {
       const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
+      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran" && !t.master_tipe)?.id_tipe 
+        || get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran")?.id_tipe 
+        || "Pengeluaran";
+        
       const adminTx: Transaksi = {
         id: adminFeeId,
         tanggal,
-        jenis: "Pengeluaran",
+        jenis: tipePengeluaran,
         id_sumber_dana: id_sumber_dana_asal,
         id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
         nominal: biaya_admin,
@@ -465,10 +501,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         );
       } else {
         adminFeeAction = 'create';
+        const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran" && !t.master_tipe)?.id_tipe 
+          || get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran")?.id_tipe 
+          || "Pengeluaran";
+          
         adminTxToSave = {
           id: generateId(),
           tanggal: data.tanggal,
-          jenis: "Pengeluaran",
+          jenis: tipePengeluaran,
           id_sumber_dana: data.id_sumber_dana,
           id_kategori: kategoriAdmin?.id_kategori || "BIAYA_ADMIN",
           nominal: biaya_admin,
@@ -768,6 +808,66 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
   },
 
+  // ======================== TipeTransaksi CRUD ========================
+
+  addTipeTransaksi: async (data) => {
+    set((state) => ({
+      tipeList: [...state.tipeList, data],
+    }));
+
+    toast.success("Tipe Transaksi berhasil ditambahkan!");
+
+    const success = await tambahTipeTransaksi(data);
+    if (!success) {
+      set((state) => ({
+        tipeList: state.tipeList.filter(
+          (t) => t.id_tipe !== data.id_tipe,
+        ),
+      }));
+      toast.error("Gagal menyimpan tipe transaksi.");
+    } else {
+      await get().refreshMasterData();
+    }
+  },
+
+  updateTipeTransaksi: async (data) => {
+    const prev = get().tipeList;
+    set((state) => ({
+      tipeList: state.tipeList.map((t) =>
+        t.id_tipe === data.id_tipe ? data : t,
+      ),
+    }));
+
+    toast.success("Tipe Transaksi berhasil diperbarui!");
+
+    const success = await updateTipeTransaksi(data);
+    if (!success) {
+      set({ tipeList: prev });
+      toast.error("Gagal memperbarui tipe transaksi.");
+    } else {
+      await get().refreshMasterData();
+    }
+  },
+
+  removeTipeTransaksi: async (id) => {
+    const prev = get().tipeList;
+    set((state) => ({
+      tipeList: state.tipeList.filter(
+        (t) => t.id_tipe !== id,
+      ),
+    }));
+
+    toast.info("Tipe Transaksi dihapus.");
+
+    const success = await hapusTipeTransaksi(id);
+    if (!success) {
+      set({ tipeList: prev });
+      toast.error("Gagal menghapus tipe transaksi.");
+    } else {
+      await get().refreshMasterData();
+    }
+  },
+
   // ======================== Titipan CRUD ========================
 
   addTitipan: async (data) => {
@@ -904,8 +1004,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     return get().transaksiList
       .filter((t) => t.is_titipan === id_titipan)
       .reduce((acc, t) => {
-        if (t.jenis === "Pemasukan") return acc + t.nominal;
-        if (t.jenis === "Pengeluaran") return acc - t.nominal;
+        if (t.jenis.toLowerCase() === "pemasukan") return acc + t.nominal;
+        if (t.jenis.toLowerCase() === "pengeluaran") return acc - t.nominal;
         return acc;
       }, 0);
   },
@@ -918,8 +1018,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     return get().transaksiList
       .filter((t) => t.is_titipan && activeTitipanIds.includes(t.is_titipan))
       .reduce((acc, t) => {
-        if (t.jenis === "Pemasukan") return acc + t.nominal;
-        if (t.jenis === "Pengeluaran") return acc - t.nominal;
+        if (t.jenis.toLowerCase() === "pemasukan") return acc + t.nominal;
+        if (t.jenis.toLowerCase() === "pengeluaran") return acc - t.nominal;
         return acc;
       }, 0);
   },
@@ -958,7 +1058,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     today.setHours(0, 0, 0, 0);
 
     const items = get().recurringList.filter((r) => {
-      if (!r.aktif || r.jenis !== "Pengeluaran") return false;
+      if (!r.aktif || r.jenis.toLowerCase() !== "pengeluaran") return false;
       
       const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
       const nextDate = new Date(effectiveDateStr + 'T00:00:00');
@@ -968,7 +1068,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         t.label === r.label && 
         t.nominal === r.nominal && 
         t.tanggal === effectiveDateStr &&
-        t.jenis === r.jenis
+        t.jenis.toLowerCase() === r.jenis.toLowerCase()
       );
 
       return nextDate >= today && nextDate <= endDate && !isAlreadyRecorded;
@@ -983,7 +1083,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     return get().transaksiList
       .filter((t) => {
         const d = new Date(t.tanggal);
-        return t.jenis === "Pemasukan" && !t.is_titipan && d >= startDate && d <= endDate;
+        return t.jenis.toLowerCase() === "pemasukan" && !t.is_titipan && d >= startDate && d <= endDate;
       })
       .reduce((acc, t) => acc + t.nominal, 0);
   },
@@ -993,19 +1093,23 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     return get().transaksiList
       .filter((t) => {
         const d = new Date(t.tanggal);
-        return t.jenis === "Pengeluaran" && !t.is_titipan && d >= startDate && d <= endDate;
+        return t.jenis.toLowerCase() === "pengeluaran" && !t.is_titipan && d >= startDate && d <= endDate;
       })
       .reduce((acc, t) => acc + t.nominal, 0);
   },
 
   // ======================== Tabungan Getters ========================
   getSaldoTabungan: (id_tabungan: string) => {
+    const pengeluaranType = get().tipeList.find(f => f.label.toLowerCase() === "pengeluaran")?.id_tipe;
+    const transferType = get().tipeList.find(f => f.label.toLowerCase() === "transfer")?.id_tipe;
+    const savingType = get().tipeList.find(f => f.label.toLowerCase() === "savings")?.id_tipe;
+
     return get().transaksiList
       .filter((t) => t.id_tabungan === id_tabungan)
       .reduce((acc, t) => {
-        if (t.jenis === "alokasi_tabungan") return acc + t.nominal;
-        if (t.jenis === "tarik_tabungan") return acc - t.nominal;
-        if (t.jenis === "eksekusi_tabungan") return acc - t.nominal;
+        if (t.jenis === savingType) return acc + t.nominal;
+        if (t.jenis === transferType) return acc - t.nominal;
+        if (t.jenis === pengeluaranType) return acc - t.nominal;
         return acc;
       }, 0);
   },
@@ -1028,10 +1132,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     const { startDate, endDate } = state.getCurrentCycleDates();
     const tabunganFlows = state.transaksiList.filter((t) => {
       const d = new Date(t.tanggal);
-      return d >= startDate && d <= endDate && (t.jenis === "alokasi_tabungan" || t.jenis === "tarik_tabungan");
+      return d >= startDate && d <= endDate && (t.jenis.toLowerCase() === "alokasi_tabungan" || t.jenis.toLowerCase() === "tarik_tabungan");
     });
-    const alokasiSiklus = tabunganFlows.filter(t => t.jenis === "alokasi_tabungan").reduce((acc, t) => acc + t.nominal, 0);
-    const tarikSiklus = tabunganFlows.filter(t => t.jenis === "tarik_tabungan").reduce((acc, t) => acc + t.nominal, 0);
+    const alokasiSiklus = tabunganFlows.filter(t => t.jenis.toLowerCase() === "alokasi_tabungan").reduce((acc, t) => acc + t.nominal, 0);
+    const tarikSiklus = tabunganFlows.filter(t => t.jenis.toLowerCase() === "tarik_tabungan").reduce((acc, t) => acc + t.nominal, 0);
 
     // Sisa Bersih = Pemasukan - Pengeluaran (berjalan) - Tagihan Mendatang - Alokasi Tabungan + Tarik Darurat
     const sisaBersih = pemasukanSiklus - pengeluaranSiklus - upcomingBills - alokasiSiklus + tarikSiklus;

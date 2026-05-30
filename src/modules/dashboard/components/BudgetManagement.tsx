@@ -31,6 +31,7 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const removeBudget = useFinanceStore((s) => s.removeBudget);
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, id: string, name: string }>({
@@ -43,11 +44,11 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
     const [statusFilter, setStatusFilter] = useState<'all' | 'aman' | 'peringatan' | 'bahaya'>('all');
 
     const budgetStatusMap = useMemo(() => {
-        const statusList = hitungBudgetStatus(transaksiList, kategoriList, budgetList, activeMonth, cycleStartDay);
+        const statusList = hitungBudgetStatus(transaksiList, kategoriList, budgetList, activeMonth, tipeList, cycleStartDay);
         const map = new Map();
         statusList.forEach(s => map.set(s.id_kategori, s));
         return map;
-    }, [transaksiList, kategoriList, budgetList, activeMonth, cycleStartDay]);
+    }, [transaksiList, kategoriList, budgetList, activeMonth, tipeList, cycleStartDay]);
 
     const activeBudgets = useMemo(() => {
         const [yearStr, monthStr] = activeMonth.split('-');

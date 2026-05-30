@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useMemo } from 'react';
 import { useForm, useFieldArray, Controller, useWatch } from 'react-hook-form';
@@ -6,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useFinanceStore } from '@/lib/store';
 import type { Transaksi } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
+import { getRootTipe, getRootLabel } from '@/lib/tipeUtils';
 import { 
     Save, 
     Plus, 
@@ -32,7 +34,8 @@ import { Textarea } from '@/shared/ui/textarea';
 
 interface BatchRow {
     tanggal: string;
-    jenis: 'Pengeluaran' | 'Pemasukan';
+    rootTipeId: string;
+    jenis: string; // id_tipe
     id_kategori: string;
     id_sumber_dana: string;
     nominal: number;
@@ -48,10 +51,14 @@ export default function BatchInsertForm() {
     const router = useRouter();
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const addTransaksi = useFinanceStore((s) => s.addTransaksi);
 
     const [isSaving, setIsSaving] = useState(false);
     const [saveSuccess, setSaveSuccess] = useState(false);
+
+    const rootTipes = useMemo(() => tipeList.filter(t => !t.master_tipe), [tipeList]);
+    const defaultRootId = rootTipes.length > 0 ? (rootTipes.find(r => r.label.toLowerCase().includes(TRANSACTION_TYPES.EXPENSE))?.id_tipe || rootTipes[0].id_tipe) : '';
 
     // Setup Form
     const {
@@ -65,7 +72,8 @@ export default function BatchInsertForm() {
             items: [
                 {
                     tanggal: getToday(),
-                    jenis: 'Pengeluaran',
+                    rootTipeId: defaultRootId,
+                    jenis: '',
                     id_kategori: '',
                     id_sumber_dana: '',
                     nominal: 0,
@@ -96,9 +104,11 @@ export default function BatchInsertForm() {
         watchedItems.forEach((item) => {
             if (item) {
                 const nominal = item.nominal || 0;
-                if (item.jenis === 'Pemasukan') {
+                const rootLabel = getRootLabel(tipeList, item.rootTipeId).toLowerCase();
+                
+                if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) {
                     totalMasuk += nominal;
-                } else {
+                } else if (rootLabel.includes(TRANSACTION_TYPES.EXPENSE)) {
                     totalKeluar += nominal;
                 }
                 
@@ -129,6 +139,9 @@ export default function BatchInsertForm() {
 
             if (!item.tanggal) {
                 errorsInRow.push("Tanggal wajib diisi");
+            }
+            if (!item.jenis) {
+                errorsInRow.push("Tipe wajib dipilih");
             }
             if (!item.id_sumber_dana) {
                 errorsInRow.push("Sumber Dana/Metode wajib dipilih");
@@ -164,7 +177,7 @@ export default function BatchInsertForm() {
                     id_kategori: item.id_kategori,
                     id_sumber_dana: item.id_sumber_dana,
                     nominal: item.nominal,
-                    label: item.label || (item.jenis === 'Pemasukan' ? 'Pemasukan Massal' : 'Pengeluaran Massal'),
+                    label: item.label || (getRootLabel(tipeList, item.rootTipeId).toLowerCase().includes(TRANSACTION_TYPES.INCOME) ? 'Pemasukan Massal' : 'Pengeluaran Massal'),
                     catatan: item.catatan || '',
                     is_titipan: null
                 });
@@ -237,9 +250,13 @@ export default function BatchInsertForm() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
                 <div className="space-y-6">
                     {fields.map((field, index) => {
-                        const rowJenis = watchedItems[index]?.jenis || 'Pengeluaran';
-                        const isPemasukan = rowJenis === 'Pemasukan';
-                        const availableKategori = kategoriList.filter(k => k.tipe === rowJenis);
+                        const rowRootTipeId = watchedItems[index]?.rootTipeId || defaultRootId;
+                        const rowRootLabel = getRootLabel(tipeList, rowRootTipeId).toLowerCase();
+                        const isPemasukan = rowRootLabel.includes(TRANSACTION_TYPES.INCOME);
+                        const isSavings = rowRootLabel.includes(TRANSACTION_TYPES.SAVINGS);
+                        const isPengeluaran = rowRootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+                        const rowJenis = watchedItems[index]?.jenis;
+                        const availableKategori = kategoriList.filter(k => k.tipe.toLowerCase() === (rowJenis || '').toLowerCase());
                         
                         const rowHasError = validationErrors.some(err => err.startsWith(`Baris ${index + 1}:`));
 
@@ -258,6 +275,7 @@ export default function BatchInsertForm() {
                                             "w-8 h-8 rounded-xl font-black text-xs flex items-center justify-center shadow-xs border select-none",
                                             isPemasukan 
                                                 ? "bg-emerald-50 text-emerald-600 border-emerald-100" 
+                                                : isSavings ? "bg-blue-50 text-blue-600 border-blue-100"
                                                 : "bg-rose-50 text-rose-600 border-rose-100"
                                         )}>
                                             {index + 1}
@@ -283,40 +301,39 @@ export default function BatchInsertForm() {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                                     {/* Column 1: Tipe Selector Toggle & Tanggal Picker */}
                                     <div className="flex flex-col gap-4">
-                                        {/* Tipe Selector Label */}
+                                        {/* MasterTipe Selector Label */}
                                         <div className="flex flex-col gap-2">
-                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Tipe Transaksi</Label>
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Master Tipe</Label>
                                             <div className="flex gap-2">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setValue(`items.${index}.jenis`, 'Pengeluaran');
-                                                        setValue(`items.${index}.id_kategori`, ''); // reset category on type switch
-                                                    }}
-                                                    className={cn(
-                                                        "flex-1 py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all duration-300 border cursor-pointer active:scale-95 select-none",
-                                                        rowJenis === 'Pengeluaran'
-                                                            ? "bg-rose-50 border-rose-200 text-rose-600 font-extrabold shadow-xs"
-                                                            : "bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-650"
-                                                    )}
-                                                >
-                                                    💸 Pengeluaran
-                                                </button>
-                                                <button
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setValue(`items.${index}.jenis`, 'Pemasukan');
-                                                        setValue(`items.${index}.id_kategori`, ''); // reset category on type switch
-                                                    }}
-                                                    className={cn(
-                                                        "flex-1 py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all duration-300 border cursor-pointer active:scale-95 select-none",
-                                                        rowJenis === 'Pemasukan'
-                                                            ? "bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold shadow-xs"
-                                                            : "bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-650"
-                                                    )}
-                                                >
-                                                    💰 Pemasukan
-                                                </button>
+                                                {rootTipes.map(root => {
+                                                    const isActive = rowRootTipeId === root.id_tipe;
+                                                    const rootLbl = root.label.toLowerCase();
+                                                    const isInc = rootLbl.includes(TRANSACTION_TYPES.INCOME);
+                                                    const isSav = rootLbl.includes(TRANSACTION_TYPES.SAVINGS);
+                                                    const isExp = rootLbl.includes(TRANSACTION_TYPES.EXPENSE);
+                                                    return (
+                                                        <button
+                                                            key={root.id_tipe}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                setValue(`items.${index}.rootTipeId`, root.id_tipe);
+                                                                setValue(`items.${index}.jenis`, '');
+                                                                setValue(`items.${index}.id_kategori`, '');
+                                                            }}
+                                                            className={cn(
+                                                                "flex-1 py-3 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all duration-300 border cursor-pointer active:scale-95 select-none",
+                                                                isActive
+                                                                    ? (isInc ? "bg-emerald-50 border-emerald-200 text-emerald-600 font-extrabold shadow-xs" 
+                                                                    : isSav ? "bg-blue-50 border-blue-200 text-blue-600 font-extrabold shadow-xs" 
+                                                                    : isExp ? "bg-rose-50 border-rose-200 text-rose-600 font-extrabold shadow-xs" 
+                                                                    : "bg-slate-50 border-slate-200 text-slate-900 font-extrabold shadow-xs")
+                                                                    : "bg-slate-50 border-slate-100 text-slate-400 hover:text-slate-650"
+                                                            )}
+                                                        >
+                                                            {isInc ? '💰 ' : isSav ? '🏦 ' : isExp ? '💸 ' : ''}{root.label}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
@@ -363,8 +380,34 @@ export default function BatchInsertForm() {
                                         </div>
                                     </div>
 
-                                    {/* Column 2: Sumber Dana & Kategori Selects */}
+                                    {/* Column 2: Tipe, Sumber Dana, Kategori Selects */}
                                     <div className="flex flex-col gap-4">
+                                        {/* Tipe Transaksi */}
+                                        <div className="flex flex-col gap-2">
+                                            <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Tipe Transaksi</Label>
+                                            <Controller
+                                                name={`items.${index}.jenis`}
+                                                control={control}
+                                                render={({ field: tField }) => (
+                                                    <SearchableSelect
+                                                        options={tipeList.filter(t => t.master_tipe === rowRootTipeId || t.id_tipe === rowRootTipeId).map(t => ({
+                                                            value: t.id_tipe,
+                                                            label: t.label
+                                                        }))}
+                                                        value={tField.value}
+                                                        onValueChange={(val) => {
+                                                            tField.onChange(val);
+                                                            setValue(`items.${index}.id_kategori`, '');
+                                                        }}
+                                                        placeholder="Pilih Tipe..."
+                                                        searchPlaceholder="Cari tipe..."
+                                                        error={rowHasError && !tField.value}
+                                                        className="bg-slate-50 border-slate-200/60 text-slate-900 focus:bg-white text-xs h-12"
+                                                    />
+                                                )}
+                                            />
+                                        </div>
+
                                         {/* Sumber Dana / Metode */}
                                         <div className="flex flex-col gap-2">
                                             <Label className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400">Metode / Akun</Label>
@@ -437,7 +480,8 @@ export default function BatchInsertForm() {
                                                         error={rowHasError && (nField.value || 0) <= 0 ? "Nominal harus valid" : undefined}
                                                         className={cn(
                                                             "bg-slate-50 border-slate-200/60 focus:bg-white rounded-xl h-12 text-sm text-right px-4",
-                                                            isPemasukan ? "text-emerald-600 focus:text-emerald-700 font-extrabold" : "text-rose-600 focus:text-rose-700 font-extrabold"
+                                                            isPemasukan ? "text-emerald-600 focus:text-emerald-700 font-extrabold" : 
+                                                            isSavings ? "text-blue-600 focus:text-blue-700 font-extrabold" : "text-rose-600 focus:text-rose-700 font-extrabold"
                                                         )}
                                                     />
                                                 )}
@@ -464,7 +508,8 @@ export default function BatchInsertForm() {
                     <div 
                         onClick={() => append({
                             tanggal: watchedItems[watchedItems.length - 1]?.tanggal || getToday(),
-                            jenis: watchedItems[watchedItems.length - 1]?.jenis || 'Pengeluaran',
+                            rootTipeId: watchedItems[watchedItems.length - 1]?.rootTipeId || defaultRootId,
+                            jenis: watchedItems[watchedItems.length - 1]?.jenis || '',
                             id_kategori: '',
                             id_sumber_dana: watchedItems[watchedItems.length - 1]?.id_sumber_dana || '',
                             nominal: 0,

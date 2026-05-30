@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -8,6 +9,7 @@ import {
     getJadwalTerdekat,
     cn 
 } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import { 
     Wallet, 
     TrendingUp, 
@@ -37,6 +39,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
     const recurringList = useFinanceStore((s) => s.recurringList);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const getRemainingDaysInCycle = useFinanceStore((s) => s.getRemainingDaysInCycle);
+    const tipeList = useFinanceStore((s) => s.tipeList);
 
     const { sisaBersih, pemasukanSiklus, totalTagihanMendatang, upcomingItems, pengeluaranSiklus, alokasiTabunganSiklus, pengeluaranHariIni } = useMemo(() => {
         const today = new Date();
@@ -58,19 +61,25 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
         });
 
         const pemasukanActual = transaksiSiklus
-            .filter(t => t.jenis === 'Pemasukan')
+            .filter(t => {
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                return rootLabel.includes(TRANSACTION_TYPES.INCOME);
+            })
             .reduce((acc, t) => acc + t.nominal, 0);
         
         const pengeluaranActual = transaksiSiklus
-            .filter(t => t.jenis === 'Pengeluaran')
+            .filter(t => {
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                return rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+            })
             .reduce((acc, t) => acc + t.nominal, 0);
 
         const alokasiTabunganActual = transaksiSiklus
-            .filter(t => t.jenis === 'alokasi_tabungan')
+            .filter(t => t.jenis.toLowerCase() === 'alokasi_tabungan')
             .reduce((acc, t) => acc + t.nominal, 0);
 
         const tarikTabunganActual = transaksiSiklus
-            .filter(t => t.jenis === 'tarik_tabungan')
+            .filter(t => t.jenis.toLowerCase() === 'tarik_tabungan')
             .reduce((acc, t) => acc + t.nominal, 0);
 
         const netTabungan = alokasiTabunganActual - tarikTabunganActual;
@@ -95,14 +104,18 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
         });
 
         const tagihanMendatangTotal = cycleBills
-            .filter(r => r.jenis === 'Pengeluaran')
+            .filter(r => {
+                const rootLabel = getRootLabel(tipeList, r.jenis).toLowerCase();
+                return rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+            })
             .reduce((acc, r) => acc + r.nominal, 0);
 
         const sisa = pemasukanActual - (pengeluaranActual + tagihanMendatangTotal + netTabungan);
 
         const pengeluaranHariIniActual = transaksiSiklus
             .filter(t => {
-                if (t.jenis !== 'Pengeluaran') return false;
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                if (!rootLabel.includes(TRANSACTION_TYPES.EXPENSE)) return false;
                 const d = new Date(t.tanggal);
                 return d.getDate() === today.getDate() && 
                        d.getMonth() === today.getMonth() && 
@@ -119,7 +132,7 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
             upcomingItems: cycleBills,
             pengeluaranHariIni: pengeluaranHariIniActual,
         };
-    }, [transaksiList, recurringList, cycleStartDay]);
+    }, [transaksiList, recurringList, cycleStartDay, tipeList]);
 
     const isNegative = sisaBersih < 0;
     const isBudgetExhausted = sisaBersih <= 0;

@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -20,10 +21,11 @@ export default function WeeklyTrendChart() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+    const tipeList = useFinanceStore((s) => s.tipeList);
 
     const data = useMemo(
-        () => hitungTrenMingguan(transaksiList, activeMonth, cycleStartDay),
-        [transaksiList, activeMonth, cycleStartDay]
+        () => hitungTrenMingguan(transaksiList, activeMonth, tipeList, cycleStartDay),
+        [transaksiList, activeMonth, cycleStartDay, tipeList]
     );
 
     const hasData = data.some((d) => d.pemasukan > 0 || d.pengeluaran > 0);
@@ -107,7 +109,7 @@ export default function WeeklyTrendChart() {
                                                     <div key={idx} className="flex items-center justify-between gap-6">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: p.fill }} />
-                                                            <span className="text-xs font-black uppercase tracking-widest opacity-80">{p.name === 'pemasukan' ? 'MASUK' : 'KELUAR'}</span>
+                                                            <span className="text-xs font-black uppercase tracking-widest opacity-80">{p.name === TRANSACTION_TYPES.INCOME ? 'MASUK' : 'KELUAR'}</span>
                                                         </div>
                                                         <span className="text-xs font-black display-number">{formatRupiah(p.value as number)}</span>
                                                     </div>

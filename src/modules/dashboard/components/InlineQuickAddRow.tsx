@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -6,9 +7,10 @@ import { TableRow, TableCell } from '@/shared/ui/table';
 import { SearchableSelect } from '@/shared/ui/SearchableSelect';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
-import { getToday, formatTanggalPendek } from '@/lib/utils';
+import { getToday, formatTanggalPendek, cn } from '@/lib/utils';
 import { Save, Plus, X } from 'lucide-react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
+import { getRootLabel } from '@/lib/tipeUtils';
 
 interface InlineQuickAddRowProps {
     defaultDate: string;
@@ -26,22 +28,23 @@ export default function InlineQuickAddRow({
     const addTransaksi = useFinanceStore(s => s.addTransaksi);
     const kategoriList = useFinanceStore(s => s.kategoriList);
     const sumberDanaList = useFinanceStore(s => s.sumberDanaList);
+    const tipeList = useFinanceStore(s => s.tipeList);
 
     const [isAdding, setIsAdding] = useState(false);
     
-    // Determine initial type. If typeFilter is not 'Pemasukan' or 'Pengeluaran', default to 'Pengeluaran'
-    const initialType = (defaultType === 'Pemasukan' || defaultType === 'Pengeluaran') 
-        ? defaultType 
-        : 'Pengeluaran';
+    // Determine initial type. Use defaultType if it matches an id_tipe, else first pengeluaran type, else first available
+    const initialType = tipeList.find(t => t.id_tipe === defaultType)?.id_tipe || 
+                        tipeList.find(t => getRootLabel(tipeList, t.id_tipe).toLowerCase().includes(TRANSACTION_TYPES.EXPENSE))?.id_tipe || 
+                        (tipeList.length > 0 ? tipeList[0].id_tipe : '');
 
-    const [jenis, setJenis] = useState<'Pengeluaran'|'Pemasukan'>(initialType);
+    const [jenis, setJenis] = useState<string>(initialType);
     const [tanggal, setTanggal] = useState(defaultDate !== 'all' ? defaultDate : getToday());
     const [idKategori, setIdKategori] = useState(defaultCategory !== 'all' ? defaultCategory : '');
     const [idSumberDana, setIdSumberDana] = useState(defaultAccount !== 'all' ? defaultAccount : '');
     const [label, setLabel] = useState('');
     const [nominal, setNominal] = useState('');
 
-    const filteredKategori = kategoriList.filter(k => k.tipe === jenis);
+    const filteredKategori = kategoriList.filter(k => k.tipe.toLowerCase() === (jenis || '').toLowerCase());
 
     const handleSave = async () => {
         if (!idKategori || !idSumberDana || !nominal || isNaN(Number(nominal))) return;
@@ -99,8 +102,15 @@ export default function InlineQuickAddRow({
                         <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="Pengeluaran" className="text-[10px] font-black text-rose-600">PENGELUARAN</SelectItem>
-                        <SelectItem value="Pemasukan" className="text-[10px] font-black text-emerald-600">PEMASUKAN</SelectItem>
+                        {tipeList.map(t => {
+                            const rootLabel = getRootLabel(tipeList, t.id_tipe).toLowerCase();
+                            const colorClass = rootLabel.includes(TRANSACTION_TYPES.INCOME) ? 'text-emerald-600' : rootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? 'text-blue-600' : 'text-rose-600';
+                            return (
+                                <SelectItem key={t.id_tipe} value={t.id_tipe} className={cn("text-[10px] font-black uppercase", colorClass)}>
+                                    {t.label}
+                                </SelectItem>
+                            );
+                        })}
                     </SelectContent>
                 </Select>
             </TableCell>

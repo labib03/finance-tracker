@@ -14,6 +14,7 @@ import type {
   Budget,
   Titipan,
   Tabungan,
+  TipeTransaksi,
 } from "@/lib/types";
 
 // ---------- Google Sheets Auth Setup ----------
@@ -113,11 +114,32 @@ export async function fetchKategori(): Promise<Kategori[]> {
     return rows.map((row) => ({
       id_kategori: row[0] || "",
       nama_kategori: row[1] || "",
-      tipe: (row[2] as "Pengeluaran" | "Pemasukan") || "Pengeluaran",
+      tipe: row[2] || "Pengeluaran",
       icon_name: row[3] || "circle",
     }));
   } catch (error) {
     console.error("Error fetching kategori:", error);
+    return [];
+  }
+}
+
+export async function fetchTipeTransaksi(): Promise<TipeTransaksi[]> {
+  try {
+    const sheets = getSheets();
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId: SPREADSHEET_ID,
+      range: "Master_Tipe!A2:D",
+    });
+
+    const rows = response.data.values || [];
+    return rows.map((row) => ({
+      id_tipe: row[0] || "",
+      label: row[1] || "",
+      master_tipe: (row[2] === "null" || row[2] === "" || !row[2]) ? null : row[2],
+      tanggal_dibuat: row[3] || "",
+    }));
+  } catch (error) {
+    console.error("Error fetching tipe transaksi:", error);
     return [];
   }
 }
@@ -199,7 +221,7 @@ export async function fetchTransaksi(bulan?: string): Promise<Transaksi[]> {
     const all: Transaksi[] = rows.map((row) => ({
       id: row[0] || "",
       tanggal: row[1] || "",
-      jenis: (row[2] as Transaksi["jenis"]) || "Pengeluaran",
+      jenis: row[2] || "Pengeluaran",
       id_sumber_dana: row[3] || "",
       id_kategori: row[4] || "",
       nominal: parseFloat(row[5]) || 0,
@@ -233,7 +255,7 @@ export async function fetchRecurring(): Promise<RecurringTransaction[]> {
       id: row[0] || "",
       id_kategori: row[1] || "",
       id_sumber_dana: row[2] || "",
-      jenis: (row[3] as "Pengeluaran" | "Pemasukan") || "Pengeluaran",
+      jenis: row[3] || "Pengeluaran",
       nominal: parseFloat(row[4]) || 0,
       catatan: row[5] || "",
       label: row[6] || "",
@@ -652,6 +674,69 @@ export async function updateKategori(kategori: Kategori): Promise<boolean> {
 
 export async function hapusKategori(id_kategori: string): Promise<boolean> {
   return deleteRowByIdFromSheet("Master_Kategori", id_kategori);
+}
+
+// ============================================================
+// TIPE TRANSAKSI CRUD
+// ============================================================
+
+export async function tambahTipeTransaksi(tipe: TipeTransaksi): Promise<boolean> {
+  try {
+    const sheets = getSheets();
+    await sheets.spreadsheets.values.append({
+      spreadsheetId: SPREADSHEET_ID,
+      range: "Master_Tipe!A:D",
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            tipe.id_tipe,
+            tipe.label,
+            tipe.master_tipe ? tipe.master_tipe : "null",
+            tipe.tanggal_dibuat,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error adding tipe transaksi:", error);
+    return false;
+  }
+}
+
+export async function updateTipeTransaksi(tipe: TipeTransaksi): Promise<boolean> {
+  try {
+    const result = await findRowAndGetSheetId("Master_Tipe", tipe.id_tipe);
+    if (!result) return false;
+
+    const { rowIndex } = result;
+    const sheets = getSheets();
+
+    await sheets.spreadsheets.values.update({
+      spreadsheetId: SPREADSHEET_ID,
+      range: `Master_Tipe!A${rowIndex + 1}:D${rowIndex + 1}`,
+      valueInputOption: "USER_ENTERED",
+      requestBody: {
+        values: [
+          [
+            tipe.id_tipe,
+            tipe.label,
+            tipe.master_tipe ? tipe.master_tipe : "null",
+            tipe.tanggal_dibuat,
+          ],
+        ],
+      },
+    });
+    return true;
+  } catch (error) {
+    console.error("Error updating tipe transaksi:", error);
+    return false;
+  }
+}
+
+export async function hapusTipeTransaksi(id_tipe: string): Promise<boolean> {
+  return deleteRowByIdFromSheet("Master_Tipe", id_tipe);
 }
 
 // ============================================================

@@ -23,15 +23,16 @@ export default function SummaryCards() {
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+    const tipeList = useFinanceStore((s) => s.tipeList);
 
     const ringkasan = useMemo(
-        () => hitungRingkasanBulanan(transaksiList, activeMonth, cycleStartDay),
-        [transaksiList, activeMonth, cycleStartDay]
+        () => hitungRingkasanBulanan(transaksiList, activeMonth, tipeList, cycleStartDay),
+        [transaksiList, activeMonth, cycleStartDay, tipeList]
     );
 
     const saldoAkun = useMemo(
-        () => hitungSaldoAkun(sumberDanaList, transaksiList),
-        [sumberDanaList, transaksiList]
+        () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList),
+        [sumberDanaList, transaksiList, tipeList]
     );
 
     const totalSaldo = useMemo(
@@ -40,8 +41,8 @@ export default function SummaryCards() {
     );
 
     const totalTitipan = useMemo(
-        () => hitungTotalTitipan(transaksiList),
-        [transaksiList]
+        () => hitungTotalTitipan(transaksiList, tipeList),
+        [transaksiList, tipeList]
     );
 
     const cards = [

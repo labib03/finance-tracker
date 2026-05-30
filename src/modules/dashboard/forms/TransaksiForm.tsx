@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useForm, Controller, useWatch } from 'react-hook-form';
@@ -8,6 +9,7 @@ import { useFinanceStore } from '@/lib/store';
 import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
 import type { Transaksi, Titipan } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
+import { getRootTipe, getRootLabel, isExpense } from '@/lib/tipeUtils';
 import { Save, CalendarIcon, AlertCircle, CheckCircle2, UserCircle2, Wallet, Layers, FileText, ArrowDownRight, ArrowUpRight, TrendingUp } from 'lucide-react';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
@@ -46,6 +48,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const getTitipanAktif = useFinanceStore((s) => s.getTitipanAktif);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const router = useRouter();
 
     const searchParams = useSearchParams();
@@ -63,11 +66,17 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
     // Map names to IDs for default values
     const defaultCategory = defaultCategoryName ? (kategoriList.find(k => k.nama_kategori.toLowerCase() === defaultCategoryName.toLowerCase())?.id_kategori || '') : '';
     const defaultAccount = defaultAccountName ? (sumberDanaList.find(s => s.nama_sumber.toLowerCase() === defaultAccountName.toLowerCase())?.id_sumber_dana || '') : '';
-    const defaultType = (typeParam === 'Pemasukan' || typeParam === 'Pengeluaran') ? typeParam : 'Pengeluaran';
+    
+    const rootTipes = useMemo(() => tipeList.filter(t => !t.master_tipe), [tipeList]);
+    const defaultRootId = rootTipes.length > 0 ? (rootTipes.find(r => r.label.toLowerCase().includes(TRANSACTION_TYPES.EXPENSE))?.id_tipe || rootTipes[0].id_tipe) : '';
 
-    const [activeJenis, setActiveJenis] = useState<'Pengeluaran' | 'Pemasukan'>(
-        (transaksiToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : transaksiToEdit?.jenis === 'Pengeluaran' ? 'Pengeluaran' : defaultType) as 'Pengeluaran' | 'Pemasukan'
-    );
+    const initialRootId = transaksiToEdit?.jenis 
+        ? (getRootTipe(tipeList, transaksiToEdit.jenis)?.id_tipe || defaultRootId)
+        : defaultRootId;
+
+    const [activeRootId, setActiveRootId] = useState<string>(initialRootId);
+    const activeRootLabel = getRootLabel(tipeList, activeRootId);
+    
     const [showSuccess, setShowSuccess] = useState(false);
 
     const {
@@ -82,7 +91,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
         resolver: zodResolver(transaksiSchema) as any,
         defaultValues: {
             tanggal: transaksiToEdit?.tanggal || defaultDate,
-            jenis: (transaksiToEdit?.jenis || defaultType) as 'Pengeluaran' | 'Pemasukan',
+            jenis: transaksiToEdit?.jenis || '', // Will be set to first tipe of master_tipe if empty
             id_sumber_dana: transaksiToEdit?.id_sumber_dana || defaultAccount,
             id_kategori: transaksiToEdit?.id_kategori || defaultCategory,
             nominal: transaksiToEdit?.nominal || 0,
@@ -96,7 +105,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
         if (transaksiToEdit) {
             reset({
                 tanggal: transferToEditDate(transaksiToEdit.tanggal),
-                jenis: transaksiToEdit.jenis as 'Pengeluaran' | 'Pemasukan',
+                jenis: transaksiToEdit.jenis,
                 id_sumber_dana: transaksiToEdit.id_sumber_dana,
                 id_kategori: transaksiToEdit.id_kategori,
                 nominal: transaksiToEdit.nominal,
@@ -104,23 +113,39 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                 catatan: transaksiToEdit.catatan,
                 is_titipan: transaksiToEdit.is_titipan || null,
             });
-            setActiveJenis(transaksiToEdit.jenis as 'Pengeluaran' | 'Pemasukan');
+            const mt = getRootTipe(tipeList, transaksiToEdit.jenis);
+            if (mt) {
+                setActiveRootId(mt.id_tipe);
+            }
         }
-    }, [transaksiToEdit, reset]);
+    }, [transaksiToEdit, reset, tipeList]);
 
-    const filteredKategori = kategoriList.filter((k) => k.tipe === activeJenis);
+    const watchedJenis = useWatch({ control, name: 'jenis' });
+    const filteredKategori = kategoriList.filter((k) => k.tipe.toLowerCase() === (watchedJenis || '').toLowerCase());
 
     // Watch values for live highlights
     const watchedNominal = useWatch({ control, name: 'nominal' }) || 0;
     const watchedKategori = useWatch({ control, name: 'id_kategori' });
-    const watchedJenis = useWatch({ control, name: 'jenis' });
     const watchedLabel = useWatch({ control, name: 'label' }) || '';
     const watchedSumberDana = useWatch({ control, name: 'id_sumber_dana' });
     const watchedTanggal = useWatch({ control, name: 'tanggal' });
 
+    // Auto-select first TipeTransaksi if empty or when activeRootId changes
+    useEffect(() => {
+        const availableTipes = tipeList.filter(t => t.master_tipe === activeRootId || t.id_tipe === activeRootId);
+        if (availableTipes.length > 0) {
+            const isCurrentJenisValid = availableTipes.some(t => t.id_tipe === watchedJenis);
+            if (!isCurrentJenisValid) {
+                setValue('jenis', availableTipes[0].id_tipe);
+                setValue('id_kategori', '');
+            }
+        }
+    }, [activeRootId, tipeList, watchedJenis, setValue]);
+
     // Calculate budget impact
     const budgetImpact = useMemo(() => {
-        if (watchedJenis !== 'Pengeluaran' || !watchedKategori) return null;
+        const _isPengeluaran = isExpense(tipeList, watchedJenis);
+        if (!_isPengeluaran || !watchedKategori) return null;
 
         const budget = budgetList.find(b =>
             b.id_kategori === watchedKategori &&
@@ -131,11 +156,12 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
         if (!budget) return null;
 
         const currentUsage = transaksiList
-            .filter(t =>
-                t.id_kategori === watchedKategori &&
-                t.jenis === 'Pengeluaran' &&
-                (!transaksiToEdit || t.id !== transaksiToEdit.id)
-            )
+            .filter(t => {
+                const isTipePengeluaran = isExpense(tipeList, t.jenis);
+                return t.id_kategori === watchedKategori &&
+                isTipePengeluaran &&
+                (!transaksiToEdit || t.id !== transaksiToEdit.id);
+            })
             .reduce((sum, t) => sum + t.nominal, 0);
 
         const newUsage = currentUsage + watchedNominal;
@@ -186,7 +212,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
             <div className={cn(
                 "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden col-span-1 md:col-span-2 shadow-sm flex flex-col gap-6",
                 inline ? "bg-white border-slate-200" : "bg-white border-slate-100",
-                activeJenis === 'Pemasukan' ? "ring-1 ring-emerald-500/10" : "ring-1 ring-rose-500/10"
+                activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "ring-1 ring-emerald-500/10" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "ring-1 ring-blue-500/10" : "ring-1 ring-rose-500/10"
             )}>
 
                 <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -194,28 +220,32 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                         Nominal Transaksi
                     </Label>
                     <Tabs
-                        value={activeJenis}
-                        onValueChange={(val) => {
-                            const jenis = val as 'Pengeluaran' | 'Pemasukan';
-                            setActiveJenis(jenis);
-                            setValue('jenis', jenis);
-                            setValue('id_kategori', '');
-                        }}
+                        value={activeRootId}
+                        onValueChange={setActiveRootId}
                         className="w-full sm:w-auto"
                     >
-                        <TabsList className={cn("grid w-full grid-cols-2 p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")}>
-                            <TabsTrigger 
-                                value="Pengeluaran" 
-                                className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500 dark:data-active:bg-rose-950/20 dark:data-active:text-rose-450 dark:data-active:border-rose-900/30 transition-all cursor-pointer"
-                            >
-                                💸 Keluar
-                            </TabsTrigger>
-                            <TabsTrigger 
-                                value="Pemasukan" 
-                                className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500 dark:data-active:bg-emerald-950/20 dark:data-active:text-emerald-450 dark:data-active:border-emerald-900/30 transition-all cursor-pointer"
-                            >
-                                💰 Masuk
-                            </TabsTrigger>
+                        <TabsList className={cn("grid w-full p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")} style={{ gridTemplateColumns: `repeat(${Math.max(rootTipes.length, 1)}, minmax(0, 1fr))` }}>
+                            {rootTipes.map(root => {
+                                const isInc = root.label.toLowerCase().includes(TRANSACTION_TYPES.INCOME);
+                                const isSav = root.label.toLowerCase().includes(TRANSACTION_TYPES.SAVINGS);
+                                const isExp = root.label.toLowerCase().includes(TRANSACTION_TYPES.EXPENSE);
+                                
+                                return (
+                                    <TabsTrigger 
+                                        key={root.id_tipe}
+                                        value={root.id_tipe} 
+                                        className={cn(
+                                            "rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer",
+                                            isInc ? "data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500" : 
+                                            isSav ? "data-active:bg-blue-50 data-active:text-blue-600 data-active:border-blue-100/50 data-active:shadow-xs hover:text-blue-500" : 
+                                            isExp ? "data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500" :
+                                            "data-active:bg-slate-50 data-active:text-slate-900 data-active:border-slate-200 data-active:shadow-xs hover:text-slate-600"
+                                        )}
+                                    >
+                                        {root.label}
+                                    </TabsTrigger>
+                                );
+                            })}
                         </TabsList>
                     </Tabs>
                 </div>
@@ -227,7 +257,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                         error={errors.nominal?.message}
                         className={cn(
                             "text-4xl sm:text-8xl font-black h-20 sm:h-32 text-center bg-transparent border-none focus:ring-0 focus:border-none shadow-none display-number tracking-tighter w-full overflow-hidden transition-all duration-300",
-                            activeJenis === 'Pemasukan' ? "text-emerald-600" : "text-rose-600"
+                            activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "text-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "text-blue-600" : "text-rose-600"
                         )}
                         placeholder="Rp 0"
                     />
@@ -285,7 +315,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                 )}
             </div>
 
-            {/* Bento Grid Item 3: Sumber Dana & Kategori (Col Span 1) */}
+            {/* Bento Grid Item 3: Sumber Dana, Tipe & Kategori (Col Span 1) */}
             <div className={cn(
                 "p-6 rounded-[2rem] border transition-all duration-500 flex flex-col justify-between gap-4 shadow-sm",
                 inline ? "bg-white border-slate-200 hover:border-slate-300" : "bg-white border-slate-100"
@@ -309,6 +339,34 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                                 placeholder="Pilih sumber dana..."
                                 searchPlaceholder="Cari..."
                                 error={!!errors.id_sumber_dana}
+                                className={inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white" : ""}
+                            />
+                        )}
+                    />
+                </div>
+
+                {/* Tipe Transaksi */}
+                <div className="space-y-2">
+                    <Label className={cn("text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2", inline ? "text-slate-500" : "text-slate-500")}>
+                        <Layers size={14} className="opacity-60" /> Tipe Transaksi
+                    </Label>
+                    <Controller
+                        name="jenis"
+                        control={control}
+                        render={({ field }) => (
+                            <SearchableSelect
+                                options={tipeList.filter(t => t.master_tipe === activeRootId || t.id_tipe === activeRootId).map(t => ({
+                                    value: t.id_tipe,
+                                    label: t.label
+                                }))}
+                                value={field.value}
+                                onValueChange={(val) => {
+                                    field.onChange(val);
+                                    setValue('id_kategori', ''); // Reset kategori when tipe changes
+                                }}
+                                placeholder="Pilih tipe..."
+                                searchPlaceholder="Cari tipe..."
+                                error={!!errors.jenis}
                                 className={inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white" : ""}
                             />
                         )}
@@ -487,7 +545,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                     disabled={isSubmitting}
                     className={cn(
                         "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
-                        activeJenis === 'Pemasukan' ? "bg-emerald-500 text-white hover:bg-emerald-600" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                        activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-500 text-white hover:bg-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-primary text-primary-foreground hover:bg-primary/90"
                     )}
                 >
                     <Save size={16} className="mr-2" />
@@ -508,26 +566,26 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                 {/* holographic orb behind value */}
                 <div className={cn(
                     "absolute top-[25%] left-[25%] w-[50%] h-[40%] rounded-full blur-[100px] pointer-events-none opacity-20 transition-colors duration-1000",
-                    activeJenis === 'Pemasukan' ? "bg-emerald-500/20" : "bg-rose-500/20"
+                    activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-500/20" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-500/20" : "bg-rose-500/20"
                 )} />
 
                 {/* Top row: mock bank badge */}
                 <div className="flex justify-between items-center relative z-10 w-full">
                     <div className="flex items-center gap-3">
                         <div className="w-11 h-11 rounded-xl bg-white border border-slate-200 text-slate-800 flex items-center justify-center shadow-xs">
-                            <TrendingUp size={20} className={activeJenis === 'Pemasukan' ? "text-emerald-500" : "text-rose-500"} />
+                            <TrendingUp size={20} className={activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "text-emerald-500" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "text-blue-500" : "text-rose-500"} />
                         </div>
                         <div className="text-left">
                             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 leading-none">PREVIEW DATA</span>
-                            <h4 className="text-xs font-bold text-slate-650 mt-1 uppercase tracking-widest">{activeJenis}</h4>
+                            <h4 className="text-xs font-bold text-slate-650 mt-1 uppercase tracking-widest">{rootTipes.find(r => r.id_tipe === activeRootId)?.label}</h4>
                         </div>
                     </div>
                     <div className={cn(
                         "px-3.5 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-xs flex items-center gap-2",
-                        activeJenis === 'Pemasukan' ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-rose-50 border-rose-200 text-rose-600"
+                        activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-50 border-emerald-200 text-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-50 border-blue-200 text-blue-600" : "bg-rose-50 border-rose-200 text-rose-600"
                     )}>
-                        {activeJenis === 'Pemasukan' ? <ArrowUpRight size={10} strokeWidth={3} /> : <ArrowDownRight size={10} strokeWidth={3} />}
-                        {activeJenis}
+                        {activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? <ArrowUpRight size={10} strokeWidth={3} /> : <ArrowDownRight size={10} strokeWidth={3} />}
+                        {rootTipes.find(r => r.id_tipe === activeRootId)?.label}
                     </div>
                 </div>
 
@@ -536,7 +594,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                     <p className="text-[10px] font-black uppercase tracking-[0.25em] text-slate-400 mb-2">Estimasi Nominal</p>
                     <h2 className={cn(
                         "text-5xl sm:text-6xl font-black display-number tracking-tighter truncate px-2 select-all",
-                        activeJenis === 'Pemasukan' ? "text-emerald-600" : "text-rose-600"
+                        activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "text-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "text-blue-600" : "text-rose-600"
                     )}>
                         {formatRupiah(watchedNominal)}
                     </h2>
@@ -573,9 +631,11 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
             <div className="relative z-10 p-5 rounded-[1.5rem] bg-white border border-slate-200/80 text-left transition-all duration-300">
                 <p className="text-[9px] font-black text-slate-400 uppercase tracking-[0.2em] mb-1.5">Tips Keuangan Cerdas</p>
                 <p className="text-[11px] font-semibold text-slate-650 leading-relaxed">
-                    {activeJenis === 'Pengeluaran'
+                    {activeRootLabel.includes(TRANSACTION_TYPES.EXPENSE)
                         ? "Bila transaksi ini dialokasikan untuk kebutuhan tersier, pastikan total alokasi pengeluaran bulanan Anda tidak melampaui batas maksimal 50% dari penghasilan bersih."
-                        : "Selamat atas pendapatan barumu! Segera sisihkan minimal 20% ke pos 'Tujuan Tabungan/Sinking Funds' di dompet kontrol sebelum digunakan untuk belanja lainnya."
+                        : activeRootLabel.includes(TRANSACTION_TYPES.INCOME) 
+                            ? "Selamat atas pendapatan barumu! Segera sisihkan minimal 20% ke pos 'Tujuan Tabungan/Sinking Funds' di dompet kontrol sebelum digunakan untuk belanja lainnya."
+                            : "Uang Anda sedang disimpan dan diinvestasikan. Langkah yang cerdas!"
                     }
                 </p>
             </div>

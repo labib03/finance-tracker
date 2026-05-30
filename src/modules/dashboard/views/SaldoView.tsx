@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import React from 'react';
 import SaldoCards from '@/modules/dashboard/components/SaldoCards';
@@ -42,7 +43,7 @@ export default function SaldoView() {
         showEdit
         onEdit={(t: any) => {
           setTransaksiToEdit(t);
-          if (t.jenis === 'Transfer') {
+          if (t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER) {
             router.push(`/transfer/edit/${t.id}`);
           } else {
             router.push(`/transaksi/edit/${t.id}`);

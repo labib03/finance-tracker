@@ -1,7 +1,9 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, formatTanggalPendek, cn, getJadwalTerdekat, getToday } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import { CalendarClock, ArrowRight, Bell } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/shared/ui/card';
 import { Button } from '@/shared/ui/button';
@@ -18,11 +20,13 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
     const recurringList = useFinanceStore((s) => s.recurringList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
 
     const upcomingReminders = useMemo(() => {
         return recurringList
             .filter(r => {
-                if (!r.aktif || r.jenis !== 'Pengeluaran') return false;
+                const rootLabel = getRootLabel(tipeList, r.jenis).toLowerCase();
+                if (!r.aktif || !rootLabel.includes(TRANSACTION_TYPES.EXPENSE)) return false;
                 
                 const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
                 
@@ -31,7 +35,7 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
                     t.id_kategori === r.id_kategori && 
                     t.nominal === r.nominal && 
                     t.tanggal === effectiveDateStr &&
-                    t.jenis === r.jenis &&
+                    t.jenis.toLowerCase() === r.jenis.toLowerCase() &&
                     t.label === r.label
                 );
 
@@ -43,7 +47,7 @@ export default function RecurringReminder({ onViewAll, onProcess }: RecurringRem
                 return new Date(dateA).getTime() - new Date(dateB).getTime();
             })
             .slice(0, 3);
-    }, [recurringList, transaksiList]);
+    }, [recurringList, transaksiList, tipeList]);
 
     const getKategoriName = (id: string) =>
         kategoriList.find((k) => k.id_kategori === id)?.nama_kategori || 'Kategori';

@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -68,8 +69,8 @@ export default function RecentTransactions({
             <CardContent>
                 <div className="space-y-1">
                     {filteredTransaksi.map((t) => {
-                        const isIncome = t.jenis === 'Pemasukan';
-                        const isTransfer = t.jenis === 'Transfer';
+                        const isIncome = t.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME;
+                        const isTransfer = t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
 
                         return (
                             <div key={t.id} className="flex items-center gap-4 py-4 px-2 hover:bg-muted/50 rounded-2xl transition-all duration-200 group">

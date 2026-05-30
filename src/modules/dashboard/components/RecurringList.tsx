@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -170,7 +171,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                                 <div className="p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                                     <div className="flex items-center gap-4 min-w-0">
                                         <div className={cn("w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border border-slate-100/50 shadow-sm transition-transform group-hover:scale-110 duration-500",
-                                                r.jenis === 'Pemasukan' ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
+                                                r.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? 'bg-emerald-50 text-emerald-600' : 'bg-orange-50 text-orange-600'
                                         )}>
                                             <CalendarClock size={20} strokeWidth={2.5} />
                                         </div>
@@ -204,7 +205,7 @@ export default function RecurringList({ onEdit }: RecurringListProps) {
                                     
                                     <div className="flex items-center justify-between sm:flex-col sm:items-end gap-3 sm:gap-2 border-t border-slate-100 sm:border-transparent pt-4 sm:pt-0">
                                         <div className="flex flex-col items-start sm:items-end">
-                                            <p className={cn("text-base sm:text-lg font-black display-number tracking-tight leading-none mb-1.5", r.jenis === 'Pemasukan' ? 'text-emerald-600' : 'text-slate-900')}>
+                                            <p className={cn("text-base sm:text-lg font-black display-number tracking-tight leading-none mb-1.5", r.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? 'text-emerald-600' : 'text-slate-900')}>
                                                 {formatRupiah(r.nominal)}
                                             </p>
                                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">

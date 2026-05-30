@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import React, { Suspense } from 'react';
 import { Button } from '@/shared/ui/button';
@@ -43,7 +44,7 @@ function TransaksiViewInner() {
         showEdit
         onEdit={(t: any) => {
           setTransaksiToEdit(t);
-          if (t.jenis === 'Transfer') {
+          if (t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER) {
             router.push(`/transfer/edit/${t.id}`);
           } else {
             router.push(`/transaksi/edit/${t.id}`);

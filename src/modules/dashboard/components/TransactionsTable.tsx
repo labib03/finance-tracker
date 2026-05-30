@@ -1,10 +1,12 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
-import { useMemo, useEffect, useState, Suspense } from 'react';
+import { useMemo, useEffect, useState, useRef, Suspense } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import InlineQuickAddRow from './InlineQuickAddRow';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, formatTanggal, formatTanggalPendek, isInCustomMonth } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import {
     ArrowLeftRight,
     ArrowRight,
@@ -80,6 +82,7 @@ function TransactionsTableInner({
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const removeTransaksi = useFinanceStore((s) => s.removeTransaksi);
@@ -87,6 +90,7 @@ function TransactionsTableInner({
     const router = useRouter();
     const pathname = usePathname();
     const searchParams = useSearchParams();
+    const hasRestored = useRef(false);
 
     const createQueryString = (name: string, value: string) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -102,7 +106,7 @@ function TransactionsTableInner({
         router.replace(`${pathname}?${createQueryString(name, value)}`, { scroll: false });
     };
 
-    const search = searchParams.get('q') || '';
+    const [search, setSearch] = useState(() => searchParams.get('q') || '');
     const typeFilter = searchParams.get('type') || 'all';
     const rawCategoryFilter = searchParams.get('category') || 'all';
     const categoryFilter = rawCategoryFilter !== 'all' 
@@ -116,7 +120,6 @@ function TransactionsTableInner({
         
     const dateFilter = searchParams.get('date') || 'all';
 
-    const setSearch = (val: string) => updateFilter('q', val);
     const setTypeFilter = (val: string) => {
         const params = new URLSearchParams(searchParams.toString());
         if (val && val !== 'all') {
@@ -149,17 +152,21 @@ function TransactionsTableInner({
         if (typeof window !== 'undefined') {
             sessionStorage.removeItem('transactions_filters');
         }
+        setSearch('');
         router.replace(pathname, { scroll: false });
     };
 
     // Restore saved filters from sessionStorage on mount if URL is empty
     useEffect(() => {
+        if (hasRestored.current) return;
+
         if (typeof window !== 'undefined') {
             const currentQuery = searchParams.toString();
             const savedQuery = sessionStorage.getItem('transactions_filters');
             if (!currentQuery && savedQuery) {
                 router.replace(`${pathname}?${savedQuery}`, { scroll: false });
             }
+            hasRestored.current = true;
         }
     }, [pathname, router, searchParams]);
 
@@ -167,9 +174,7 @@ function TransactionsTableInner({
     useEffect(() => {
         if (typeof window !== 'undefined') {
             const currentQuery = searchParams.toString();
-            if (currentQuery) {
-                sessionStorage.setItem('transactions_filters', currentQuery);
-            }
+            sessionStorage.setItem('transactions_filters', currentQuery);
         }
     }, [searchParams]);
 
@@ -201,7 +206,10 @@ function TransactionsTableInner({
 
         // Pre-filter by type if provided via prop
         if (filterType) {
-            list = list.filter(t => t.jenis === filterType);
+            list = list.filter(t => {
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                return rootLabel === (filterType || '').toLowerCase() || t.jenis.toLowerCase() === (filterType || '').toLowerCase();
+            });
         }
 
         // Search filter (label & catatan)
@@ -213,7 +221,8 @@ function TransactionsTableInner({
                 const kategoriStr = (kategoriList.find(k => k.id_kategori === t.id_kategori)?.nama_kategori || '').toLowerCase();
                 
                 let transferStr = '';
-                if (t.jenis === 'Transfer') {
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                if (rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER) {
                     const sourceName = sumberDanaList.find(s => s.id_sumber_dana === t.id_sumber_dana)?.nama_sumber || '';
                     const targetName = t.id_target_dana ? (sumberDanaList.find(s => s.id_sumber_dana === t.id_target_dana)?.nama_sumber || '') : '';
                     transferStr = `${sourceName} ke ${targetName} transfer saldo`.toLowerCase();
@@ -228,7 +237,12 @@ function TransactionsTableInner({
 
         // Type filter
         if (typeFilter !== 'all') {
-            list = list.filter(t => t.jenis === typeFilter);
+            list = list.filter(t => {
+                const isExactMatch = t.jenis.toLowerCase() === (typeFilter || '').toLowerCase();
+                const filterLabel = tipeList.find(ti => ti.id_tipe === typeFilter)?.label.toLowerCase();
+                const isLegacyMatch = filterLabel ? t.jenis.toLowerCase() === filterLabel : false;
+                return isExactMatch || isLegacyMatch;
+            });
         }
 
         // Category filter
@@ -238,7 +252,10 @@ function TransactionsTableInner({
 
         // Account filter
         if (accountFilter !== 'all') {
-            list = list.filter(t => t.id_sumber_dana === accountFilter || (t.jenis === 'Transfer' && t.id_target_dana === accountFilter));
+            list = list.filter(t => {
+                const isTransfer = getRootLabel(tipeList, t.jenis).toLowerCase().includes(TRANSACTION_TYPES.TRANSFER) || t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
+                return t.id_sumber_dana === accountFilter || (isTransfer && t.id_target_dana === accountFilter);
+            });
         }
 
         // Date filter
@@ -250,11 +267,10 @@ function TransactionsTableInner({
             list = list.slice(0, limit);
         }
         return list;
-    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, accountFilter, dateFilter, kategoriList, cycleStartDay, filterType, sumberDanaList]);
+    }, [transaksiList, activeMonth, limit, search, typeFilter, categoryFilter, accountFilter, dateFilter, kategoriList, cycleStartDay, filterType, sumberDanaList, tipeList]);
 
     // Reset pagination when filters change
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
         setCurrentPage(1);
     }, [search, typeFilter, categoryFilter, accountFilter, dateFilter, activeMonth]);
 
@@ -302,6 +318,7 @@ function TransactionsTableInner({
                     setDateFilter={setDateFilter}
                     kategoriList={kategoriList}
                     sumberDanaList={sumberDanaList}
+                    tipeList={tipeList}
                     onReset={resetAllFilters}
                 />
             )}
@@ -351,8 +368,10 @@ function TransactionsTableInner({
                             </TableRow>
                         ) : (
                             paginatedTransaksi.map((t) => {
-                                const isIncome = t.jenis === 'Pemasukan';
-                                const isTransfer = t.jenis === 'Transfer';
+                                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                                const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                                const isTransfer = rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
+                                const isSavings = rootLabel === TRANSACTION_TYPES.SAVINGS || t.jenis.toLowerCase().includes('tabungan');
 
 
                                 return (
@@ -374,7 +393,9 @@ function TransactionsTableInner({
                                                     ? "bg-blue-50 text-blue-600 border-blue-100"
                                                     : isIncome
                                                         ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                                                        : "bg-rose-50 text-rose-600 border-rose-100"
+                                                        : isSavings
+                                                            ? "bg-sky-50 text-sky-600 border-sky-100"
+                                                            : "bg-red-50 text-red-500 border-red-100"
                                             )}>
                                                 {isTransfer ? (
                                                     <ArrowLeftRight size={18} strokeWidth={2.5} />
@@ -430,9 +451,11 @@ function TransactionsTableInner({
                                                             ? "text-blue-600"
                                                             : isIncome
                                                                 ? "text-emerald-600"
-                                                                : "text-orange-600"
+                                                                : isSavings
+                                                                    ? "text-sky-600"
+                                                                    : "text-red-500"
                                                     )}>
-                                                        {isIncome ? '+' : isTransfer ? '' : '-'}
+                                                        {isIncome ? '+' : isTransfer || isSavings ? '' : '-'}
                                                         {formatRupiah(t.nominal)}
                                                     </span>
                                                 </div>
@@ -515,8 +538,10 @@ function TransactionsTableInner({
                         </div>
                     ) : (
                         paginatedTransaksi.map((t) => {
-                            const isIncome = t.jenis === 'Pemasukan';
-                            const isTransfer = t.jenis === 'Transfer';
+                            const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                            const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                            const isTransfer = rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
+                            const isSavings = rootLabel === TRANSACTION_TYPES.SAVINGS || t.jenis.toLowerCase().includes('tabungan');
                             
                             return (
                                 <div
@@ -537,7 +562,9 @@ function TransactionsTableInner({
                                                 ? "bg-blue-50 text-blue-600"
                                                 : isIncome
                                                     ? "bg-emerald-50 text-emerald-600"
-                                                    : "bg-rose-50 text-rose-600"
+                                                    : isSavings
+                                                        ? "bg-sky-50 text-sky-600"
+                                                        : "bg-red-50 text-red-500"
                                         )}>
                                             {isTransfer ? (
                                                 <ArrowLeftRight size={20} strokeWidth={2.5} />
@@ -570,9 +597,9 @@ function TransactionsTableInner({
                                     <div className="flex flex-col items-end justify-center shrink-0 pl-2">
                                         <span className={cn(
                                             "display-number text-sm font-black tracking-tight leading-none mb-1.5 text-right",
-                                            isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : "text-slate-900"
+                                            isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : isSavings ? "text-sky-600" : "text-red-500"
                                         )}>
-                                            {isIncome ? '+' : isTransfer ? '' : '-'}{formatRupiah(t.nominal)}
+                                            {isIncome ? '+' : isTransfer || isSavings ? '' : '-'}{formatRupiah(t.nominal)}
                                         </span>
                                         <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
                                             {formatTanggalPendek(t.tanggal)}

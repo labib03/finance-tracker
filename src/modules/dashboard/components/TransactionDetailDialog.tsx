@@ -17,6 +17,8 @@ import {
     formatTanggal,
     cn
 } from '@/lib/utils';
+import { TRANSACTION_TYPES } from '@/lib/constants';
+import { getRootLabel } from '@/lib/tipeUtils';
 import {
     Calendar,
     Tag,
@@ -50,12 +52,15 @@ export function TransactionDetailDialog({
 }: TransactionDetailDialogProps) {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     if (!transaksi) return null;
 
-    const isIncome = transaksi.jenis === 'Pemasukan';
-    const isTransfer = transaksi.jenis === 'Transfer';
+    const rootLabel = getRootLabel(tipeList, transaksi.jenis).toLowerCase();
+    const isIncome = rootLabel === TRANSACTION_TYPES.INCOME;
+    const isTransfer = rootLabel === TRANSACTION_TYPES.TRANSFER || transaksi.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
+    const isSaving = rootLabel === TRANSACTION_TYPES.SAVINGS || transaksi.jenis.toLowerCase().includes('tabungan');
 
     const kategori = kategoriList.find(k => k.id_kategori === transaksi.id_kategori);
     const sumberDana = sumberDanaList.find(s => s.id_sumber_dana === transaksi.id_sumber_dana);
@@ -75,7 +80,7 @@ export function TransactionDetailDialog({
                     {/* Category Minimal Icon */}
                     <div className={cn(
                         "w-16 h-16 rounded-3xl flex items-center justify-center mb-6 transition-colors duration-500",
-                        isTransfer ? "bg-blue-50 text-blue-500" : isIncome ? "bg-emerald-50 text-emerald-500" : "bg-red-50 text-red-500"
+                        isTransfer ? "bg-blue-50 text-blue-500" : isIncome ? "bg-emerald-50 text-emerald-500" : isSaving ? "bg-sky-50 text-sky-500" : "bg-red-50 text-red-500"
                     )}>
                         {isTransfer ? (
                             <ArrowLeftRight size={28} strokeWidth={2} />
@@ -89,7 +94,7 @@ export function TransactionDetailDialog({
                             {transaksi.label || (isTransfer ? 'Transfer Antar Akun' : kategori?.nama_kategori)}
                         </p>
                         <h2 className="text-4xl font-black text-foreground tracking-widest">
-                            {isIncome ? '+' : isTransfer ? '' : '-'}
+                            {isIncome ? '+' : isTransfer || isSaving ? '' : '-'}
                             {formatRupiah(transaksi.nominal)}
                         </h2>
                         {!isTransfer && (
@@ -123,9 +128,9 @@ export function TransactionDetailDialog({
                             <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">Status</span>
                             <div className={cn(
                                 "text-xs font-black uppercase tracking-wider",
-                                isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : "text-red-500"
+                                isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : isSaving ? "text-sky-600" : "text-red-500"
                             )}>
-                                {transaksi.jenis}
+                                {tipeList.find(t => t.id_tipe === transaksi.jenis)?.label || transaksi.jenis}
                             </div>
                         </div>
                     </div>

@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -72,7 +73,7 @@ export default function TitipanDetailPanel({
         let currentBalance = 0;
         sortedAsc.forEach(t => {
             const tDate = new Date(t.tanggal);
-            const amount = t.jenis === 'Pemasukan' ? t.nominal : -t.nominal;
+            const amount = t.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? t.nominal : -t.nominal;
             currentBalance += amount;
             const mKey = tDate.toLocaleString('id-ID', { month: 'short' });
             if (monthlyData.hasOwnProperty(mKey)) {
@@ -149,9 +150,9 @@ export default function TitipanDetailPanel({
                                         <div className="flex items-center gap-4">
                                             <div className={cn(
                                                 "w-10 h-10 rounded-xl flex items-center justify-center",
-                                                trx.jenis === 'Pemasukan' ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
+                                                trx.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? "bg-emerald-50 text-emerald-600" : "bg-red-50 text-red-600"
                                             )}>
-                                                {trx.jenis === 'Pemasukan' ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
+                                                {trx.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? <ArrowDownLeft size={18} /> : <ArrowUpRight size={18} />}
                                             </div>
                                             <div className="min-w-0">
                                                 <p className="text-xs font-black text-foreground uppercase tracking-wider truncate max-w-[140px]">{trx.label || 'Tanpa Label'}</p>
@@ -164,9 +165,9 @@ export default function TitipanDetailPanel({
                                         <div className="text-right">
                                             <p className={cn(
                                                 "text-sm font-black display-number",
-                                                trx.jenis === 'Pemasukan' ? "text-emerald-600" : "text-red-600"
+                                                trx.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? "text-emerald-600" : "text-red-600"
                                             )}>
-                                                {trx.jenis === 'Pemasukan' ? '+' : '-'}{formatRupiah(trx.nominal)}
+                                                {trx.jenis.toLowerCase() === TRANSACTION_TYPES.INCOME ? '+' : '-'}{formatRupiah(trx.nominal)}
                                             </p>
                                             <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/30 mt-0.5">
                                                 {sumberDanaList.find(s => s.id_sumber_dana === trx.id_sumber_dana)?.nama_sumber || '???'}

@@ -3,11 +3,19 @@
 // Maps to Google Sheets "database" structure
 // ============================================================
 
+// ---------- Master_Tipe Sheet ----------
+export interface TipeTransaksi {
+  id_tipe: string;
+  label: string;
+  master_tipe: string | null; // e.g., 'Pengeluaran', 'Pemasukan', 'Savings', 'Transfer' or another id_tipe
+  tanggal_dibuat: string;
+}
+
 // ---------- Master_Kategori Sheet ----------
 export interface Kategori {
   id_kategori: string;
   nama_kategori: string;
-  tipe: "Pengeluaran" | "Pemasukan";
+  tipe: string; // Maps to TipeTransaksi.id_tipe
   icon_name: string;
 }
 
@@ -41,7 +49,7 @@ export interface SumberDana {
 export interface Transaksi {
   id: string;
   tanggal: string; // ISO date string YYYY-MM-DD
-  jenis: "Pengeluaran" | "Pemasukan" | "Transfer" | "alokasi_tabungan" | "tarik_tabungan" | "eksekusi_tabungan";
+  jenis: string; // Maps to TipeTransaksi.id_tipe
   id_sumber_dana: string;
   id_kategori: string;
   nominal: number;
@@ -58,7 +66,7 @@ export interface RecurringTransaction {
   id: string;
   id_kategori: string;
   id_sumber_dana: string;
-  jenis: "Pengeluaran" | "Pemasukan";
+  jenis: string; // Maps to TipeTransaksi.id_tipe
   nominal: number;
   label: string;
   catatan: string;
@@ -116,7 +124,7 @@ export interface BudgetStatus {
 // ---------- Form Input Types ----------
 export interface TransaksiFormInput {
   tanggal: string;
-  jenis: "Pengeluaran" | "Pemasukan";
+  jenis: string; // Maps to TipeTransaksi.id_tipe
   id_sumber_dana: string;
   id_kategori: string;
   nominal: number;
@@ -138,7 +146,7 @@ export interface TransferFormInput {
 export interface RecurringFormInput {
   id_kategori: string;
   id_sumber_dana: string;
-  jenis: "Pengeluaran" | "Pemasukan";
+  jenis: string; // Maps to TipeTransaksi.id_tipe
   nominal: number;
   label: string;
   catatan: string;

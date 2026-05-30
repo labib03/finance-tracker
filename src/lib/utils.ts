@@ -5,6 +5,8 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+import { getRootLabel } from "./tipeUtils";
+
 import type {
   Transaksi,
   SumberDana,
@@ -15,6 +17,7 @@ import type {
   Kategori,
   BudgetStatus,
   Budget,
+  TipeTransaksi,
 } from "./types";
 
 /**
@@ -139,24 +142,26 @@ export function getToday(): string {
 export function hitungSaldoAkun(
   sumberDanaList: SumberDana[],
   transaksiList: Transaksi[],
+  tipeList: TipeTransaksi[],
 ): SaldoAkun[] {
   return sumberDanaList.map((sd) => {
     let saldo = sd.saldo_awal;
 
     transaksiList.forEach((t) => {
+      const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
       if (t.id_sumber_dana === sd.id_sumber_dana) {
-        if (t.jenis === "Pemasukan") {
+        if (rootLabel === "pemasukan") {
           saldo += t.nominal;
-        } else if (t.jenis === "Pengeluaran" || t.jenis === "eksekusi_tabungan") {
+        } else if (rootLabel === "pengeluaran" || t.jenis.toLowerCase() === "eksekusi_tabungan" || rootLabel === "savings") {
           saldo -= t.nominal;
-        } else if (t.jenis === "Transfer") {
+        } else if (rootLabel === "transfer" || t.jenis.toLowerCase() === "transfer") {
           // Source account loses money in transfer
           saldo -= t.nominal;
         }
       }
       // If this sumber dana is the TARGET of a transfer
       if (
-        t.jenis === "Transfer" &&
+        (rootLabel === "transfer" || t.jenis.toLowerCase() === "transfer") &&
         t.id_target_dana === sd.id_sumber_dana
       ) {
         saldo += t.nominal;
@@ -177,6 +182,7 @@ export function hitungSaldoAkun(
 export function hitungRingkasanBulanan(
   transaksiList: Transaksi[],
   bulan: string, // YYYY-MM
+  tipeList: TipeTransaksi[],
   cycleStartDay: number = 25,
 ): RingkasanBulanan {
   const filtered = transaksiList.filter((t) =>
@@ -188,8 +194,9 @@ export function hitungRingkasanBulanan(
 
   filtered.forEach((t) => {
     if (!t.is_titipan) {
-      if (t.jenis === "Pemasukan") total_pemasukan += t.nominal;
-      if (t.jenis === "Pengeluaran") total_pengeluaran += t.nominal;
+      const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+      if (rootLabel === "pemasukan") total_pemasukan += t.nominal;
+      if (rootLabel === "pengeluaran") total_pengeluaran += t.nominal;
     }
   });
 
@@ -207,13 +214,16 @@ export function hitungPengeluaranPerKategori(
   transaksiList: Transaksi[],
   kategoriList: Kategori[],
   bulan: string,
+  tipeList: TipeTransaksi[],
   cycleStartDay: number = 25,
 ): PengeluaranPerKategori[] {
   const filtered = transaksiList.filter(
-    (t) =>
-      t.jenis === "Pengeluaran" &&
+    (t) => {
+      const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+      return rootLabel === "pengeluaran" &&
       !t.is_titipan &&
-      isInCustomMonth(t.tanggal, bulan, cycleStartDay),
+      isInCustomMonth(t.tanggal, bulan, cycleStartDay);
+    }
   );
 
   const map = new Map<string, number>();
@@ -244,6 +254,7 @@ export function hitungPengeluaranPerKategori(
 export function hitungTrenMingguan(
   transaksiList: Transaksi[],
   bulan: string,
+  tipeList: TipeTransaksi[],
   cycleStartDay: number = 25,
 ): TrenMingguan[] {
   const filtered = transaksiList.filter((t) =>
@@ -268,9 +279,10 @@ export function hitungTrenMingguan(
     const weekIndex = Math.min(Math.floor(diffDays / 7), 4);
 
     if (weekIndex >= 0) {
-      if (t.jenis === "Pemasukan" && !t.is_titipan) {
+      const masterTipe = tipeList.find(tp => tp.id_tipe === t.jenis)?.master_tipe || 'pengeluaran';
+      if (masterTipe === "pemasukan" && !t.is_titipan) {
         weeks[weekIndex].pemasukan += t.nominal;
-      } else if (t.jenis === "Pengeluaran" && !t.is_titipan) {
+      } else if (masterTipe === "pengeluaran" && !t.is_titipan) {
         weeks[weekIndex].pengeluaran += t.nominal;
       }
     }
@@ -294,6 +306,7 @@ export function hitungTrenBulananKategori(
   transaksiList: Transaksi[],
   kategoriList: Kategori[],
   bulanAkhir: string, // YYYY-MM
+  tipeList: TipeTransaksi[],
   jumlahBulan: number = 6,
   cycleStartDay: number = 25,
 ): any[] {
@@ -311,6 +324,7 @@ export function hitungTrenBulananKategori(
       transaksiList,
       kategoriList,
       bulanKey,
+      tipeList,
       cycleStartDay,
     );
     const entry: any = { name: bulanNama, total: 0 };
@@ -333,6 +347,7 @@ export function hitungPerbandinganKategori(
   transaksiList: Transaksi[],
   kategoriList: Kategori[],
   bulanAktif: string,
+  tipeList: TipeTransaksi[],
   cycleStartDay: number = 25,
 ): {
   id_kategori: string;
@@ -351,12 +366,14 @@ export function hitungPerbandinganKategori(
     transaksiList,
     kategoriList,
     bulanAktif,
+    tipeList,
     cycleStartDay,
   );
   const lalu = hitungPengeluaranPerKategori(
     transaksiList,
     kategoriList,
     bulanLalu,
+    tipeList,
     cycleStartDay,
   );
 
@@ -412,6 +429,7 @@ export function hitungBudgetStatus(
   kategoriList: Kategori[],
   budgetList: Budget[],
   bulan: string, // YYYY-MM
+  tipeList: TipeTransaksi[],
   cycleStartDay: number = 25,
 ): BudgetStatus[] {
   const [yearStr, monthStr] = bulan.split("-");
@@ -419,9 +437,11 @@ export function hitungBudgetStatus(
   const monthNum = parseInt(monthStr);
 
   const filtered = transaksiList.filter(
-    (t) =>
-      t.jenis === "Pengeluaran" &&
-      isInCustomMonth(t.tanggal, bulan, cycleStartDay),
+    (t) => {
+      const masterTipe = tipeList.find(tp => tp.id_tipe === t.jenis)?.master_tipe || 'pengeluaran';
+      return masterTipe === "pengeluaran" &&
+      isInCustomMonth(t.tanggal, bulan, cycleStartDay);
+    }
   );
 
   return budgetList
@@ -619,11 +639,12 @@ export function evaluateMathExpression(expr: string): number | null {
 /**
  * Calculate total entrusted money (titipan) remaining
  */
-export function hitungTotalTitipan(transaksiList: Transaksi[]): number {
+export function hitungTotalTitipan(transaksiList: Transaksi[], tipeList: TipeTransaksi[]): number {
   return transaksiList.reduce((acc, t) => {
     if (!t.is_titipan) return acc;
-    if (t.jenis === "Pemasukan") return acc + t.nominal;
-    if (t.jenis === "Pengeluaran") return acc - t.nominal;
+    const masterTipe = tipeList.find(tp => tp.id_tipe === t.jenis)?.master_tipe || 'pengeluaran';
+    if (masterTipe === "pemasukan") return acc + t.nominal;
+    if (masterTipe === "pengeluaran") return acc - t.nominal;
     // Transfer doesn't affect total balance, only distribution
     return acc;
   }, 0);

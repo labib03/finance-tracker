@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useMemo, useState, useCallback } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -9,6 +10,7 @@ import {
     CHART_COLORS,
     cn
 } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import {
     BarChart,
     Bar,
@@ -47,6 +49,7 @@ export default function CategoryReport() {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const removeTransaksi = useFinanceStore((s) => s.removeTransaksi);
 
     const budgetList = useFinanceStore((s) => s.budgetList);
@@ -62,15 +65,15 @@ export default function CategoryReport() {
     const [isCopied, setIsCopied] = useState(false);
 
     const perbandinganData = useMemo(
-        () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, cycleStartDay),
-        [transaksiList, kategoriList, activeMonth, cycleStartDay]
+        () => hitungPerbandinganKategori(transaksiList, kategoriList, activeMonth, tipeList, cycleStartDay),
+        [transaksiList, kategoriList, activeMonth, tipeList, cycleStartDay]
     );
 
     console.log("perbandinganData", perbandinganData)
 
     const trenData = useMemo(
-        () => hitungTrenBulananKategori(transaksiList, kategoriList, activeMonth, 6, cycleStartDay),
-        [transaksiList, kategoriList, activeMonth, cycleStartDay]
+        () => hitungTrenBulananKategori(transaksiList, kategoriList, activeMonth, tipeList, 6, cycleStartDay),
+        [transaksiList, kategoriList, activeMonth, tipeList, cycleStartDay]
     );
 
     const totalBulanIni = useMemo(
@@ -86,12 +89,14 @@ export default function CategoryReport() {
     const selisihTotal = totalBulanIni - totalBulanLalu;
     const persentaseTotal = totalBulanLalu > 0 ? Math.round((selisihTotal / totalBulanLalu) * 100) : 100;
 
-    // Hitung total pemasukan bulan ini secara manual dari transaksiList
     const totalPemasukan = useMemo(() => {
         return transaksiList
-            .filter(t => t.tanggal.includes(activeMonth) && t.jenis === 'Pemasukan')
+            .filter(t => {
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                return t.tanggal.includes(activeMonth) && rootLabel.includes(TRANSACTION_TYPES.INCOME);
+            })
             .reduce((sum, t) => sum + t.nominal, 0);
-    }, [transaksiList, activeMonth]);
+    }, [transaksiList, activeMonth, tipeList]);
 
     // Ekstrak Tahun & Bulan dari activeMonth string
     const [activeYear, activeMonthNum] = useMemo(() => {
@@ -139,7 +144,10 @@ ${activeBudgets.length > 0
     ? activeBudgets.map(b => {
         const catName = getKategoriName(b.id_kategori);
         const spent = transaksiList
-            .filter(t => t.tanggal.includes(activeMonth) && t.id_kategori === b.id_kategori && t.jenis === 'Pengeluaran')
+            .filter(t => {
+                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                return t.tanggal.includes(activeMonth) && t.id_kategori === b.id_kategori && rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+            })
             .reduce((sum, t) => sum + t.nominal, 0);
         return `- ${catName}: Terpakai ${formatRupiah(spent)} dari batas ${formatRupiah(b.nominal_limit)} (${Math.round((spent / b.nominal_limit) * 100)}%)`;
       }).join('\n')
@@ -161,7 +169,8 @@ ${activeTabungan.length > 0
         const recurringText = `5. TRANSAKSI BERULANG AKTIF (RECURRING BILLS)
 ${activeRecurring.length > 0 
     ? activeRecurring.map(r => {
-        const typeLabel = r.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran';
+        const rootLabel = getRootLabel(tipeList, r.jenis).toLowerCase();
+        const typeLabel = rootLabel.includes(TRANSACTION_TYPES.INCOME) ? 'Pemasukan' : 'Pengeluaran';
         return `- [${typeLabel}] ${r.label}: ${formatRupiah(r.nominal)} (${r.frekuensi}, Jadwal Berikutnya: ${new Date(r.tanggal_berikutnya).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })})`;
       }).join('\n')
     : '- Tidak ada transaksi berulang aktif saat ini.'}`;
@@ -181,7 +190,7 @@ ${tabunganText}
 ${recurringText}
 
 Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi finansial terbaik bagi saya. Terima kasih!`;
-    }, [totalPemasukan, totalBulanIni, activeMonthLabel, perbandinganData, activeBudgets, transaksiList, activeMonth, tabunganList, getSaldoTabungan, getProgresTabungan, recurringList, getKategoriName]);
+    }, [totalPemasukan, totalBulanIni, activeMonthLabel, perbandinganData, activeBudgets, transaksiList, activeMonth, tabunganList, getSaldoTabungan, getProgresTabungan, recurringList, getKategoriName, tipeList]);
 
     if (perbandinganData.length === 0) {
         return (
@@ -308,7 +317,10 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
                     <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80 mb-3">Item Transaksi</p>
                     <div className="flex items-center gap-3">
                         <h3 className="text-3xl font-black display-number text-foreground tracking-widest">
-                            {transaksiList.filter(t => t.tanggal.includes(activeMonth) && t.jenis === 'Pengeluaran').length}
+                            {transaksiList.filter(t => {
+                                const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                                return t.tanggal.includes(activeMonth) && rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+                            }).length}
                         </h3>
                         <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground/80 mt-2">Records</span>
                     </div>

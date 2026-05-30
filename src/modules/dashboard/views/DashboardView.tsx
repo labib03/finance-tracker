@@ -11,6 +11,7 @@ import ProyeksiKasCard from '@/modules/dashboard/components/ProyeksiKasCard';
 import TitipanSummary from '@/modules/dashboard/components/TitipanSummary';
 import SinkingFundsSummary from '@/modules/dashboard/components/SinkingFundsSummary';
 import TransactionsTable from '@/modules/dashboard/components/TransactionsTable';
+import ExpenseCalendar from '@/modules/dashboard/components/ExpenseCalendar';
 import { getToday } from '@/lib/utils';
 
 export default function DashboardView() {
@@ -20,6 +21,7 @@ export default function DashboardView() {
   return (
     <div className="space-y-8">
       <SummaryCards />
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <ExpensePieChart />
         <WeeklyTrendChart />
@@ -48,20 +50,8 @@ export default function DashboardView() {
       {/* Sinking Funds Summary */}
       <SinkingFundsSummary onViewAll={() => router.push('/tabungan')} />
 
-      <TransactionsTable 
-        limit={10} 
-        title="Riwayat Transaksi Terkini" 
-        description="X transaksi terakhir dalam periode ini"
-        showEdit
-        onEdit={(t: any) => {
-          setTransaksiToEdit(t);
-          if (t.jenis === 'Transfer') {
-            router.push(`/transfer/edit/${t.id}`);
-          } else {
-            router.push(`/transaksi/edit/${t.id}`);
-          }
-        }}
-      />
+       {/* Calendar View */}
+      <ExpenseCalendar />
     </div>
   );
 }

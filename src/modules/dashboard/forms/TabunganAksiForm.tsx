@@ -3,6 +3,7 @@
 import { useForm, useWatch } from 'react-hook-form';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, getToday, hitungSaldoAkun, cn } from '@/lib/utils';
+import { TRANSACTION_TYPES, CATEGORY_LABELS } from '@/lib/constants';
 import type { Tabungan } from '@/lib/types';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -35,6 +36,8 @@ const AKSI_CONFIG = {
     alokasi_tabungan: {
         label: 'Alokasi Dana',
         color: 'emerald',
+        type: TRANSACTION_TYPES.SAVINGS,
+        kategori: CATEGORY_LABELS.ALOKASI_TABUNGAN,
         icon: PiggyBank,
         description: 'Sisihkan uang dari rekening utama Anda untuk dialokasikan ke pos Sinking Fund ini.',
         buttonText: 'Alokasikan Dana',
@@ -44,6 +47,8 @@ const AKSI_CONFIG = {
     tarik_tabungan: {
         label: 'Tarik Darurat',
         color: 'amber',
+        type: TRANSACTION_TYPES.TRANSFER,
+        kategori: CATEGORY_LABELS.TARIK_TABUNGAN,
         icon: ShieldAlert,
         description: 'Kembalikan saldo tabungan Sinking Fund ke rekening Anda untuk keperluan mendesak.',
         buttonText: 'Tarik ke Rekening',
@@ -53,6 +58,8 @@ const AKSI_CONFIG = {
     eksekusi_tabungan: {
         label: 'Eksekusi Tabungan',
         color: 'blue',
+        type: TRANSACTION_TYPES.EXPENSE,
+        kategori: CATEGORY_LABELS.EKSEKUSI_TABUNGAN,
         icon: Banknote,
         description: 'Bayar tujuan tabungan Anda secara riil. Transaksi pengeluaran nyata akan dicatat.',
         buttonText: 'Eksekusi Pembelian',
@@ -64,9 +71,11 @@ const AKSI_CONFIG = {
 export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alokasi_tabungan', inline = false }: TabunganAksiFormProps) {
     const addTransaksi = useFinanceStore((s) => s.addTransaksi);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
+    const kategoriList = useFinanceStore((s) => s.kategoriList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const getSaldoTabungan = useFinanceStore((s) => s.getSaldoTabungan);
     const getProgresTabungan = useFinanceStore((s) => s.getProgresTabungan);
+
     const router = useRouter();
     const [showSuccess, setShowSuccess] = useState(false);
 
@@ -90,7 +99,8 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
     
     // Get current source balance
     const selectedSource = sumberDanaList.find(s => s.id_sumber_dana === idSumberDana);
-    const resultBalances = selectedSource ? hitungSaldoAkun([selectedSource], transaksiList) : [];
+    const tipeList = useFinanceStore(s => s.tipeList);
+    const resultBalances = selectedSource ? hitungSaldoAkun([selectedSource], transaksiList, tipeList) : [];
     const saldoSumber = resultBalances.length > 0 ? resultBalances[0].saldo : 0;
 
     const config = AKSI_CONFIG[aksi] || AKSI_CONFIG.alokasi_tabungan;
@@ -99,12 +109,15 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
     const onSubmit = async (data: any) => {
         if (!data.id_sumber_dana || !data.nominal) return;
 
+        const findType = tipeList.find(f => f.label.toLowerCase() == config.type.toLowerCase());
+        const findKategori = kategoriList.find(k => k.nama_kategori.toLowerCase() === config.kategori.toLowerCase());
+
         try {
             await addTransaksi({
                 tanggal: getToday(),
-                jenis: data.aksi,
+                jenis: findType?.id_tipe || '',
                 id_sumber_dana: data.id_sumber_dana,
-                id_kategori: '',
+                id_kategori: findKategori?.id_kategori || '',
                 nominal: data.nominal,
                 label: `${AKSI_CONFIG[data.aksi as AksiType].label}: ${tabungan.nama_tujuan}`,
                 catatan: data.catatan,

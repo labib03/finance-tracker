@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useMemo } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -13,16 +14,21 @@ import {
     LayoutGrid
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import type { Kategori } from '@/lib/types';
 import { ConfirmDialog } from '@/shared/ui/ConfirmDialog';
 import { Button } from '@/shared/ui/button';
-import { Input } from '@/shared/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/shared/ui/tabs";
+import { MasterTipeTab } from './MasterTipeTab';
+import { Input } from '@/shared/ui/input';
 
 interface MasterDataManagementProps {
     onAddKategori: () => void;
     onEditKategori: (kategori: Kategori) => void;
 }
+
+export type KategoriTipe = 'all' | typeof TRANSACTION_TYPES.EXPENSE | typeof TRANSACTION_TYPES.INCOME | typeof TRANSACTION_TYPES.SAVINGS | typeof TRANSACTION_TYPES.TRANSFER;
 
 export default function MasterDataManagement({
     onAddKategori,
@@ -33,9 +39,11 @@ export default function MasterDataManagement({
     const recurringList = useFinanceStore((s) => s.recurringList);
     const removeKategori = useFinanceStore((s) => s.removeKategori);
 
+    const tipeList = useFinanceStore((s) => s.tipeList);
+
     const [searchKategori, setSearchKategori] = useState('');
-    const [kategoriTipe, setKategoriTipe] = useState<'all' | 'Pengeluaran' | 'Pemasukan'>('all');
-    
+    const [kategoriTipe, setKategoriTipe] = useState<KategoriTipe>('all');
+
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; name: string }>({
         isOpen: false, id: '', name: ''
     });
@@ -45,16 +53,23 @@ export default function MasterDataManagement({
     const filteredKategori = useMemo(() => {
         let list = kategoriList;
         if (kategoriTipe !== 'all') {
-            list = list.filter(k => k.tipe === kategoriTipe);
+            list = list.filter(k => {
+                const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+                return rootLabel.includes(kategoriTipe);
+            });
         }
         if (searchKategori) {
             list = list.filter(k => k.nama_kategori.toLowerCase().includes(searchKategori.toLowerCase()));
         }
         return list;
-    }, [kategoriList, kategoriTipe, searchKategori]);
+    }, [kategoriList, kategoriTipe, searchKategori, tipeList]);
 
-    const pengeluaranCount = kategoriList.filter(k => k.tipe === 'Pengeluaran').length;
-    const pemasukanCount = kategoriList.filter(k => k.tipe === 'Pemasukan').length;
+    const getMasterTipeCount = (masterTipe: string) => {
+        return kategoriList.filter(k => {
+            const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+            return rootLabel.includes(masterTipe);
+        }).length;
+    };
 
     const handleDeleteKategori = (id: string, nama: string) => {
         const isUsed = transaksiList.some((t: any) => t.id_kategori === id) || (recurringList && recurringList.some((r: any) => r.id_kategori === id));
@@ -76,21 +91,40 @@ export default function MasterDataManagement({
                 <div>
                     <h2 className="text-lg font-black uppercase tracking-widest text-slate-900">Master Data</h2>
                     <p className="text-xs font-medium text-slate-500 uppercase tracking-widest mt-1">
-                        Konfigurasi Struktur Kategori Transaksi Anda
+                        Konfigurasi Struktur Data Aplikasi
                     </p>
                 </div>
-                <button 
-                    onClick={onAddKategori}
-                    className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98] shrink-0"
-                >
-                    <div className="flex flex-col text-left">
-                        <span className="text-xs font-bold text-white group-hover:text-white">Tambah Kategori</span>
-                    </div>
-                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
-                        <Plus size={14} className="text-white group-hover:rotate-90 transition-transform duration-300" />
-                    </div>
-                </button>
             </div>
+
+            <Tabs defaultValue="kategori" className="w-full">
+                <TabsList className="bg-slate-100/80 p-1.5 rounded-2xl mb-6 flex space-x-2 w-fit border border-slate-200/60">
+                    <TabsTrigger value="tipe" className="rounded-xl px-6 py-2.5 text-xs font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all text-slate-500">
+                        Tipe Transaksi
+                    </TabsTrigger>
+                    <TabsTrigger value="kategori" className="rounded-xl px-6 py-2.5 text-xs font-black uppercase tracking-wider data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all text-slate-500">
+                        Kategori Transaksi
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="tipe" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <MasterTipeTab />
+                </TabsContent>
+
+                <TabsContent value="kategori" className="mt-0 focus-visible:outline-none focus-visible:ring-0">
+                    <div className="space-y-6">
+                        <div className="flex justify-end">
+                            <button 
+                                onClick={onAddKategori}
+                                className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98] shrink-0"
+                            >
+                                <div className="flex flex-col text-left">
+                                    <span className="text-xs font-bold text-white group-hover:text-white">Tambah Kategori</span>
+                                </div>
+                                <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
+                                    <Plus size={14} className="text-white group-hover:rotate-90 transition-transform duration-300" />
+                                </div>
+                            </button>
+                        </div>
 
             {/* Main Content (Full Width) */}
             <Card className="border border-slate-200 bg-white shadow-sm rounded-[2.5rem] overflow-hidden flex flex-col h-full min-h-[600px] relative">
@@ -117,8 +151,10 @@ export default function MasterDataManagement({
                         <div className="flex items-center p-1.5 bg-slate-100/80 rounded-2xl border border-slate-200/60 w-fit shrink-0">
                             {[
                                 { value: 'all' as const, label: 'Semua' },
-                                { value: 'Pengeluaran' as const, label: `Keluar (${pengeluaranCount})` },
-                                { value: 'Pemasukan' as const, label: `Masuk (${pemasukanCount})` }
+                                { value: TRANSACTION_TYPES.EXPENSE, label: `Keluar (${getMasterTipeCount(TRANSACTION_TYPES.EXPENSE)})` },
+                                { value: TRANSACTION_TYPES.INCOME, label: `Masuk (${getMasterTipeCount(TRANSACTION_TYPES.INCOME)})` },
+                                { value: TRANSACTION_TYPES.SAVINGS, label: `Savings (${getMasterTipeCount(TRANSACTION_TYPES.SAVINGS)})` },
+                                { value: TRANSACTION_TYPES.TRANSFER, label: `Transfer (${getMasterTipeCount(TRANSACTION_TYPES.TRANSFER)})` },
                             ].map(f => (
                                 <button
                                     key={f.value}
@@ -159,7 +195,23 @@ export default function MasterDataManagement({
                         </div>
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 z-10 relative">
-                            {filteredKategori.map((k) => (
+                            {filteredKategori.map((k) => {
+                                const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+                                const parent = tipeList.find(t => t.id_tipe === k.tipe);
+                                const isPemasukan = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                                const isSavings = rootLabel.includes(TRANSACTION_TYPES.SAVINGS);
+                                const bgIconClass = isPemasukan 
+                                    ? "bg-emerald-50 text-emerald-600 border border-emerald-100" 
+                                    : isSavings 
+                                        ? "bg-blue-50 text-blue-600 border border-blue-100"
+                                        : "bg-rose-50 text-rose-600 border border-rose-100";
+                                const textClass = isPemasukan 
+                                    ? "text-emerald-500" 
+                                    : isSavings 
+                                        ? "text-blue-500"
+                                        : "text-rose-500";
+                                
+                                return (
                                 <div
                                     key={k.id_kategori}
                                     className="group relative flex flex-col p-5 rounded-[1.5rem] bg-white border border-slate-200 hover:border-slate-300 transition-all duration-300 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.02)] hover:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.06)] overflow-hidden"
@@ -168,9 +220,9 @@ export default function MasterDataManagement({
                                     <div className="flex items-start justify-between mb-6 relative z-10">
                                         <div className={cn(
                                             "w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 shadow-sm transition-transform duration-500 group-hover:scale-110",
-                                            k.tipe === 'Pemasukan' ? "bg-emerald-50 text-emerald-600 border border-emerald-100" : "bg-rose-50 text-rose-600 border border-rose-100"
+                                            bgIconClass
                                         )}>
-                                            {k.tipe === 'Pemasukan' ? <ArrowUpRight size={20} strokeWidth={2.5} /> : <ArrowDownRight size={20} strokeWidth={2.5} />}
+                                            {isPemasukan ? <ArrowUpRight size={20} strokeWidth={2.5} /> : <ArrowDownRight size={20} strokeWidth={2.5} />}
                                         </div>
                                         <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
                                             <Button
@@ -194,35 +246,38 @@ export default function MasterDataManagement({
                                     <div className="flex flex-col mt-auto relative z-10">
                                         <span className={cn(
                                             "text-[10px] font-black uppercase tracking-[0.15em] mb-1.5",
-                                            k.tipe === 'Pemasukan' ? "text-emerald-500" : "text-rose-500"
+                                            textClass
                                         )}>
-                                            {k.tipe}
+                                            {parent?.label || k.tipe}
                                         </span>
                                         <span className="text-base font-black text-slate-800 leading-tight group-hover:text-slate-950 transition-colors line-clamp-2">
                                             {k.nama_kategori}
                                         </span>
                                     </div>
                                 </div>
-                            ))}
+                            )})}
                         </div>
                     )}
                 </CardContent>
             </Card>
 
-            <ConfirmDialog
-                isOpen={confirmDelete.isOpen}
-                onClose={() => setConfirmDelete({ ...confirmDelete, isOpen: false })}
-                onConfirm={deleteRestricted ? () => setConfirmDelete({ ...confirmDelete, isOpen: false }) : confirmDeleteAction}
-                isLoading={isDeleting}
-                title={deleteRestricted ? "Tidak Bisa Menghapus" : `Hapus Kategori?`}
-                confirmText={deleteRestricted ? "Mengerti" : "Hapus"}
-                variant={deleteRestricted ? "info" : "destructive"}
-                description={
-                    deleteRestricted
-                        ? `"${confirmDelete.name}" tidak bisa dihapus karena masih digunakan dalam riwayat transaksi atau jadwal rutin.`
-                        : `Apakah Anda yakin ingin menghapus "${confirmDelete.name}"?`
-                }
-            />
+                <ConfirmDialog
+                    isOpen={confirmDelete.isOpen}
+                    onClose={() => setConfirmDelete({ ...confirmDelete, isOpen: false })}
+                    onConfirm={deleteRestricted ? () => setConfirmDelete({ ...confirmDelete, isOpen: false }) : confirmDeleteAction}
+                    isLoading={isDeleting}
+                    title={deleteRestricted ? "Tidak Bisa Menghapus" : `Hapus Kategori?`}
+                    confirmText={deleteRestricted ? "Mengerti" : "Hapus"}
+                    variant={deleteRestricted ? "info" : "destructive"}
+                    description={
+                        deleteRestricted
+                            ? `"${confirmDelete.name}" tidak bisa dihapus karena masih digunakan dalam riwayat transaksi atau jadwal rutin.`
+                            : `Apakah Anda yakin ingin menghapus "${confirmDelete.name}"?`
+                    }
+                />
+            </div>
+            </TabsContent>
+            </Tabs>
         </div>
     );
 }

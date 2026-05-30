@@ -1,7 +1,8 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { Search, X, CalendarIcon, Filter } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
@@ -9,7 +10,8 @@ import { SearchableSelect } from '@/shared/ui/SearchableSelect';
 import { Popover, PopoverContent, PopoverTrigger } from '@/shared/ui/popover';
 import { Calendar } from '@/shared/ui/calendar';
 import { cn, formatTanggalPendek } from '@/lib/utils';
-import type { Kategori, SumberDana } from '@/lib/types';
+import { getRootLabel } from '@/lib/tipeUtils';
+import type { Kategori, SumberDana, TipeTransaksi } from '@/lib/types';
 
 export interface TransactionFiltersProps {
     filterMode?: 'all' | 'transfer';
@@ -25,6 +27,7 @@ export interface TransactionFiltersProps {
     setDateFilter: (val: string) => void;
     kategoriList: Kategori[];
     sumberDanaList: SumberDana[];
+    tipeList: TipeTransaksi[];
     onReset: () => void;
 }
 
@@ -42,13 +45,14 @@ export default function TransactionFilters({
     setDateFilter,
     kategoriList,
     sumberDanaList,
+    tipeList,
     onReset
 }: TransactionFiltersProps) {
-    const isTransferMode = filterMode === 'transfer';
+    const isTransferMode = filterMode === TRANSACTION_TYPES.TRANSFER;
 
     const filteredKategori = typeFilter === 'all' 
         ? kategoriList 
-        : kategoriList.filter(k => k.tipe === typeFilter);
+        : kategoriList.filter(k => k.tipe.toLowerCase() === (typeFilter || '').toLowerCase());
 
     const [isExpanded, setIsExpanded] = useState(false);
 
@@ -69,27 +73,20 @@ export default function TransactionFilters({
                         {search && (
                             <button
                                 type="button"
-                                onClick={() => setSearch('')}
+                                onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    setSearch('');
+                                }}
                                 className="absolute right-3.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground p-1 transition-colors"
                             >
-                                <X size={14} />
+                                <X size={20} />
                             </button>
                         )}
                     </div>
                     
                     {!isTransferMode && (
                         <>
-                            {hasActiveFilters && (
-                                <Button
-                                    variant="outline"
-                                    size="icon"
-                                    onClick={onReset}
-                                    className="h-11 w-11 rounded-2xl bg-rose-50 text-rose-600 border-rose-200 hover:bg-rose-100 transition-all active:scale-95 shadow-scandi"
-                                    title="Reset Semua Filter"
-                                >
-                                    <X size={16} strokeWidth={2.5} />
-                                </Button>
-                            )}
                             <Button
                                 variant="outline"
                                 size="icon"
@@ -117,23 +114,19 @@ export default function TransactionFilters({
                     {!isTransferMode && (
                         <>
                             <div className="col-span-1">
-                                <Select 
-                                    value={typeFilter} 
-                                    onValueChange={(val) => {
-                                        setTypeFilter(val || 'all');
-                                    }} 
-                                    modal={false}
-                                >
-                                    <SelectTrigger type="button" className="h-11 w-full text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-2xl bg-white border border-border/40 shadow-scandi hover:bg-muted/5 transition-all">
-                                        <SelectValue placeholder="TIPE" />
-                                    </SelectTrigger>
-                                    <SelectContent className="rounded-2xl border-border/40 shadow-float overflow-hidden">
-                                        <SelectItem value="all" className="text-[10px] sm:text-xs font-black uppercase tracking-widest">SEMUA TIPE</SelectItem>
-                                        <SelectItem value="Pengeluaran" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-orange-600">PENGELUARAN</SelectItem>
-                                        <SelectItem value="Pemasukan" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-emerald-600">PEMASUKAN</SelectItem>
-                                        <SelectItem value="Transfer" className="text-[10px] sm:text-xs font-black uppercase tracking-widest text-blue-600">TRANSFER</SelectItem>
-                                    </SelectContent>
-                                </Select>
+                                <SearchableSelect
+                                    options={[
+                                        { value: 'all', label: 'SEMUA TIPE' },
+                                        ...tipeList.map(t => ({
+                                            value: t.id_tipe,
+                                            label: t.label.toUpperCase()
+                                        }))
+                                    ]}
+                                    value={typeFilter}
+                                    onValueChange={(val) => setTypeFilter(val || 'all')}
+                                    placeholder="TIPE"
+                                    className="h-11 w-full text-[10px] sm:text-xs font-black uppercase tracking-widest rounded-2xl bg-white border border-border/40 shadow-scandi hover:bg-muted/5 transition-all"
+                                />
                             </div>
 
                             <div className="col-span-1">

@@ -1,10 +1,12 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { recurringSchema, type RecurringFormData } from '@/lib/schemas';
 import { getToday, cn, hitungTanggalBerikutnya, formatRupiah } from '@/lib/utils';
+import { getRootTipe, getRootLabel } from '@/lib/tipeUtils';
 import { CalendarClock, CalendarIcon, Sparkles, Save, Layers, Clock, Zap } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import type { RecurringTransaction } from '@/lib/types';
@@ -49,12 +51,19 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const addRecurring = useFinanceStore((s) => s.addRecurring);
     const updateRecurring = useFinanceStore((s) => s.updateRecurring);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const router = useRouter();
     const [showSuccess, setShowSuccess] = useState(false);
 
-    const [activeJenis, setActiveJenis] = useState<'Pengeluaran' | 'Pemasukan'>(
-        recurringToEdit?.jenis === 'Pemasukan' ? 'Pemasukan' : 'Pengeluaran'
-    );
+    const rootTipes = useMemo(() => tipeList.filter(t => !t.master_tipe), [tipeList]);
+    const defaultRootId = rootTipes.length > 0 ? (rootTipes.find(r => r.label.toLowerCase().includes(TRANSACTION_TYPES.EXPENSE))?.id_tipe || rootTipes[0].id_tipe) : '';
+
+    const initialRootId = recurringToEdit?.jenis 
+        ? (getRootTipe(tipeList, recurringToEdit.jenis)?.id_tipe || defaultRootId)
+        : defaultRootId;
+
+    const [activeRootId, setActiveRootId] = useState<string>(initialRootId);
+    const activeRootLabel = getRootLabel(tipeList, activeRootId);
 
     const [multiplier, setMultiplier] = useState(1);
     const [baseFreq, setBaseFreq] = useState<'Harian' | 'Mingguan' | 'Bulanan' | 'Tahunan' | 'Lainnya'>('Bulanan');
@@ -72,7 +81,7 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
         defaultValues: {
             id_kategori: recurringToEdit?.id_kategori || '',
             id_sumber_dana: recurringToEdit?.id_sumber_dana || '',
-            jenis: recurringToEdit?.jenis || 'Pengeluaran',
+            jenis: recurringToEdit?.jenis || '', // Will be set automatically
             nominal: recurringToEdit?.nominal || 0,
             label: recurringToEdit?.label || '',
             frekuensi: recurringToEdit?.frekuensi || 'Bulanan',
@@ -86,15 +95,17 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
             reset({
                 id_kategori: recurringToEdit.id_kategori,
                 id_sumber_dana: recurringToEdit.id_sumber_dana,
-                jenis: recurringToEdit.jenis as 'Pengeluaran' | 'Pemasukan',
+                jenis: recurringToEdit.jenis,
                 nominal: recurringToEdit.nominal,
                 label: recurringToEdit.label,
                 frekuensi: recurringToEdit.frekuensi as any,
                 tanggal_mulai: recurringToEdit.tanggal_mulai,
                 catatan: recurringToEdit.catatan,
             });
-            // eslint-disable-next-line react-hooks/set-state-in-effect
-            setActiveJenis(recurringToEdit.jenis as 'Pengeluaran' | 'Pemasukan');
+            const mt = getRootTipe(tipeList, recurringToEdit.jenis);
+            if (mt) {
+                setActiveRootId(mt.id_tipe);
+            }
 
             // Parse existing frequency
             const freq = recurringToEdit.frekuensi;
@@ -142,7 +153,21 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
         }
     }, [multiplier, baseFreq, setValue]);
 
-    const filteredKategori = kategoriList.filter((k) => k.tipe === activeJenis);
+    const watchedJenis = useWatch({ control, name: 'jenis' });
+
+    // Auto-select first TipeTransaksi if empty or when activeRootId changes
+    useEffect(() => {
+        const availableTipes = tipeList.filter(t => t.master_tipe === activeRootId || t.id_tipe === activeRootId);
+        if (availableTipes.length > 0) {
+            const isCurrentJenisValid = availableTipes.some(t => t.id_tipe === watchedJenis);
+            if (!isCurrentJenisValid) {
+                setValue('jenis', availableTipes[0].id_tipe);
+                setValue('id_kategori', '');
+            }
+        }
+    }, [activeRootId, tipeList, watchedJenis, setValue]);
+
+    const filteredKategori = kategoriList.filter((k) => k.tipe.toLowerCase() === (watchedJenis || '').toLowerCase());
 
     const targetKategoriName = useMemo(() => {
         return kategoriList.find(k => k.id_kategori === watchedKategori)?.nama_kategori || 'Pilih Kategori';
@@ -199,28 +224,32 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
                 {/* Jenis toggle */}
                 <div className="flex justify-center">
                     <Tabs
-                        value={activeJenis}
-                        onValueChange={(val) => {
-                            const jenis = val as 'Pengeluaran' | 'Pemasukan';
-                            setValue('jenis', jenis);
-                            setActiveJenis(jenis);
-                            setValue('id_kategori', '');
-                        }}
+                        value={activeRootId}
+                        onValueChange={setActiveRootId}
                         className="w-full"
                     >
-                        <TabsList className={cn("grid w-full grid-cols-2 p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")}>
-                            <TabsTrigger 
-                                value="Pengeluaran" 
-                                className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500 dark:data-active:bg-rose-950/20 dark:data-active:text-rose-450 dark:data-active:border-rose-900/30 transition-all cursor-pointer"
-                            >
-                                💸 Pengeluaran
-                            </TabsTrigger>
-                            <TabsTrigger 
-                                value="Pemasukan" 
-                                className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500 dark:data-active:bg-emerald-950/20 dark:data-active:text-emerald-450 dark:data-active:border-emerald-900/30 transition-all cursor-pointer"
-                            >
-                                💰 Pemasukan
-                            </TabsTrigger>
+                        <TabsList className={cn("grid w-full p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")} style={{ gridTemplateColumns: `repeat(${Math.max(rootTipes.length, 1)}, minmax(0, 1fr))` }}>
+                            {rootTipes.map(root => {
+                                const isInc = root.label.toLowerCase().includes(TRANSACTION_TYPES.INCOME);
+                                const isSav = root.label.toLowerCase().includes(TRANSACTION_TYPES.SAVINGS);
+                                const isExp = root.label.toLowerCase().includes(TRANSACTION_TYPES.EXPENSE);
+                                
+                                return (
+                                    <TabsTrigger 
+                                        key={root.id_tipe}
+                                        value={root.id_tipe} 
+                                        className={cn(
+                                            "rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer",
+                                            isInc ? "data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500" : 
+                                            isSav ? "data-active:bg-blue-50 data-active:text-blue-600 data-active:border-blue-100/50 data-active:shadow-xs hover:text-blue-500" : 
+                                            isExp ? "data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500" :
+                                            "data-active:bg-slate-50 data-active:text-slate-900 data-active:border-slate-200 data-active:shadow-xs hover:text-slate-600"
+                                        )}
+                                    >
+                                        {isInc ? '💰 ' : isSav ? '🏦 ' : isExp ? '💸 ' : ''}{root.label}
+                                    </TabsTrigger>
+                                );
+                            })}
                         </TabsList>
                     </Tabs>
                 </div>
@@ -254,8 +283,36 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
                         )}
                     </div>
 
+                    {/* Tipe Transaksi */}
+                    <div className="space-y-1.5 md:col-span-2">
+                        <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
+                            Tipe Transaksi
+                        </Label>
+                        <Controller
+                            name="jenis"
+                            control={control}
+                            render={({ field }) => (
+                                <SearchableSelect
+                                    options={tipeList.filter(t => t.master_tipe === activeRootId || t.id_tipe === activeRootId).map(t => ({
+                                        value: t.id_tipe,
+                                        label: t.label
+                                    }))}
+                                    value={field.value}
+                                    onValueChange={(val) => {
+                                        field.onChange(val);
+                                        setValue('id_kategori', '');
+                                    }}
+                                    placeholder="Pilih tipe..."
+                                    searchPlaceholder="Cari tipe..."
+                                    error={!!errors.jenis}
+                                    className={cn("rounded-xl h-12", inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:bg-white" : "bg-white border-slate-200")}
+                                />
+                            )}
+                        />
+                    </div>
+
                     {/* Kategori */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1.5 md:col-span-2">
                         <Label htmlFor="kategori" className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
                             Kategori Arus Kas
                         </Label>
@@ -296,7 +353,8 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
                     error={errors.nominal?.message}
                     className={cn(
                         "text-3xl sm:text-4xl font-black h-16 sm:h-20 shadow-sm text-center tracking-tight border-none focus:ring-0 focus:bg-white",
-                        inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:border-primary/50" : "bg-slate-50 text-slate-900"
+                        inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:border-primary/50" : "bg-slate-50 text-slate-900",
+                        activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "text-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "text-blue-600" : "text-rose-600"
                     )}
                 />
             </div>

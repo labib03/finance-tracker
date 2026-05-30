@@ -1,9 +1,11 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useMemo } from 'react';
 import { Card } from '@/shared/ui/card';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, cn } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import { format, parseISO } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { 
@@ -53,6 +55,7 @@ export default function InquiryView() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     
     // Filter States
     const [searchTerm, setSearchTerm] = useState('');
@@ -123,7 +126,7 @@ export default function InquiryView() {
         }
 
         if (filterJenis !== 'all') {
-            result = result.filter(tx => tx.jenis === filterJenis);
+            result = result.filter(tx => tx.jenis.toLowerCase() === (filterJenis || '').toLowerCase());
         }
 
         if (filterKategori !== 'all') {
@@ -174,11 +177,12 @@ export default function InquiryView() {
         let income = 0;
         let expense = 0;
         filteredTransactions.forEach(tx => {
-            if (tx.jenis === 'Pemasukan') income += tx.nominal;
-            else if (tx.jenis === 'Pengeluaran') expense += tx.nominal;
+            const rootLabel = getRootLabel(tipeList, tx.jenis).toLowerCase();
+            if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) income += tx.nominal;
+            else if (rootLabel.includes(TRANSACTION_TYPES.EXPENSE)) expense += tx.nominal;
         });
         return { income, expense, net: income - expense };
-    }, [filteredTransactions]);
+    }, [filteredTransactions, tipeList]);
 
     const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage);
     const paginatedTransactions = filteredTransactions.slice((page - 1) * itemsPerPage, page * itemsPerPage);
@@ -194,7 +198,7 @@ export default function InquiryView() {
         <div className="flex flex-wrap items-center gap-2 mb-6">
             {filterJenis !== 'all' && (
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-[11px] font-bold tracking-wider">
-                    Jenis: {filterJenis}
+                    Jenis: {tipeList.find(t => t.id_tipe === filterJenis)?.label || filterJenis}
                     <button onClick={() => { setFilterJenis('all'); setPendingJenis('all'); setPage(1); }} className="hover:bg-blue-100 p-0.5 rounded-full"><X size={12} /></button>
                 </div>
             )}
@@ -231,14 +235,14 @@ export default function InquiryView() {
                 <Select value={pendingJenis} onValueChange={(v) => setPendingJenis(v || 'all')}>
                     <SelectTrigger className="h-12 rounded-2xl bg-muted/20 border-transparent hover:bg-muted/30 transition-colors">
                         <SelectValue placeholder="Semua Jenis">
-                            {pendingJenis === 'all' ? 'Semua Jenis' : pendingJenis}
+                            {pendingJenis === 'all' ? 'Semua Jenis' : tipeList.find(t => t.id_tipe === pendingJenis)?.label || pendingJenis}
                         </SelectValue>
                     </SelectTrigger>
                     <SelectContent>
                         <SelectItem value="all">Semua Jenis</SelectItem>
-                        <SelectItem value="Pemasukan">Pemasukan</SelectItem>
-                        <SelectItem value="Pengeluaran">Pengeluaran</SelectItem>
-                        <SelectItem value="Transfer">Transfer</SelectItem>
+                        {tipeList.map(t => (
+                            <SelectItem key={t.id_tipe} value={t.id_tipe}>{t.label}</SelectItem>
+                        ))}
                     </SelectContent>
                 </Select>
             </div>
@@ -540,8 +544,9 @@ export default function InquiryView() {
                                 paginatedTransactions.map((tx) => {
                                     const kategori = kategoriList.find(k => k.id_kategori === tx.id_kategori);
                                     const sumberDana = sumberDanaList.find(s => s.id_sumber_dana === tx.id_sumber_dana);
-                                    const isIncome = tx.jenis === 'Pemasukan';
-                                    const isExpense = tx.jenis === 'Pengeluaran';
+                                    const rootLabel = getRootLabel(tipeList, tx.jenis).toLowerCase();
+                                    const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                                    const isExpense = rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
 
                                     return (
                                         <tr key={tx.id} onClick={() => setSelectedTxId(tx.id)} className="hover:bg-muted/5 transition-colors group cursor-pointer">
@@ -606,8 +611,9 @@ export default function InquiryView() {
                             paginatedTransactions.map((tx) => {
                                 const kategori = kategoriList.find(k => k.id_kategori === tx.id_kategori);
                                 const sumberDana = sumberDanaList.find(s => s.id_sumber_dana === tx.id_sumber_dana);
-                                const isIncome = tx.jenis === 'Pemasukan';
-                                const isExpense = tx.jenis === 'Pengeluaran';
+                                const rootLabel = getRootLabel(tipeList, tx.jenis).toLowerCase();
+                                const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                                const isExpense = rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
 
                                 return (
                                     <div key={tx.id} onClick={() => setSelectedTxId(tx.id)} className="flex items-center justify-between p-6 hover:bg-muted/5 transition-colors cursor-pointer">
@@ -689,25 +695,36 @@ export default function InquiryView() {
                     {selectedTx && (
                         <div className="space-y-6 pt-4">
                             <div className="flex flex-col items-center justify-center p-6 bg-muted/20 rounded-2xl">
-                                <div className={cn(
-                                    "w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-4",
-                                    selectedTx.jenis === 'Pemasukan' ? "bg-emerald-100 text-emerald-600" :
-                                    selectedTx.jenis === 'Pengeluaran' ? "bg-rose-100 text-rose-600" :
-                                    "bg-blue-100 text-blue-600"
-                                )}>
-                                    {selectedTx.jenis === 'Pemasukan' ? <ArrowUpRight size={32} strokeWidth={3} /> : 
-                                     selectedTx.jenis === 'Pengeluaran' ? <ArrowDownRight size={32} strokeWidth={3} /> : 
-                                     <ArrowLeftRight size={32} strokeWidth={3} />}
-                                </div>
-                                <h3 className="font-black text-2xl text-center mb-1">{selectedTx.label}</h3>
-                                <p className={cn(
-                                    "font-black text-3xl tracking-tight mt-2",
-                                    selectedTx.jenis === 'Pemasukan' ? "text-emerald-600" : 
-                                    selectedTx.jenis === 'Pengeluaran' ? "text-foreground" : "text-blue-600"
-                                )}>
-                                    {selectedTx.jenis === 'Pemasukan' ? '+' : selectedTx.jenis === 'Pengeluaran' ? '-' : ''}
-                                    {formatRupiah(selectedTx.nominal)}
-                                </p>
+                                {(() => {
+                                    const rootLabel = getRootLabel(tipeList, selectedTx.jenis).toLowerCase();
+                                    const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                                    const isExpense = rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+                                    const isTransfer = rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || selectedTx.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
+                                    
+                                    return (
+                                        <>
+                                            <div className={cn(
+                                                "w-16 h-16 rounded-[1.5rem] flex items-center justify-center mb-4",
+                                                isTransfer ? "bg-blue-100 text-blue-600" :
+                                                isIncome ? "bg-emerald-100 text-emerald-600" :
+                                                "bg-rose-100 text-rose-600"
+                                            )}>
+                                                {isTransfer ? <ArrowLeftRight size={32} strokeWidth={3} /> : 
+                                                 isIncome ? <ArrowUpRight size={32} strokeWidth={3} /> : 
+                                                 <ArrowDownRight size={32} strokeWidth={3} />}
+                                            </div>
+                                            <h3 className="font-black text-2xl text-center mb-1">{selectedTx.label}</h3>
+                                            <p className={cn(
+                                                "font-black text-3xl tracking-tight mt-2",
+                                                isTransfer ? "text-blue-600" : 
+                                                isIncome ? "text-emerald-600" : "text-foreground"
+                                            )}>
+                                                {isIncome ? '+' : isExpense ? '-' : ''}
+                                                {formatRupiah(selectedTx.nominal)}
+                                            </p>
+                                        </>
+                                    );
+                                })()}
                             </div>
 
                             <div className="space-y-3">
@@ -717,7 +734,7 @@ export default function InquiryView() {
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/40">
                                     <span className="text-muted-foreground font-medium">Jenis</span>
-                                    <span className="font-bold">{selectedTx.jenis}</span>
+                                    <span className="font-bold">{tipeList.find(t => t.id_tipe === selectedTx.jenis)?.label || selectedTx.jenis}</span>
                                 </div>
                                 <div className="flex justify-between py-2 border-b border-border/40">
                                     <span className="text-muted-foreground font-medium">Kategori</span>
@@ -727,7 +744,7 @@ export default function InquiryView() {
                                     <span className="text-muted-foreground font-medium">Sumber Dana</span>
                                     <span className="font-bold">{sumberDanaList.find(s => s.id_sumber_dana === selectedTx.id_sumber_dana)?.nama_sumber || '-'}</span>
                                 </div>
-                                {selectedTx.jenis === 'Transfer' && selectedTx.id_target_dana && (
+                                {(getRootLabel(tipeList, selectedTx.jenis).toLowerCase().includes(TRANSACTION_TYPES.TRANSFER) || selectedTx.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER) && selectedTx.id_target_dana && (
                                     <div className="flex justify-between py-2 border-b border-border/40">
                                         <span className="text-muted-foreground font-medium">Target Dana</span>
                                         <span className="font-bold">{sumberDanaList.find(s => s.id_sumber_dana === selectedTx.id_target_dana)?.nama_sumber || '-'}</span>

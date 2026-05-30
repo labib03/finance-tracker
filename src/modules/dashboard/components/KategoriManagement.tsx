@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
@@ -19,6 +20,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 import { Input } from '@/shared/ui/input';
 import { cn } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 
 interface KategoriManagementProps {
     onAdd: () => void;
@@ -29,6 +31,7 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const recurringList = useFinanceStore((s) => s.recurringList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const removeKategori = useFinanceStore((s) => s.removeKategori);
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean, id: string, name: string }>({
@@ -65,8 +68,18 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
         k.nama_kategori.toLowerCase().includes(search.toLowerCase())
     );
 
-    const pengeluaranKategori = filteredKategori.filter(k => k.tipe === 'Pengeluaran');
-    const pemasukanKategori = filteredKategori.filter(k => k.tipe === 'Pemasukan');
+    const pengeluaranKategori = filteredKategori.filter(k => {
+        const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+        return rootLabel.includes(TRANSACTION_TYPES.EXPENSE);
+    });
+    const pemasukanKategori = filteredKategori.filter(k => {
+        const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+        return rootLabel.includes(TRANSACTION_TYPES.INCOME);
+    });
+    const savingsKategori = filteredKategori.filter(k => {
+        const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+        return rootLabel.includes(TRANSACTION_TYPES.SAVINGS);
+    });
 
     const renderKategoriTable = (list: Kategori[]) => (
         <div className="px-6 sm:px-10 py-6">
@@ -92,9 +105,19 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                                         <div className="flex items-center gap-4">
                                             <div className={cn(
                                                 "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border transition-transform duration-500 group-hover:scale-110",
-                                                k.tipe === 'Pemasukan' ? "bg-emerald-50 text-emerald-600 border-emerald-100/50" : "bg-rose-50 text-rose-600 border-rose-100/50"
+                                                (() => {
+                                                    const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+                                                    if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) return "bg-emerald-50 text-emerald-600 border-emerald-100/50";
+                                                    if (rootLabel.includes(TRANSACTION_TYPES.SAVINGS)) return "bg-blue-50 text-blue-600 border-blue-100/50";
+                                                    return "bg-rose-50 text-rose-600 border-rose-100/50";
+                                                })()
                                             )}>
-                                                {k.tipe === 'Pemasukan' ? <ArrowUpRight size={16} strokeWidth={2.5} /> : <ArrowDownRight size={16} strokeWidth={2.5} />}
+                                                {(() => {
+                                                    const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+                                                    if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) return <ArrowUpRight size={16} strokeWidth={2.5} />;
+                                                    if (rootLabel.includes(TRANSACTION_TYPES.SAVINGS)) return <div className="font-black text-[10px]">SV</div>;
+                                                    return <ArrowDownRight size={16} strokeWidth={2.5} />;
+                                                })()}
                                             </div>
                                             <span className="text-[11px] font-black text-foreground uppercase tracking-widest leading-none">
                                                 {k.nama_kategori}
@@ -148,9 +171,19 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                                 <div className="flex items-center gap-4 min-w-0">
                                     <div className={cn(
                                         "w-10 h-10 rounded-2xl flex items-center justify-center shrink-0 shadow-xs border border-border/10 transition-transform duration-500 group-hover:scale-110",
-                                        k.tipe === 'Pemasukan' ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                                        (() => {
+                                            const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+                                            if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) return "bg-emerald-50 text-emerald-600";
+                                            if (rootLabel.includes(TRANSACTION_TYPES.SAVINGS)) return "bg-blue-50 text-blue-600";
+                                            return "bg-rose-50 text-rose-600";
+                                        })()
                                     )}>
-                                        {k.tipe === 'Pemasukan' ? <ArrowUpRight size={16} strokeWidth={2.5} /> : <ArrowDownRight size={16} strokeWidth={2.5} />}
+                                        {(() => {
+                                            const rootLabel = getRootLabel(tipeList, k.tipe).toLowerCase();
+                                            if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) return <ArrowUpRight size={16} strokeWidth={2.5} />;
+                                            if (rootLabel.includes(TRANSACTION_TYPES.SAVINGS)) return <div className="font-black text-[10px]">SV</div>;
+                                            return <ArrowDownRight size={16} strokeWidth={2.5} />;
+                                        })()}
                                     </div>
                                     <span className="text-[11px] font-black text-foreground uppercase tracking-widest truncate">
                                         {k.nama_kategori}
@@ -241,6 +274,12 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
                                     {pemasukanKategori.length}
                                 </Badge>
                             </TabsTrigger>
+                            <TabsTrigger value="savings" className="text-[10px] sm:text-xs font-black uppercase tracking-widest data-active:text-blue-500 after:bg-blue-500">
+                                Tabungan/Savings
+                                <Badge variant="default" className="ml-3 h-5 px-1.5 font-black text-[10px] border-none scale-90 bg-blue-100 text-blue-700">
+                                    {savingsKategori.length}
+                                </Badge>
+                            </TabsTrigger>
                         </TabsList>
                     </div>
 
@@ -250,6 +289,10 @@ export default function KategoriManagement({ onAdd, onEdit }: KategoriManagement
 
                     <TabsContent value="pemasukan" className="mt-0">
                         {renderKategoriTable(pemasukanKategori)}
+                    </TabsContent>
+
+                    <TabsContent value="savings" className="mt-0">
+                        {renderKategoriTable(savingsKategori)}
                     </TabsContent>
                 </Tabs>
             </CardContent>

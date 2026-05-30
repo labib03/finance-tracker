@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, RefreshCw, Sparkles, Download } from 'lucide-react';
@@ -56,7 +57,7 @@ export default function DashboardHeader() {
             {activeView === 'saldo' && 'Manajemen Saldo'}
             {activeView === 'transaksi' && 'Daftar Transaksi'}
             {activeView === 'inquiry' && 'Inquiry Transaksi'}
-            {activeView === 'transfer' && 'Transfer Akun'}
+            {activeView === TRANSACTION_TYPES.TRANSFER && 'Transfer Akun'}
             {activeView === 'anggaran' && 'Plan Anggaran'}
             {activeView === 'tabungan' && 'Sinking Funds'}
             {activeView === 'laporan' && 'Laporan Analitik'}
@@ -67,7 +68,7 @@ export default function DashboardHeader() {
             {activeView === 'dashboard' && '“Uang adalah hamba yang baik, tapi tuan yang buruk.” Kelola dengan bijak hari ini.'}
             {activeView === 'saldo' && 'Pantau pertumbuhan aset Anda dari waktu ke waktu.'}
             {activeView === 'transaksi' && 'Setiap rupiah memiliki cerita. Lihat jejak pengeluaran Anda.'}
-            {activeView === 'transfer' && 'Optimalkan distribusi likuiditas antar instrumen keuangan.'}
+            {activeView === TRANSACTION_TYPES.TRANSFER && 'Optimalkan distribusi likuiditas antar instrumen keuangan.'}
             {activeView === 'anggaran' && 'Disiplin anggaran adalah kunci kebebasan finansial jangka panjang.'}
             {activeView === 'tabungan' && 'Sisihkan untuk tujuan masa depan Anda.'}
             {activeView === 'laporan' && 'Visualisasi data membantu Anda mengambil keputusan yang lebih cerdas.'}

@@ -25,6 +25,7 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const recurringList = useFinanceStore((s) => s.recurringList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const removeSumberDana = useFinanceStore((s) => s.removeSumberDana);
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; name: string }>({
@@ -47,8 +48,8 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
     };
 
     const saldoAkun = useMemo(
-        () => hitungSaldoAkun(sumberDanaList, transaksiList),
-        [sumberDanaList, transaksiList]
+        () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList),
+        [sumberDanaList, transaksiList, tipeList]
     );
 
     const totalSaldo = useMemo(() => {

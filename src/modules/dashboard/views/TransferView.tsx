@@ -21,9 +21,10 @@ export default function TransferView() {
   const transaksiList = useFinanceStore((s) => s.transaksiList);
   const router = useRouter();
 
+  const tipeList = useFinanceStore((s) => s.tipeList);
   const saldoAkun = useMemo(
-      () => hitungSaldoAkun(sumberDanaList, transaksiList),
-      [sumberDanaList, transaksiList]
+      () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList),
+      [sumberDanaList, transaksiList, tipeList]
   );
 
   return (
@@ -42,10 +43,13 @@ export default function TransferView() {
                     <div 
                         key={akun.id_sumber_dana}
                         onClick={() => {
+                            const tipeTransfer = tipeList.find(t => t.label.toLowerCase() === "transfer" && !t.master_tipe)?.id_tipe 
+                                || tipeList.find(t => t.label.toLowerCase() === "transfer")?.id_tipe 
+                                || "Transfer";
                             setTransaksiToEdit({ 
                                 id: '', 
                                 tanggal: getToday(),
-                                jenis: 'Transfer',
+                                jenis: tipeTransfer,
                                 id_sumber_dana: akun.id_sumber_dana,
                                 id_target_dana: '',
                                 nominal: 0,

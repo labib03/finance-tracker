@@ -6,9 +6,7 @@ import { z } from "zod";
 
 export const transaksiSchema = z.object({
   tanggal: z.string().min(1, "Tanggal wajib diisi"),
-  jenis: z.enum(["Pengeluaran", "Pemasukan"], {
-    message: "Pilih jenis transaksi",
-  }),
+  jenis: z.string().min(1, "Pilih jenis transaksi"),
   id_sumber_dana: z.string().min(1, "Pilih sumber dana"),
   id_kategori: z.string().min(1, "Pilih kategori"),
   nominal: z.coerce
@@ -40,9 +38,7 @@ export const transferSchema = z
 export const recurringSchema = z.object({
   id_kategori: z.string().min(1, "Pilih kategori"),
   id_sumber_dana: z.string().min(1, "Pilih sumber dana"),
-  jenis: z.enum(["Pengeluaran", "Pemasukan"], {
-    message: "Pilih jenis transaksi",
-  }),
+  jenis: z.string().min(1, "Pilih jenis transaksi"),
   nominal: z.coerce
     .number({ message: "Nominal harus berupa angka" })
     .positive("Nominal harus lebih dari 0"),
@@ -72,9 +68,7 @@ export const budgetSchema = z.object({
 export const kategoriSchema = z.object({
   id_kategori: z.string().min(1, "ID Kategori wajib diisi"),
   nama_kategori: z.string().min(1, "Nama kategori wajib diisi"),
-  tipe: z.enum(["Pengeluaran", "Pemasukan"], {
-    message: "Pilih tipe kategori",
-  }),
+  tipe: z.string().min(1, "Pilih tipe kategori"),
   icon_name: z.string().optional().default("circle"),
 });
 

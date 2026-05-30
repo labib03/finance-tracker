@@ -8,6 +8,7 @@ import { kategoriSchema, type KategoriFormData } from '@/lib/schemas';
 import type { Kategori } from '@/lib/types';
 import { Save, ArrowUpRight, ArrowDownRight, Sparkles, Layers } from 'lucide-react';
 import { generateId, cn } from '@/lib/utils';
+import { getRootLabel, isIncome, isSavings } from '@/lib/tipeUtils';
 import { CategoryIcon } from '@/shared/ui/CategoryIcon';
 import { Button } from '@/shared/ui/button';
 import { useRouter } from 'next/navigation';
@@ -33,8 +34,12 @@ interface KategoriFormProps {
 export default function KategoriForm({ onClose, kategoriToEdit, inline = false }: KategoriFormProps) {
     const addKategori = useFinanceStore((s) => s.addKategori);
     const updateKategori = useFinanceStore((s) => s.updateKategori);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const router = useRouter();
     const [showSuccess, setShowSuccess] = useState(false);
+
+    // Fallback to first tipe if available
+    const defaultTipe = tipeList.length > 0 ? tipeList[0].id_tipe : 'Pengeluaran';
 
     const {
         register,
@@ -65,15 +70,20 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
             reset({
                 id_kategori: `KAT-${generateId().substring(0, 6)}`,
                 nama_kategori: '',
-                tipe: 'Pengeluaran',
+                tipe: defaultTipe,
                 icon_name: 'circle',
             });
         }
-    }, [kategoriToEdit, reset]);
+    }, [kategoriToEdit, reset, defaultTipe]);
 
     const watchedNama = useWatch({ control, name: 'nama_kategori' }) || '';
-    const watchedTipe = useWatch({ control, name: 'tipe' }) || 'Pengeluaran';
+    const watchedTipeId = useWatch({ control, name: 'tipe' }) || defaultTipe;
     const watchedIcon = useWatch({ control, name: 'icon_name' }) || 'circle';
+    
+    // Get resolved tipe data
+    const watchedTipe = tipeList.find(t => t.id_tipe === watchedTipeId);
+    const _isPemasukan = isIncome(tipeList, watchedTipeId);
+    const _isSavings = isSavings(tipeList, watchedTipeId);
 
     const onSubmit = async (data: KategoriFormData) => {
         if (kategoriToEdit) {
@@ -116,40 +126,36 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
                 )}
             </div>
 
-            {/* Bento Card 2: Tipe Kategori (Tabs) */}
+            {/* Bento Card 2: Tipe Kategori (Grid) */}
             <div className={cn(
                 "p-6 sm:p-8 rounded-[2rem] border transition-all duration-500 relative overflow-hidden shadow-sm flex flex-col gap-4 col-span-1 md:col-span-2",
                 inline ? "bg-white border-slate-200 hover:border-slate-300" : "bg-white border-slate-100"
             )}>
                 <Label className={cn("text-[10px] font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
-                    Tipe/Kategori Arus Kas
+                    Tipe Transaksi (Parent)
                 </Label>
                 <Controller
                     name="tipe"
                     control={control}
                     render={({ field }) => (
-                        <Tabs 
-                            value={field.value} 
-                            onValueChange={field.onChange}
-                            className="w-full"
-                        >
-                            <TabsList className={cn("grid w-full grid-cols-2 p-1 rounded-2xl border border-slate-200", inline ? "bg-slate-150" : "bg-slate-100")}>
-                                <TabsTrigger 
-                                    value="Pengeluaran" 
-                                    className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-rose-50 data-active:text-rose-600 data-active:border-rose-100/50 data-active:shadow-xs hover:text-rose-500 dark:data-active:bg-rose-950/20 dark:data-active:text-rose-450 dark:data-active:border-rose-900/30 transition-all cursor-pointer"
+                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {tipeList.map((t) => (
+                                <button
+                                    key={t.id_tipe}
+                                    type="button"
+                                    onClick={() => field.onChange(t.id_tipe)}
+                                    className={cn(
+                                        "px-4 py-3 rounded-xl text-left transition-all border",
+                                        field.value === t.id_tipe 
+                                            ? "bg-slate-900 text-white border-slate-900 shadow-sm"
+                                            : "bg-slate-50 text-slate-600 border-slate-200 hover:border-slate-300 hover:bg-slate-100"
+                                    )}
                                 >
-                                    <ArrowDownRight size={14} className="mr-1.5" />
-                                    Pengeluaran
-                                </TabsTrigger>
-                                <TabsTrigger 
-                                    value="Pemasukan" 
-                                    className="rounded-xl font-black text-xs uppercase tracking-widest data-active:bg-emerald-50 data-active:text-emerald-600 data-active:border-emerald-100/50 data-active:shadow-xs hover:text-emerald-500 dark:data-active:bg-emerald-950/20 dark:data-active:text-emerald-450 dark:data-active:border-emerald-900/30 transition-all cursor-pointer"
-                                >
-                                    <ArrowUpRight size={14} className="mr-1.5" />
-                                    Pemasukan
-                                </TabsTrigger>
-                            </TabsList>
-                        </Tabs>
+                                    <div className="text-[9px] uppercase tracking-wider text-slate-400 mb-0.5">{t.master_tipe ? (tipeList.find(pt => pt.id_tipe === t.master_tipe)?.label || t.master_tipe) : 'Root (Master)'}</div>
+                                    <div className={cn("font-bold text-sm", field.value === t.id_tipe ? "text-white" : "text-slate-700")}>{t.label}</div>
+                                </button>
+                            ))}
+                        </div>
                     )}
                 />
             </div>
@@ -182,14 +188,14 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
                 {/* Reactive Glow orbs based on category type */}
                 <div className={cn(
                     "absolute -top-16 -right-16 w-36 h-36 rounded-full blur-[50px] transition-all duration-1000 opacity-35",
-                    watchedTipe === 'Pemasukan' ? "bg-emerald-500/10 group-hover:bg-emerald-500/20" : "bg-rose-500/10 group-hover:bg-rose-500/20"
+                    _isPemasukan ? "bg-emerald-500/10 group-hover:bg-emerald-500/20" : _isSavings ? "bg-blue-500/10 group-hover:bg-blue-500/20" : "bg-rose-500/10 group-hover:bg-rose-500/20"
                 )} />
                 <div className="absolute -bottom-16 -left-16 w-36 h-36 rounded-full bg-slate-100 blur-[50px] opacity-25" />
 
                 {/* Badge Icon */}
                 <div className={cn(
                     "relative z-10 w-24 h-24 rounded-full bg-slate-50 border border-slate-200 shadow-xs flex items-center justify-center mb-4 transition-all duration-500",
-                    watchedTipe === 'Pemasukan' ? "text-emerald-600" : "text-rose-600"
+                    _isPemasukan ? "text-emerald-600" : _isSavings ? "text-blue-600" : "text-rose-600"
                 )}>
                     <CategoryIcon name={watchedIcon} size={40} />
                 </div>
@@ -204,9 +210,9 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
                     
                     <span className={cn(
                         "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border shadow-xs",
-                        watchedTipe === 'Pemasukan' ? "bg-emerald-50 border-emerald-200 text-emerald-600" : "bg-rose-50 border-rose-200 text-rose-600"
+                        _isPemasukan ? "bg-emerald-50 border-emerald-200 text-emerald-600" : _isSavings ? "bg-blue-50 border-blue-200 text-blue-600" : "bg-rose-50 border-rose-200 text-rose-600"
                     )}>
-                        {watchedTipe}
+                        {watchedTipe?.label || 'TIPE KOSONG'}
                     </span>
                 </div>
             </div>

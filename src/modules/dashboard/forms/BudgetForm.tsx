@@ -1,4 +1,5 @@
 'use client';
+import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -10,6 +11,7 @@ import type { Budget } from '@/lib/types';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Button } from '@/shared/ui/button';
 import { cn, formatRupiah } from '@/lib/utils';
+import { getRootLabel } from '@/lib/tipeUtils';
 import { useRouter } from 'next/navigation';
 import FormPageLayout from '@/shared/layout/FormPageLayout';
 import {
@@ -53,13 +55,15 @@ interface BudgetFormProps {
 
 export default function BudgetForm({ onClose, budgetToEdit, inline = false }: BudgetFormProps) {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
+    const tipeList = useFinanceStore((s) => s.tipeList);
     const budgetList = useFinanceStore((s) => s.budgetList);
     const addBudget = useFinanceStore((s) => s.addBudget);
     const updateBudget = useFinanceStore((s) => s.updateBudget);
     const router = useRouter();
     const [showSuccess, setShowSuccess] = useState(false);
 
-    const pengeluaranKategori = kategoriList.filter((k) => k.tipe === 'Pengeluaran');
+    const pengeluaranTipes = useMemo(() => tipeList.filter(t => getRootLabel(tipeList, t.id_tipe).toLowerCase().includes(TRANSACTION_TYPES.EXPENSE)).map(t => t.id_tipe), [tipeList]);
+    const pengeluaranKategori = useMemo(() => kategoriList.filter((k) => pengeluaranTipes.includes(k.tipe)), [kategoriList, pengeluaranTipes]);
 
     const now = new Date();
 
