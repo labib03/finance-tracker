@@ -14,7 +14,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import FormPageLayout from '@/shared/layout/FormPageLayout';
 import { ResponsiveModal } from "@/shared/ui/responsive-modal";
-import { PiggyBank, ShieldAlert, Banknote, Target, Car, Home, Plane, GraduationCap, Laptop, Smartphone, HeartPulse, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
+import { PiggyBank, ShieldAlert, Banknote, Target, Car, Home, Plane, GraduationCap, Laptop, Smartphone, HeartPulse, Sparkles, CheckCircle2, Loader2, Save } from "lucide-react";
 
 type AksiType = 'alokasi_tabungan' | 'tarik_tabungan' | 'eksekusi_tabungan';
 

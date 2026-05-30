@@ -7,7 +7,7 @@ import { transferSchema, type TransferFormData } from '@/lib/schemas';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import type { Transaksi, Titipan } from '@/lib/types';
-import { UserCircle2, ArrowLeftRight, CalendarIcon, Wallet, FileText, Save, ArrowRight, Sparkles, TrendingUp, Loader2, CheckCircle2 } from "lucide-react";
+import { UserCircle2, ArrowLeftRight, CalendarIcon, Wallet, FileText, Save, ArrowRight, Sparkles, TrendingUp, Loader2, CheckCircle2, ArrowRightLeft } from "lucide-react";
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
