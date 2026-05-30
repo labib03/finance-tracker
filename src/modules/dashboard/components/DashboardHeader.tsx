@@ -2,34 +2,12 @@
 import { TRANSACTION_TYPES } from '@/lib/constants';
 
 import { useState, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, RefreshCw, Sparkles, Download } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
-import { getNamaBulan, cn } from '@/lib/utils';
 
 import { usePathname } from 'next/navigation';
-import { useFinanceStore } from '@/lib/store';
 
 export default function DashboardHeader() {
   const pathname = usePathname();
   const activeView = pathname === '/' ? 'dashboard' : pathname.replace('/', '');
-  
-  const activeMonth = useFinanceStore((s) => s.activeMonth);
-  const setActiveMonth = useFinanceStore((s) => s.setActiveMonth);
-  const refreshData = useFinanceStore((s) => s.refreshData);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const navigateMonth = (direction: -1 | 1) => {
-    const [year, month] = activeMonth.split('-').map(Number);
-    const date = new Date(year, month - 1 + direction, 1);
-    const newMonth = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-    setActiveMonth(newMonth);
-  };
-
-  const handleRefresh = async () => {
-    setIsRefreshing(true);
-    await refreshData();
-    setTimeout(() => setIsRefreshing(false), 600);
-  };
   const [isStandalone, setIsStandalone] = useState(true); // default true to avoid flash
 
   useEffect(() => {
@@ -76,60 +54,6 @@ export default function DashboardHeader() {
             {activeView === 'master' && 'Fondasi data yang rapi menghasilkan analisis yang akurat.'}
           </p>
         </div>
-      </div>
-
-      <div className="flex items-center justify-between lg:justify-end gap-3 lg:gap-4 animate-in fade-in slide-in-from-right-4 duration-700 delay-200">
-        {/* Month Navigator - Scandi Style */}
-        <div className="flex items-center bg-white border border-border/40 rounded-[1.25rem] p-1 shadow-scandi transition-all hover:shadow-float flex-1 lg:flex-none">
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => navigateMonth(-1)}
-            className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl hover:bg-muted/50 transition-colors shrink-0"
-          >
-            <ChevronLeft size={16} className="size-6 sm:size-8" />
-          </Button>
-
-          <div className="px-2 sm:px-6 flex flex-col items-center flex-1 lg:min-w-[160px]">
-            <span className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40 leading-none mb-1">Periode</span>
-            <span className="text-xs sm:text-sm font-black text-foreground display-number tracking-widest sm:tracking-tight whitespace-nowrap">
-              {getNamaBulan(activeMonth)}
-            </span>
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon-xs"
-            onClick={() => navigateMonth(1)}
-            className="h-8 w-8 sm:h-9 sm:w-9 rounded-xl hover:bg-muted/50 transition-colors shrink-0"
-          >
-            <ChevronRight size={16} className="size-6 sm:size-8" />
-          </Button>
-        </div>
-
-        {/* PWA Install Button */}
-        {!isStandalone && (
-          <Button
-            variant="outline"
-            size="icon-xs"
-            onClick={triggerPwaPrompt}
-            title="Install Aplikasi"
-            className="h-10 w-10 sm:h-12 sm:w-12 rounded-[1.25rem] shadow-scandi border-border/40 bg-white hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all active:scale-95 shrink-0"
-          >
-            <Download size={16} className="size-5 sm:size-6" />
-          </Button>
-        )}
-
-        {/* Refresh with Tooltip-like style */}
-        <Button
-          variant="outline"
-          size="icon-xs"
-          onClick={handleRefresh}
-          disabled={isRefreshing}
-          className="h-10 w-10 sm:h-12 sm:w-12 rounded-[1.25rem] shadow-scandi border-border/40 bg-white hover:bg-muted/10 transition-all active:scale-95 group shrink-0"
-        >
-          <RefreshCw size={16} className={cn("size-6 sm:size-8 transition-all duration-700", isRefreshing ? 'animate-spin' : 'group-hover:rotate-180')} />
-        </Button>
       </div>
     </div>
   );

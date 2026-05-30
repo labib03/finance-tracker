@@ -9,6 +9,7 @@ import LiquidBackground from '@/shared/ui/LiquidBackground';
 import LoadingScreen from '@/shared/ui/LoadingScreen';
 import DashboardHeader from '@/modules/dashboard/components/DashboardHeader';
 import ModalOrchestrator from '@/modules/dashboard/components/ModalOrchestrator';
+import FloatingMonthNav from '@/modules/dashboard/components/FloatingMonthNav';
 import { Toaster } from 'sonner';
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -48,6 +49,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       </div>
 
       <BottomNav />
+      <FloatingMonthNav />
 
       {/* ======================== MODALS ======================== */}
       <ModalOrchestrator />
