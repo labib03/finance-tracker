@@ -38,7 +38,7 @@ const AKSI_CONFIG = {
         icon: PiggyBank,
         description: 'Sisihkan uang dari rekening utama Anda untuk dialokasikan ke pos Sinking Fund ini.',
         buttonText: 'Alokasikan Dana',
-        buttonClass: 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/10',
+        buttonClass: 'bg-emerald-100 hover:bg-emerald-200 text-emerald-700 shadow-none border-none',
         activeClass: 'bg-emerald-50 border-emerald-500 text-emerald-600 shadow-xs ring-4 ring-emerald-500/10',
     },
     tarik_tabungan: {
@@ -49,7 +49,7 @@ const AKSI_CONFIG = {
         icon: ShieldAlert,
         description: 'Kembalikan saldo tabungan Sinking Fund ke rekening Anda untuk keperluan mendesak.',
         buttonText: 'Tarik ke Rekening',
-        buttonClass: 'bg-amber-600 hover:bg-amber-700 text-white shadow-amber-500/10',
+        buttonClass: 'bg-amber-100 hover:bg-amber-200 text-amber-700 shadow-none border-none',
         activeClass: 'bg-amber-50 border-amber-500 text-amber-600 shadow-xs ring-4 ring-amber-500/10',
     },
     eksekusi_tabungan: {
@@ -60,7 +60,7 @@ const AKSI_CONFIG = {
         icon: Banknote,
         description: 'Bayar tujuan tabungan Anda secara riil. Transaksi pengeluaran nyata akan dicatat.',
         buttonText: 'Eksekusi Pembelian',
-        buttonClass: 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/10',
+        buttonClass: 'bg-blue-100 hover:bg-blue-200 text-blue-700 shadow-none border-none',
         activeClass: 'bg-blue-50 border-blue-500 text-blue-600 shadow-xs ring-4 ring-blue-500/10',
     },
 };
@@ -259,7 +259,7 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                     type="submit"
                     disabled={isSubmitting || !nominal || !idSumberDana}
                     className={cn(
-                        "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none text-white",
+                        "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-none flex items-center justify-center gap-2 border-none",
                         config.buttonClass
                     )}
                 >

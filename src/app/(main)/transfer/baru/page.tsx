@@ -9,7 +9,7 @@ export default function TransferBaruPage() {
   return (
     <TransferForm
       inline={true}
-      onClose={() => router.push('/transaksi')}
+      onClose={() => router.push('/transfer')}
     />
   );
 }

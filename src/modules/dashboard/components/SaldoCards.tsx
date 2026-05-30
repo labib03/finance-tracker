@@ -84,9 +84,9 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
                 </div>
                 {onAddAccount && (
                     <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         onClick={onAddAccount}
-                        className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl hidden sm:flex items-center gap-2"
+                        className="bg-indigo-100 text-indigo-700 hover:bg-indigo-200 hover:text-indigo-800 border-none shadow-none rounded-xl hidden sm:flex items-center gap-2 font-bold"
                     >
                         <Plus size={16} />
                         <span>Tambah Akun</span>

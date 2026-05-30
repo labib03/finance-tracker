@@ -133,13 +133,13 @@ export function MasterTipeTab() {
                 </div>
                 <button 
                     onClick={() => handleOpenForm()}
-                    className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-900 hover:bg-slate-800 transition-all duration-300 border border-transparent hover:shadow-lg shadow-slate-900/20 active:scale-[0.98] shrink-0"
+                    className="group relative flex items-center gap-3 px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all duration-300 border border-transparent active:scale-[0.98] shrink-0"
                 >
                     <div className="flex flex-col text-left">
-                        <span className="text-xs font-bold text-white group-hover:text-white">Tambah Tipe</span>
+                        <span className="text-xs font-bold">Tambah Tipe</span>
                     </div>
-                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center">
-                        <Plus size={14} className="text-white group-hover:rotate-90 transition-transform duration-300" />
+                    <div className="w-6 h-6 rounded-full bg-slate-200/50 flex items-center justify-center">
+                        <Plus size={14} className="group-hover:rotate-90 transition-transform duration-300" />
                     </div>
                 </button>
             </div>

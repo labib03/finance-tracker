@@ -72,18 +72,18 @@ export default function TitipanSummary({ onAddClick, onEditClick }: TitipanSumma
                 </div>
                 <div className="flex items-center gap-2 w-full sm:w-auto">
                     <Button 
-                        variant="outline" 
+                        variant="ghost" 
                         onClick={() => setShowArchive(true)}
-                        className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl flex-1 sm:flex-none flex items-center justify-center gap-2"
+                        className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-none shadow-none rounded-xl flex-1 sm:flex-none flex items-center justify-center gap-2 font-bold"
                     >
                         <History size={16} />
                         <span>Arsip ({useFinanceStore.getState().getTitipanSelesai().length})</span>
                     </Button>
                     {onAddClick && (
                         <Button 
-                            variant="outline" 
+                            variant="ghost" 
                             onClick={onAddClick}
-                            className="bg-white border-slate-200 text-slate-700 hover:bg-slate-50 rounded-xl flex-1 sm:flex-none flex items-center justify-center gap-2"
+                            className="bg-rose-100 text-rose-700 hover:bg-rose-200 hover:text-rose-800 border-none shadow-none rounded-xl flex-1 sm:flex-none flex items-center justify-center gap-2 font-bold"
                         >
                             <Plus size={16} />
                             <span>Titipan Baru</span>

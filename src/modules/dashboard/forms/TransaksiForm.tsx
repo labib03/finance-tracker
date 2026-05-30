@@ -532,11 +532,11 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
             <div className="col-span-1 md:col-span-2 pt-4 flex gap-4 w-full">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     onClick={onClose}
                     className={cn(
                         "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
-                        inline ? "border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 bg-white" : ""
+                        "border-none hover:bg-slate-100 text-slate-500 bg-transparent"
                     )}
                 >
                     Batal
@@ -545,8 +545,8 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                     type="submit"
                     disabled={isSubmitting || showSuccess}
                     className={cn(
-                        "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
-                        activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-500 text-white hover:bg-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-primary text-primary-foreground hover:bg-primary/90"
+                        "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest border-none shadow-none",
+                        activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-100 text-emerald-700 hover:bg-emerald-200" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-100 text-blue-700 hover:bg-blue-200" : "bg-primary/10 text-primary hover:bg-primary/20"
                     )}
                 >
               {showSuccess ? (

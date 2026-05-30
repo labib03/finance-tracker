@@ -118,8 +118,8 @@ export default function TitipanForm({ onClose, titipanToEdit, inline = false }: 
                     type="submit"
                     disabled={isSubmitting || showSuccess}
                     className={cn(
-                        "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none",
-                        inline ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-amber-500 hover:bg-amber-600 text-white"
+                        "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-none flex items-center justify-center gap-2 border-none",
+                        "bg-amber-100 hover:bg-amber-200 text-amber-700"
                     )}
                 >
               {showSuccess ? (

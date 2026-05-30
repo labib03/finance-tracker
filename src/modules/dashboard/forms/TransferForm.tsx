@@ -134,38 +134,36 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
                 inline ? "bg-white border-slate-200 ring-1 ring-blue-550/5" : "bg-white border-slate-100 shadow-blue-500/5"
             )}>
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div className="flex flex-col items-center justify-center gap-2">
                     <Label className={cn("text-xs font-black uppercase tracking-[0.25em]", inline ? "text-slate-500" : "text-slate-500")}>
                         Nominal Transfer
                     </Label>
-                    
-                    {/* Compact Admin Fee inline */}
-                    <div className={cn(
-                        "flex items-center justify-center gap-3 px-3 py-1 rounded-xl border shrink-0",
-                        inline ? "bg-slate-50 border-slate-200" : "bg-slate-50 border-slate-200"
-                    )}>
-                        <Label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Fee:</Label>
+                </div>
+
+                <div className="w-full flex flex-col gap-0 items-center justify-center pt-2">
+                    <NumericInput
+                        name="nominal"
+                        control={control as any}
+                        error={errors.nominal?.message}
+                        className="text-4xl sm:text-6xl font-black h-16 sm:h-20 text-center bg-transparent border-none focus:ring-0 focus:border-none shadow-none display-number tracking-tighter w-full overflow-hidden transition-all duration-300 text-blue-600 px-0"
+                        placeholder="Rp 0"
+                    />
+
+                    <div className="flex items-center justify-center gap-2 mt-4">
+                        <Label className="text-[10px] font-black uppercase tracking-wider text-slate-400">Fee Admin:</Label>
                         <NumericInput
                             name="biaya_admin"
                             control={control as any}
                             hideCalculator={true}
                             error={errors.biaya_admin?.message}
                             containerClassName="w-auto flex items-center justify-center"
-                            className="text-xs text-center font-bold h-8 bg-transparent border-none focus:ring-0 w-24 p-0 text-slate-800"
+                            className="text-xs text-center font-bold h-8 bg-transparent border-none focus:ring-0 w-32 p-0 text-slate-600 underline decoration-slate-300 underline-offset-4 decoration-dashed"
                             placeholder="Rp 0"
                         />
                     </div>
                 </div>
 
-                <div className="w-full">
-                    <NumericInput
-                        name="nominal"
-                        control={control as any}
-                        error={errors.nominal?.message}
-                        className="text-4xl sm:text-6xl font-black h-20 sm:h-28 text-center bg-transparent border-none focus:ring-0 focus:border-none shadow-none display-number tracking-tighter w-full overflow-hidden transition-all duration-300 text-blue-600"
-                        placeholder="Rp 0"
-                    />
-                </div>
+
             </div>
 
             {/* Bento Grid Item 2: Accounts Section (Col Span 1) */}
@@ -369,11 +367,11 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
             <div className="col-span-1 md:col-span-2 pt-4 flex gap-4 w-full">
                 <Button
                     type="button"
-                    variant="outline"
+                    variant="ghost"
                     onClick={onClose}
                     className={cn(
                         "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
-                        inline ? "border-slate-200 hover:bg-slate-100 text-slate-600 hover:text-slate-900 bg-white" : ""
+                        "border-none hover:bg-slate-100 text-slate-500 bg-transparent"
                     )}
                 >
                     Batal
@@ -382,8 +380,8 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
                     type="submit"
                     disabled={isSubmitting || showSuccess}
                     className={cn(
-                        "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest",
-                        "bg-blue-600 text-white hover:bg-blue-700"
+                        "flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest shadow-none border-none",
+                        "bg-blue-100 text-blue-700 hover:bg-blue-200"
                     )}
                 >
               {showSuccess ? (

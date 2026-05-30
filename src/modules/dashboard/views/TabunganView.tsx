@@ -27,7 +27,7 @@ export default function TabunganView() {
                 </div>
                 
                 <button
-                    className="flex items-center gap-2 px-6 h-11 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-all shadow-scandi hover:shadow-float hover:scale-[1.02] active:scale-95 cursor-pointer w-full sm:w-auto justify-center"
+                    className="flex items-center gap-2 px-6 h-11 rounded-2xl bg-blue-100 hover:bg-blue-200 text-blue-700 border-none shadow-none text-[10px] sm:text-xs font-black uppercase tracking-[0.2em] transition-all cursor-pointer w-full sm:w-auto justify-center"
                     onClick={() => {
                         router.push('/tabungan/baru');
                     }}

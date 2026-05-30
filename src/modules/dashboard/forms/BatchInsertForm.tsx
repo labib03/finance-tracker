@@ -559,10 +559,10 @@ export default function BatchInsertForm() {
                 <div className="flex flex-col sm:flex-row items-center gap-4">
                     <Button
                         type="button"
-                        variant="outline"
+                        variant="ghost"
                         onClick={() => router.push('/transaksi')}
                         disabled={isSaving || saveSuccess}
-                        className="w-full sm:flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest border-slate-200 hover:bg-slate-100 text-slate-650 bg-white"
+                        className="w-full sm:flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest border-none hover:bg-slate-100 text-slate-500 bg-transparent"
                     >
                         Batal
                     </Button>
@@ -570,10 +570,10 @@ export default function BatchInsertForm() {
                         type="submit"
                         disabled={!isValid || isSaving || saveSuccess}
                         className={cn(
-                            "w-full sm:flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-98",
+                            "w-full sm:flex-1 h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-98 border-none shadow-none",
                             isValid 
-                                ? "bg-primary text-primary-foreground hover:bg-primary/95 shadow-md hover:shadow-lg" 
-                                : "bg-slate-200 text-slate-400 cursor-not-allowed border-none shadow-none"
+                                ? "bg-primary/10 text-primary hover:bg-primary/20" 
+                                : "bg-slate-100 text-slate-400 cursor-not-allowed"
                         )}
                     >
               {saveSuccess ? (

@@ -103,7 +103,8 @@ export default function BudgetManagement({ onAdd, onEdit }: BudgetManagementProp
                     </div>
                     <Button 
                         onClick={onAdd} 
-                        className="shrink-0 rounded-2xl h-12 px-6 shadow-lg shadow-blue-600/20 bg-foreground text-background hover:bg-foreground/90 text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
+                        variant="ghost"
+                        className="shrink-0 rounded-2xl h-12 px-6 bg-blue-100 text-blue-700 hover:bg-blue-200 border-none shadow-none text-xs font-black uppercase tracking-widest w-full sm:w-auto transition-all duration-300 hover:scale-105 active:scale-95"
                     >
                         <Plus size={18} className="mr-2" />
                         Tambah Anggaran

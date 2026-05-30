@@ -29,10 +29,10 @@ export default function TransferEditPage() {
         <p className="text-xl font-bold text-slate-200">Transfer tidak ditemukan</p>
         <p className="text-sm text-slate-500 mt-2">ID Transfer: {id}</p>
         <button
-          onClick={() => router.push('/transaksi')}
+          onClick={() => router.push('/transfer')}
           className="mt-6 px-5 py-2.5 bg-slate-900 border border-slate-800 text-slate-300 rounded-xl hover:bg-slate-850 hover:text-white transition-all text-xs font-bold uppercase tracking-wider"
         >
-          Kembali ke Transaksi
+          Kembali ke Transfer
         </button>
       </div>
     );
@@ -42,7 +42,7 @@ export default function TransferEditPage() {
     <TransferForm
       inline={true}
       transferToEdit={transferToEdit}
-      onClose={() => router.push('/transaksi')}
+      onClose={() => router.push('/transfer')}
     />
   );
 }

@@ -24,15 +24,16 @@ function TransaksiViewInner() {
       <div className="flex justify-end gap-3">
         <Button 
           onClick={() => router.push('/transaksi/batch')} 
-          variant="outline"
-          className="rounded-full px-6 border-slate-200 hover:bg-slate-50 text-slate-700 h-10 flex items-center justify-center font-bold"
+          variant="ghost"
+          className="rounded-full px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 h-10 border-none shadow-none flex items-center justify-center font-bold"
         >
           <Layers3 size={16} className="mr-2" />
           Input Massal
         </Button>
         <Button 
           onClick={handleTambahTransaksi} 
-          className="rounded-full px-6"
+          variant="ghost"
+          className="rounded-full px-6 bg-blue-100 hover:bg-blue-200 text-blue-700 border-none shadow-none font-bold"
         >
           <Plus size={18} className="mr-2" />
           Tambah Transaksi

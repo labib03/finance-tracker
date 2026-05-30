@@ -105,7 +105,8 @@ export default function TransferView() {
               setTransaksiToEdit(null);
               router.push('/transfer/baru');
             }}
-            className="rounded-2xl px-6 h-11 bg-foreground text-background hover:bg-foreground/90 shadow-lg text-xs font-black uppercase tracking-widest shrink-0"
+            variant="ghost"
+            className="rounded-2xl px-6 h-11 bg-blue-100 hover:bg-blue-200 text-blue-700 shadow-none border-none text-xs font-black uppercase tracking-widest shrink-0"
           >
             <Plus size={16} className="mr-2" />
             Buat Transfer
