@@ -18,8 +18,8 @@ function Calendar({
   showOutsideDays = true,
   captionLayout = "dropdown",
   buttonVariant = "ghost",
-  fromYear = 1945,
-  toYear = new Date().getFullYear() + 20,
+  startMonth = new Date(1945, 0),
+  endMonth = new Date(new Date().getFullYear() + 20, 11),
   locale,
   formatters,
   components,
@@ -31,6 +31,8 @@ function Calendar({
 
   return (
     <DayPicker
+      startMonth={startMonth}
+      endMonth={endMonth}
       showOutsideDays={showOutsideDays}
       className={cn(
         "group/calendar bg-background p-2 [--cell-radius:var(--radius-md)] [--cell-size:--spacing(7)] in-data-[slot=card-content]:bg-transparent in-data-[slot=popover-content]:bg-transparent",
