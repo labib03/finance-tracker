@@ -6,7 +6,7 @@ import { Card } from '@/shared/ui/card';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, cn } from '@/lib/utils';
 import { getRootLabel } from '@/lib/tipeUtils';
-import { format, parseISO } from 'date-fns';
+import { format, parseISO, subDays, startOfMonth, endOfMonth, startOfYear, subMonths } from 'date-fns';
 import { id } from 'date-fns/locale';
 import { 
     Search, 
@@ -394,7 +394,30 @@ export default function InquiryView() {
                                     <span>Kapan saja...</span>
                                 )}
                             </PopoverTrigger>
-                            <PopoverContent className="w-auto p-0 rounded-[2rem] shadow-2xl border-border/40 overflow-hidden" align="end">
+                            <PopoverContent className="w-auto p-0 rounded-[2rem] shadow-2xl border-border/40 overflow-hidden flex flex-col md:flex-row" align="end">
+                                <div className="p-3 border-b md:border-b-0 md:border-r border-border/40 flex flex-col gap-1 min-w-[140px] bg-muted/10">
+                                    {[
+                                        { label: 'Hari Ini', range: { from: new Date(), to: new Date() } },
+                                        { label: '7 Hari Terakhir', range: { from: subDays(new Date(), 6), to: new Date() } },
+                                        { label: '30 Hari Terakhir', range: { from: subDays(new Date(), 29), to: new Date() } },
+                                        { label: 'Bulan Ini', range: { from: startOfMonth(new Date()), to: endOfMonth(new Date()) } },
+                                        { label: 'Bulan Lalu', range: { from: startOfMonth(subMonths(new Date(), 1)), to: endOfMonth(subMonths(new Date(), 1)) } },
+                                        { label: 'Tahun Ini', range: { from: startOfYear(new Date()), to: endOfMonth(new Date()) } },
+                                    ].map((preset, idx) => (
+                                        <Button
+                                            key={idx}
+                                            variant="ghost"
+                                            size="sm"
+                                            className="justify-start text-xs font-medium rounded-xl hover:bg-white hover:text-blue-600"
+                                            onClick={() => {
+                                                setDate(preset.range);
+                                                setPage(1);
+                                            }}
+                                        >
+                                            {preset.label}
+                                        </Button>
+                                    ))}
+                                </div>
                                 <CalendarComponent
                                     initialFocus
                                     mode="range"
