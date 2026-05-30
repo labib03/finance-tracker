@@ -41,6 +41,7 @@ interface TransactionDetailDialogProps {
     onOpenChange: (open: boolean) => void;
     onEdit?: (transaksi: Transaksi) => void;
     onDelete?: (id: string) => void;
+    hideActions?: boolean;
 }
 
 export function TransactionDetailDialog({
@@ -48,7 +49,8 @@ export function TransactionDetailDialog({
     open,
     onOpenChange,
     onEdit,
-    onDelete
+    onDelete,
+    hideActions = false
 }: TransactionDetailDialogProps) {
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
@@ -210,27 +212,29 @@ export function TransactionDetailDialog({
                 </div>
 
                 {/* Minimal Action Buttons (Fixed Footer) */}
-                <div className="flex items-center gap-3 px-8 pt-4 pb-10 bg-white border-t border-muted/20 shrink-0">
-                    <Button
-                        variant="secondary"
-                        className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest bg-muted/50 hover:bg-muted text-foreground transition-all"
-                        onClick={() => {
-                            onEdit?.(transaksi);
-                            onOpenChange(false);
-                        }}
-                    >
-                        <Pencil size={14} className="mr-2" />
-                        Edit
-                    </Button>
-                    <Button
-                        variant="ghost"
-                        className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-100"
-                        onClick={() => setShowConfirmDelete(true)}
-                    >
-                        <Trash2 size={14} className="mr-2" />
-                        Hapus
-                    </Button>
-                </div>
+                {!hideActions && (
+                    <div className="flex items-center gap-3 px-8 pt-4 pb-10 bg-white border-t border-muted/20 shrink-0">
+                        <Button
+                            variant="secondary"
+                            className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest bg-muted/50 hover:bg-muted text-foreground transition-all"
+                            onClick={() => {
+                                onEdit?.(transaksi);
+                                onOpenChange(false);
+                            }}
+                        >
+                            <Pencil size={14} className="mr-2" />
+                            Edit
+                        </Button>
+                        <Button
+                            variant="ghost"
+                            className="flex-1 h-12 rounded-2xl font-black text-xs uppercase tracking-widest text-red-500 hover:bg-red-50 hover:text-red-600 transition-all border border-red-100"
+                            onClick={() => setShowConfirmDelete(true)}
+                        >
+                            <Trash2 size={14} className="mr-2" />
+                            Hapus
+                        </Button>
+                    </div>
+                )}
 
                 <ConfirmDialog
                     isOpen={showConfirmDelete}

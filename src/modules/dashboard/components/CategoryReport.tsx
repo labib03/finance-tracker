@@ -8,7 +8,9 @@ import {
     hitungTrenBulananKategori,
     formatRupiah,
     CHART_COLORS,
-    cn
+    cn,
+    isInCustomMonth,
+    formatTanggalPendek
 } from '@/lib/utils';
 import { getRootLabel } from '@/lib/tipeUtils';
 import {
@@ -40,13 +42,15 @@ import {
     ArrowDownRight,
     Sparkles,
     Copy,
-    Check
+    Check,
+    ArrowLeftRight
 } from 'lucide-react';
 import { toast } from 'sonner';
 
 export default function CategoryReport() {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
+    const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const tipeList = useFinanceStore((s) => s.tipeList);
@@ -120,6 +124,11 @@ export default function CategoryReport() {
     // Nama kategori helper
     const getKategoriName = useCallback((id: string) => {
         return kategoriList.find(k => k.id_kategori === id)?.nama_kategori || id;
+    }, [kategoriList]);
+
+    // Nama kategori helper
+    const getKategoriIconName = useCallback((id: string) => {
+        return kategoriList.find(k => k.id_kategori === id)?.icon_name || 'Circle';
     }, [kategoriList]);
 
     // Susun prompt AI lengkap
@@ -583,14 +592,61 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
                         </DialogTitle>
                     </DialogHeader>
                     <div className="p-4 sm:p-8 sm:pt-4 overflow-y-auto max-h-[70vh] scrollbar-none">
-                        {selectedCategory && (
-                            <TransactionsTable
-                                showSearch={false}
-                                preselectedCategory={selectedCategory}
-                                hideHeader={true}
-                                onTransactionClick={(t) => setSelectedDetail(t)}
-                            />
-                        )}
+                        {selectedCategory && (() => {
+                            const categoryTransactions = transaksiList
+                                .filter((t) => t.id_kategori === selectedCategory && isInCustomMonth(t.tanggal, activeMonth, cycleStartDay))
+                                .sort((a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime());
+
+                            return (
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {categoryTransactions.length === 0 ? (
+                                        <div className="col-span-full py-12 text-center text-muted-foreground font-medium text-sm">Tidak ada transaksi</div>
+                                    ) : (
+                                        categoryTransactions.map(t => {
+                                            const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+                                            const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
+                                            const isTransfer = rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
+                                            const isSavings = rootLabel === TRANSACTION_TYPES.SAVINGS || t.jenis.toLowerCase().includes('tabungan');
+                                            
+                                            return (
+                                                <div
+                                                    key={t.id}
+                                                    onClick={() => setSelectedDetail(t)}
+                                                    className="group relative bg-white p-5 rounded-[1.5rem] border border-border/40 hover:border-border/80 transition-all duration-300 flex items-center justify-between gap-4 shadow-sm hover:shadow-md cursor-pointer"
+                                                >
+                                                    <div className="flex items-center gap-4 min-w-0 flex-1">
+                                                        <div className={cn(
+                                                            "w-12 h-12 rounded-[1rem] flex items-center justify-center shrink-0 border transition-transform group-hover:scale-110",
+                                                            isTransfer ? "bg-blue-50 text-blue-600 border-blue-100" : isIncome ? "bg-emerald-50 text-emerald-600 border-emerald-100" : isSavings ? "bg-sky-50 text-sky-600 border-sky-100" : "bg-red-50 text-red-500 border-red-100"
+                                                        )}>
+                                                            {isTransfer ? <ArrowLeftRight size={20} strokeWidth={2.5} /> : <CategoryIcon name={getKategoriIconName(t.id_kategori) || 'Circle'} size={20} strokeWidth={2.5} />}
+                                                        </div>
+                                                        <div className="flex flex-col min-w-0 justify-center">
+                                                            <div className="flex items-center gap-2 mb-1 min-w-0">
+                                                                <span className="text-sm font-black text-foreground leading-tight truncate">
+                                                                    {t.label || getKategoriName(t.id_kategori)}
+                                                                </span>
+                                                            </div>
+                                                            <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground truncate">
+                                                                {sumberDanaList.find((s) => s.id_sumber_dana === t.id_sumber_dana)?.nama_sumber || '-'} • {formatTanggalPendek(t.tanggal)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-col items-end justify-center shrink-0 pl-2">
+                                                        <span className={cn(
+                                                            "display-number text-base font-black tracking-tight leading-none",
+                                                            isTransfer ? "text-blue-600" : isIncome ? "text-emerald-600" : isSavings ? "text-sky-600" : "text-red-500"
+                                                        )}>
+                                                            {isIncome ? '+' : isTransfer || isSavings ? '' : '-'}{formatRupiah(t.nominal)}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                            );
+                                        })
+                                    )}
+                                </div>
+                            );
+                        })()}
                     </div>
                 </DialogContent>
             </Dialog>
@@ -600,6 +656,7 @@ Mohon tinjau data di atas secara holistik dan berikan analisis serta rekomendasi
                 open={!!selectedDetail}
                 onOpenChange={(open) => !open && setSelectedDetail(null)}
                 onDelete={removeTransaksi}
+                hideActions={true}
             />
         </div>
     );
