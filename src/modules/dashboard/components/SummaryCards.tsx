@@ -24,6 +24,7 @@ export default function SummaryCards() {
     const activeMonth = useFinanceStore((s) => s.activeMonth);
     const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const tipeList = useFinanceStore((s) => s.tipeList);
+    const tabunganList = useFinanceStore((s) => s.tabunganList);
 
     const ringkasan = useMemo(
         () => hitungRingkasanBulanan(transaksiList, activeMonth, tipeList, cycleStartDay),
@@ -31,8 +32,8 @@ export default function SummaryCards() {
     );
 
     const saldoAkun = useMemo(
-        () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList),
-        [sumberDanaList, transaksiList, tipeList]
+        () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList, tabunganList),
+        [sumberDanaList, transaksiList, tipeList, tabunganList]
     );
 
     const totalSaldo = useMemo(

@@ -53,6 +53,7 @@ export function TransactionDetailDialog({
     const kategoriList = useFinanceStore((s) => s.kategoriList);
     const sumberDanaList = useFinanceStore((s) => s.sumberDanaList);
     const tipeList = useFinanceStore((s) => s.tipeList);
+    const tabunganList = useFinanceStore((s) => s.tabunganList);
     const [showConfirmDelete, setShowConfirmDelete] = useState(false);
 
     if (!transaksi) return null;
@@ -64,9 +65,12 @@ export function TransactionDetailDialog({
 
     const kategori = kategoriList.find(k => k.id_kategori === transaksi.id_kategori);
     const sumberDana = sumberDanaList.find(s => s.id_sumber_dana === transaksi.id_sumber_dana);
-    const sumberDanaTujuan = isTransfer
+    const hasTargetDana = Boolean(transaksi.id_target_dana);
+    const sumberDanaTujuan = (isTransfer || hasTargetDana)
         ? sumberDanaList.find(s => s.id_sumber_dana === transaksi.id_target_dana)
         : null;
+
+    const tabungan = isSaving ? tabunganList.find(t => t.id_tabungan === transaksi.id_tabungan) : null;
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -144,23 +148,52 @@ export function TransactionDetailDialog({
                                         <Wallet size={18} strokeWidth={2} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">{isTransfer ? 'DARI' : 'METODE'}</span>
+                                        <span className="text-xs font-black text-muted-foreground/80 uppercase tracking-widest">{(isTransfer || (isSaving && sumberDanaTujuan)) ? 'DARI' : 'METODE'}</span>
                                         <span className="text-sm font-bold">{sumberDana?.nama_sumber || '-'}</span>
                                     </div>
                                 </div>
-                                {isTransfer && (
+                                {(isTransfer || (isSaving && sumberDanaTujuan)) && (
                                     <ArrowLeftRight size={14} className="text-muted-foreground/80 rotate-90" />
                                 )}
                             </div>
 
-                            {isTransfer && (
+                            {(isTransfer || (isSaving && sumberDanaTujuan)) && (
                                 <div className="flex items-center gap-3 px-1">
-                                    <div className="w-10 h-10 rounded-2xl bg-blue-50 flex items-center justify-center text-blue-500">
+                                    <div className={cn(
+                                        "w-10 h-10 rounded-2xl flex items-center justify-center",
+                                        isSaving ? "bg-sky-50 text-sky-500" : "bg-blue-50 text-blue-500"
+                                    )}>
                                         <Wallet size={18} strokeWidth={2} />
                                     </div>
                                     <div className="flex flex-col">
-                                        <span className="text-xs font-black text-blue-400 uppercase tracking-widest">KE UNTUK</span>
-                                        <span className="text-sm font-bold text-blue-600">{sumberDanaTujuan?.nama_sumber || '-'}</span>
+                                        <span className={cn(
+                                            "text-xs font-black uppercase tracking-widest",
+                                            isSaving ? "text-sky-400" : "text-blue-400"
+                                        )}>
+                                            {isSaving ? 'DITABUNG KE' : 'KE UNTUK'}
+                                        </span>
+                                        <span className={cn(
+                                            "text-sm font-bold",
+                                            isSaving ? "text-sky-600" : "text-blue-600"
+                                        )}>
+                                            {sumberDanaTujuan?.nama_sumber || '-'}
+                                        </span>
+                                    </div>
+                                </div>
+                            )}
+
+                            {isSaving && tabungan && (
+                                <div className="flex items-center gap-3 px-1">
+                                    <div className="w-10 h-10 rounded-2xl bg-indigo-50 flex items-center justify-center text-indigo-500">
+                                        <CategoryIcon name={tabungan.icon || 'Target'} size={18} strokeWidth={2} />
+                                    </div>
+                                    <div className="flex flex-col">
+                                        <span className="text-xs font-black text-indigo-400 uppercase tracking-widest">
+                                            TUJUAN TABUNGAN
+                                        </span>
+                                        <span className="text-sm font-bold text-indigo-600">
+                                            {tabungan.nama_tujuan || '-'}
+                                        </span>
                                     </div>
                                 </div>
                             )}

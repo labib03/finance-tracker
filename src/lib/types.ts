@@ -36,6 +36,8 @@ export interface Tabungan {
   icon: string;
   status: "aktif" | "tercapai";
   tanggal_dibuat: string;
+  is_external: boolean;
+  id_nama_dompet: string | null;
 }
 
 // ---------- Master_Sumber_Dana Sheet ----------

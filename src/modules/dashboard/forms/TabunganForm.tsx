@@ -82,7 +82,8 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
         id_nama_dompet: dataToEdit.id_nama_dompet ?? null,
       });
     }
-  }, [dataToEdit, reset]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dataToEdit?.id_tabungan, reset]);
 
   const watchedNama = useWatch({ control, name: "nama_tujuan" }) || "";
   const watchedTarget = useWatch({ control, name: "target_nominal" }) || 0;

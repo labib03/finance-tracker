@@ -118,7 +118,8 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                 setActiveRootId(mt.id_tipe);
             }
         }
-    }, [transaksiToEdit, reset, tipeList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [transaksiToEdit?.id, reset, tipeList]);
 
     const watchedJenis = useWatch({ control, name: 'jenis' });
     const filteredKategori = kategoriList.filter((k) => k.tipe.toLowerCase() === (watchedJenis || '').toLowerCase());

@@ -74,12 +74,15 @@ export default function ProyeksiKasCard({ onViewAll, onProcess }: ProyeksiKasCar
             })
             .reduce((acc, t) => acc + t.nominal, 0);
 
+        const savingType = tipeList.find(f => f.label.toLowerCase() === TRANSACTION_TYPES.SAVINGS)?.id_tipe;
+        const transferType = tipeList.find(f => f.label.toLowerCase() === TRANSACTION_TYPES.TRANSFER)?.id_tipe;
+
         const alokasiTabunganActual = transaksiSiklus
-            .filter(t => t.jenis.toLowerCase() === 'alokasi_tabungan')
+            .filter(t => t.jenis === savingType && t.id_tabungan)
             .reduce((acc, t) => acc + t.nominal, 0);
 
         const tarikTabunganActual = transaksiSiklus
-            .filter(t => t.jenis.toLowerCase() === 'tarik_tabungan')
+            .filter(t => t.jenis === transferType && t.id_tabungan)
             .reduce((acc, t) => acc + t.nominal, 0);
 
         const netTabungan = alokasiTabunganActual - tarikTabunganActual;

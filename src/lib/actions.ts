@@ -190,7 +190,7 @@ export async function fetchTabungan(): Promise<Tabungan[]> {
     const sheets = getSheets();
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Master_Tabungan!A2:G",
+      range: "Master_Tabungan!A2:I",
     });
 
     const rows = response.data.values || [];
@@ -202,6 +202,8 @@ export async function fetchTabungan(): Promise<Tabungan[]> {
       icon: row[4] || "Target",
       status: (row[5] as Tabungan["status"]) || "aktif",
       tanggal_dibuat: row[6] || "",
+      is_external: row[7] === undefined || row[7] === "" ? true : String(row[7]).toLowerCase() === "true",
+      id_nama_dompet: row[8] || null,
     }));
   } catch (error) {
     console.error("Error fetching tabungan:", error);
@@ -877,7 +879,7 @@ export async function tambahTabungan(tabungan: Tabungan): Promise<boolean> {
     const sheets = getSheets();
     await sheets.spreadsheets.values.append({
       spreadsheetId: SPREADSHEET_ID,
-      range: "Master_Tabungan!A:G",
+      range: "Master_Tabungan!A:I",
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -889,6 +891,8 @@ export async function tambahTabungan(tabungan: Tabungan): Promise<boolean> {
             tabungan.icon,
             tabungan.status,
             tabungan.tanggal_dibuat,
+            tabungan.is_external.toString(),
+            tabungan.id_nama_dompet || "",
           ],
         ],
       },
@@ -910,7 +914,7 @@ export async function updateTabungan(tabungan: Tabungan): Promise<boolean> {
 
     await sheets.spreadsheets.values.update({
       spreadsheetId: SPREADSHEET_ID,
-      range: `Master_Tabungan!A${rowIndex + 1}:G${rowIndex + 1}`,
+      range: `Master_Tabungan!A${rowIndex + 1}:I${rowIndex + 1}`,
       valueInputOption: "USER_ENTERED",
       requestBody: {
         values: [
@@ -922,6 +926,8 @@ export async function updateTabungan(tabungan: Tabungan): Promise<boolean> {
             tabungan.icon,
             tabungan.status,
             tabungan.tanggal_dibuat,
+            tabungan.is_external.toString(),
+            tabungan.id_nama_dompet || "",
           ],
         ],
       },

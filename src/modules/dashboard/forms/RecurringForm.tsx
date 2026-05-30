@@ -130,7 +130,8 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
                 else { setBaseFreq('Lainnya'); setMultiplier(1); }
             }
         }
-    }, [recurringToEdit, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [recurringToEdit?.id, reset]);
 
     const watchedKategori = useWatch({ control, name: 'id_kategori' }) || '';
     const watchedSumber = useWatch({ control, name: 'id_sumber_dana' }) || '';

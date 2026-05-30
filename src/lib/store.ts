@@ -46,6 +46,7 @@ import {
   hapusTipeTransaksi,
 } from "@/lib/actions";
 import { getCurrentMonth, generateId, formatRupiah, getJadwalTerdekat } from "@/lib/utils";
+import { CATEGORY_LABELS, TRANSACTION_TYPES } from "./constants";
 
 // ---------- Store Types ----------
 interface FinanceState {
@@ -397,8 +398,10 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     is_titipan = null,
   ) => {
     const id = generateId();
-    const tipeTransfer = get().tipeList.find(t => t.label.toLowerCase() === "transfer" && !t.master_tipe)?.id_tipe 
-      || get().tipeList.find(t => t.label.toLowerCase() === "transfer")?.id_tipe 
+    const transferSaldoCategory = get().kategoriList.find(k => k.nama_kategori.toLowerCase() === CATEGORY_LABELS.TRANSFER_SALDO);
+
+    const tipeTransfer = get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.TRANSFER && !t.master_tipe)?.id_tipe 
+      || get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.TRANSFER)?.id_tipe 
       || "Transfer";
 
     const transferTx: Transaksi = {
@@ -407,7 +410,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
       jenis: tipeTransfer,
       id_sumber_dana: id_sumber_dana_asal,
       id_target_dana,
-      id_kategori: "TRANSFER",
+      id_kategori: transferSaldoCategory?.id_kategori || "TRANSFER SALDO",
       nominal,
       label,
       catatan,
@@ -419,9 +422,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
     if (biaya_admin > 0) {
       adminFeeId = generateId();
-      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
-      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran" && !t.master_tipe)?.id_tipe 
-        || get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran")?.id_tipe 
+      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori.toLowerCase() === CATEGORY_LABELS.BIAYA_ADMIN);
+      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE && !t.master_tipe)?.id_tipe 
+        || get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE)?.id_tipe 
         || "Pengeluaran";
         
       const adminTx: Transaksi = {
@@ -453,9 +456,9 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     }
 
     if (biaya_admin > 0) {
-      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
-      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran" && !t.master_tipe)?.id_tipe 
-        || get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran")?.id_tipe 
+      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori.toLowerCase() === CATEGORY_LABELS.BIAYA_ADMIN);
+      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE && !t.master_tipe)?.id_tipe 
+        || get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE)?.id_tipe 
         || "Pengeluaran";
         
       const adminTx: Transaksi = {
@@ -487,8 +490,12 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     let adminTxToSave: Transaksi | null = null;
 
     if (biaya_admin > 0) {
-      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori === "Biaya Admin");
-      if (existingAdminFee) {
+      const kategoriAdmin = get().kategoriList.find(k => k.nama_kategori.toLowerCase() === CATEGORY_LABELS.BIAYA_ADMIN);
+      const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE && !t.master_tipe)?.id_tipe 
+        || get().tipeList.find(t => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE)?.id_tipe 
+        || "Pengeluaran";
+      
+        if (existingAdminFee) {
         adminFeeAction = 'update';
         adminTxToSave = { 
           ...existingAdminFee, 
@@ -501,10 +508,6 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         );
       } else {
         adminFeeAction = 'create';
-        const tipePengeluaran = get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran" && !t.master_tipe)?.id_tipe 
-          || get().tipeList.find(t => t.label.toLowerCase() === "pengeluaran")?.id_tipe 
-          || "Pengeluaran";
-          
         adminTxToSave = {
           id: generateId(),
           tanggal: data.tanggal,
@@ -1001,16 +1004,22 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   getSisaSaldoTitipan: (id_titipan: string) => {
+    const uangTitipanMasukType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.UANG_TITIPAN_MASUK)?.id_tipe;
+    const uangTitipanKeluarType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.UANG_TITIPAN_KELUAR)?.id_tipe;
+
     return get().transaksiList
       .filter((t) => t.is_titipan === id_titipan)
       .reduce((acc, t) => {
-        if (t.jenis.toLowerCase() === "pemasukan") return acc + t.nominal;
-        if (t.jenis.toLowerCase() === "pengeluaran") return acc - t.nominal;
+        if (t.jenis === uangTitipanMasukType) return acc + t.nominal;
+        if (t.jenis === uangTitipanKeluarType) return acc - t.nominal;
         return acc;
       }, 0);
   },
 
   getTotalSaldoTitipanAktif: () => {
+    const uangTitipanMasukType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.UANG_TITIPAN_MASUK)?.id_tipe;
+    const uangTitipanKeluarType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.UANG_TITIPAN_KELUAR)?.id_tipe;
+
     const activeTitipanIds = get()
       .titipanList.filter((t) => t.status === "aktif")
       .map((t) => t.id_titipan);
@@ -1018,8 +1027,8 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     return get().transaksiList
       .filter((t) => t.is_titipan && activeTitipanIds.includes(t.is_titipan))
       .reduce((acc, t) => {
-        if (t.jenis.toLowerCase() === "pemasukan") return acc + t.nominal;
-        if (t.jenis.toLowerCase() === "pengeluaran") return acc - t.nominal;
+        if (t.jenis === uangTitipanMasukType) return acc + t.nominal;
+        if (t.jenis === uangTitipanKeluarType) return acc - t.nominal;
         return acc;
       }, 0);
   },
@@ -1053,12 +1062,14 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
   },
 
   getUpcomingRecurringExpenses: () => {
+    const pengeluaranType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE)?.id_tipe;
+
     const { endDate } = get().getCurrentCycleDates();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
     const items = get().recurringList.filter((r) => {
-      if (!r.aktif || r.jenis.toLowerCase() !== "pengeluaran") return false;
+      if (!r.aktif || r.jenis !== pengeluaranType) return false;
       
       const effectiveDateStr = getJadwalTerdekat(r.tanggal_mulai, r.tanggal_berikutnya);
       const nextDate = new Date(effectiveDateStr + 'T00:00:00');
@@ -1068,7 +1079,7 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
         t.label === r.label && 
         t.nominal === r.nominal && 
         t.tanggal === effectiveDateStr &&
-        t.jenis.toLowerCase() === r.jenis.toLowerCase()
+        t.jenis === r.jenis
       );
 
       return nextDate >= today && nextDate <= endDate && !isAlreadyRecorded;
@@ -1080,20 +1091,24 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
 
   getPersonalIncomeThisCycle: () => {
     const { startDate, endDate } = get().getCurrentCycleDates();
+    const pemasukanType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.INCOME)?.id_tipe;
+
     return get().transaksiList
       .filter((t) => {
         const d = new Date(t.tanggal);
-        return t.jenis.toLowerCase() === "pemasukan" && !t.is_titipan && d >= startDate && d <= endDate;
+        return t.jenis === pemasukanType && !t.is_titipan && d >= startDate && d <= endDate;
       })
       .reduce((acc, t) => acc + t.nominal, 0);
   },
 
   getPersonalExpenseThisCycle: () => {
     const { startDate, endDate } = get().getCurrentCycleDates();
+    const pengeluaranType = get().tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.EXPENSE)?.id_tipe;
+    
     return get().transaksiList
       .filter((t) => {
         const d = new Date(t.tanggal);
-        return t.jenis.toLowerCase() === "pengeluaran" && !t.is_titipan && d >= startDate && d <= endDate;
+        return t.jenis === pengeluaranType && !t.is_titipan && d >= startDate && d <= endDate;
       })
       .reduce((acc, t) => acc + t.nominal, 0);
   },
@@ -1126,16 +1141,20 @@ export const useFinanceStore = create<FinanceState>((set, get) => ({
     
     const pemasukanSiklus = state.getPersonalIncomeThisCycle();
     const pengeluaranSiklus = state.getPersonalExpenseThisCycle();
+
+    const savingsType = state.tipeList.find(f => f.label.toLowerCase() === TRANSACTION_TYPES.SAVINGS)?.id_tipe;
+    const transferType = state.tipeList.find(f => f.label.toLowerCase() === TRANSACTION_TYPES.TRANSFER)?.id_tipe;
+    
     const { items: upcomingItems, total: upcomingBills } = state.getUpcomingRecurringExpenses();
 
     // Kalkulasi flow tabungan (alokasi & tarik) pada siklus berjalan
     const { startDate, endDate } = state.getCurrentCycleDates();
     const tabunganFlows = state.transaksiList.filter((t) => {
       const d = new Date(t.tanggal);
-      return d >= startDate && d <= endDate && (t.jenis.toLowerCase() === "alokasi_tabungan" || t.jenis.toLowerCase() === "tarik_tabungan");
+      return d >= startDate && d <= endDate && (t.jenis === savingsType || t.jenis === transferType);
     });
-    const alokasiSiklus = tabunganFlows.filter(t => t.jenis.toLowerCase() === "alokasi_tabungan").reduce((acc, t) => acc + t.nominal, 0);
-    const tarikSiklus = tabunganFlows.filter(t => t.jenis.toLowerCase() === "tarik_tabungan").reduce((acc, t) => acc + t.nominal, 0);
+    const alokasiSiklus = tabunganFlows.filter(t => t.jenis === savingsType).reduce((acc, t) => acc + t.nominal, 0);
+    const tarikSiklus = tabunganFlows.filter(t => t.jenis === transferType).reduce((acc, t) => acc + t.nominal, 0);
 
     // Sisa Bersih = Pemasukan - Pengeluaran (berjalan) - Tagihan Mendatang - Alokasi Tabungan + Tarik Darurat
     const sisaBersih = pemasukanSiklus - pengeluaranSiklus - upcomingBills - alokasiSiklus + tarikSiklus;

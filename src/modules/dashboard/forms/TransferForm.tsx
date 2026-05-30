@@ -77,7 +77,8 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
                 is_titipan: transferToEdit.is_titipan || null,
             });
         }
-    }, [transferToEdit, reset, transaksiList]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [transferToEdit?.id, reset, transaksiList]);
 
     const onSubmit = async (data: TransferFormData) => {
         if (transferToEdit) {

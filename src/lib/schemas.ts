@@ -104,6 +104,8 @@ export const tabunganSchema = z.object({
   tanggal_target: z.string().min(1, "Pilih estimasi tanggal target"),
   icon: z.string().min(1, "Pilih ikon"),
   status: z.enum(["aktif", "tercapai"]).default("aktif").optional(),
+  is_external: z.boolean().default(true),
+  id_nama_dompet: z.string().nullable().optional().default(null),
 });
 
 export type TabunganFormData = z.infer<typeof tabunganSchema>;

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { sumberDanaSchema, type SumberDanaFormData } from '@/lib/schemas';
 import type { SumberDana } from '@/lib/types';
-import { Save, Wallet, ShieldCheck, CreditCard } from 'lucide-react';
+import { Save, Wallet, ShieldCheck, CreditCard, CheckCircle2, Loader2 } from 'lucide-react';
 import { generateId, cn, formatRupiah } from '@/lib/utils';
 import NumericInput from '@/shared/forms/NumericInput';
 import { Button } from '@/shared/ui/button';
@@ -145,14 +145,28 @@ export default function SumberDanaForm({ onClose, sumberDanaToEdit, inline = fal
             <div className="col-span-1 flex justify-end pt-4 w-full">
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || showSuccess}
                     className={cn(
                         "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none text-white",
                         inline ? "bg-blue-600 hover:bg-blue-700" : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     )}
                 >
-                    <Save size={16} />
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan Rekening'}
+                    {showSuccess ? (
+                        <>
+                            <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                            Berhasil Disimpan!
+                        </>
+                    ) : isSubmitting ? (
+                        <>
+                            <Loader2 size={16} className="animate-spin mr-2" />
+                            Menyimpan...
+                        </>
+                    ) : (
+                        <>
+                            <Save size={16} className="mr-2" />
+                            {sumberDanaToEdit ? 'Simpan Perubahan' : 'Simpan Rekening'}
+                        </>
+                    )}
                 </Button>
             </div>
         </>

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { kategoriSchema, type KategoriFormData } from '@/lib/schemas';
 import type { Kategori } from '@/lib/types';
-import { Save, ArrowUpRight, ArrowDownRight, Sparkles, Layers } from 'lucide-react';
+import { Save, ArrowUpRight, ArrowDownRight, Sparkles, Layers, CheckCircle2, Loader2 } from 'lucide-react';
 import { generateId, cn } from '@/lib/utils';
 import { getRootLabel, isIncome, isSavings } from '@/lib/tipeUtils';
 import { CategoryIcon } from '@/shared/ui/CategoryIcon';
@@ -167,14 +167,28 @@ export default function KategoriForm({ onClose, kategoriToEdit, inline = false }
             <div className="col-span-1 md:col-span-2 flex justify-end pt-4 w-full">
                 <Button
                     type="submit"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || showSuccess}
                     className={cn(
                         "w-full h-14 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-lg flex items-center justify-center gap-2 hover:scale-[1.02] border-none text-white",
                         inline ? "bg-emerald-600 hover:bg-emerald-700" : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     )}
                 >
-                    <Save size={16} />
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan Kategori'}
+                    {showSuccess ? (
+                        <>
+                            <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                            Berhasil Disimpan!
+                        </>
+                    ) : isSubmitting ? (
+                        <>
+                            <Loader2 size={16} className="animate-spin mr-2" />
+                            Menyimpan...
+                        </>
+                    ) : (
+                        <>
+                            <Save size={16} className="mr-2" />
+                            {kategoriToEdit ? 'Simpan Perubahan' : 'Simpan Kategori'}
+                        </>
+                    )}
                 </Button>
             </div>
         </>

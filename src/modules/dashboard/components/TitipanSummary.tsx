@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import { formatRupiah, cn } from '@/lib/utils';
 import { 

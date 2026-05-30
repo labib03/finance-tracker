@@ -18,6 +18,7 @@ import type {
   BudgetStatus,
   Budget,
   TipeTransaksi,
+  Tabungan,
 } from "./types";
 
 /**
@@ -34,6 +35,7 @@ export function formatRupiah(amount: number): string {
 
 import { format, parseISO, isValid } from "date-fns";
 import { id } from "date-fns/locale";
+import { TRANSACTION_TYPES } from "./constants";
 
 /**
  * Format a date string to localized Indonesian date
@@ -143,28 +145,50 @@ export function hitungSaldoAkun(
   sumberDanaList: SumberDana[],
   transaksiList: Transaksi[],
   tipeList: TipeTransaksi[],
+  tabunganList: Tabungan[] = []
 ): SaldoAkun[] {
   return sumberDanaList.map((sd) => {
     let saldo = sd.saldo_awal;
 
     transaksiList.forEach((t) => {
       const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
+      
+      const isAlokasiTabungan = rootLabel === "savings" && t.id_tabungan;
+      const isTarikTabungan = (rootLabel === "transfer" || t.jenis.toLowerCase() === "transfer") && t.id_tabungan;
+
       if (t.id_sumber_dana === sd.id_sumber_dana) {
         if (rootLabel === "pemasukan") {
           saldo += t.nominal;
         } else if (rootLabel === "pengeluaran" || t.jenis.toLowerCase() === "eksekusi_tabungan" || rootLabel === "savings") {
           saldo -= t.nominal;
         } else if (rootLabel === "transfer" || t.jenis.toLowerCase() === "transfer") {
-          // Source account loses money in transfer
-          saldo -= t.nominal;
+          if (isTarikTabungan) {
+            saldo += t.nominal;
+          } else {
+            saldo -= t.nominal;
+          }
         }
       }
-      // If this sumber dana is the TARGET of a transfer
+      
+      // If this sumber dana is the TARGET of a regular transfer
       if (
         (rootLabel === "transfer" || t.jenis.toLowerCase() === "transfer") &&
+        !isTarikTabungan &&
         t.id_target_dana === sd.id_sumber_dana
       ) {
         saldo += t.nominal;
+      }
+
+      // Handle Internal Savings
+      if (t.id_tabungan) {
+        const tabungan = tabunganList.find(tb => tb.id_tabungan === t.id_tabungan);
+        if (tabungan && !tabungan.is_external && tabungan.id_nama_dompet === sd.id_sumber_dana) {
+           if (isAlokasiTabungan) {
+             saldo += t.nominal;
+           } else if (isTarikTabungan) {
+             saldo -= t.nominal;
+           }
+        }
       }
     });
 
@@ -195,8 +219,8 @@ export function hitungRingkasanBulanan(
   filtered.forEach((t) => {
     if (!t.is_titipan) {
       const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
-      if (rootLabel === "pemasukan") total_pemasukan += t.nominal;
-      if (rootLabel === "pengeluaran") total_pengeluaran += t.nominal;
+      if (rootLabel === TRANSACTION_TYPES.INCOME) total_pemasukan += t.nominal;
+      if (rootLabel === TRANSACTION_TYPES.EXPENSE) total_pengeluaran += t.nominal;
     }
   });
 
@@ -220,7 +244,7 @@ export function hitungPengeluaranPerKategori(
   const filtered = transaksiList.filter(
     (t) => {
       const rootLabel = getRootLabel(tipeList, t.jenis).toLowerCase();
-      return rootLabel === "pengeluaran" &&
+      return rootLabel === TRANSACTION_TYPES.EXPENSE &&
       !t.is_titipan &&
       isInCustomMonth(t.tanggal, bulan, cycleStartDay);
     }
@@ -280,9 +304,9 @@ export function hitungTrenMingguan(
 
     if (weekIndex >= 0) {
       const masterTipe = tipeList.find(tp => tp.id_tipe === t.jenis)?.master_tipe || 'pengeluaran';
-      if (masterTipe === "pemasukan" && !t.is_titipan) {
+      if (masterTipe === TRANSACTION_TYPES.INCOME && !t.is_titipan) {
         weeks[weekIndex].pemasukan += t.nominal;
-      } else if (masterTipe === "pengeluaran" && !t.is_titipan) {
+      } else if (masterTipe === TRANSACTION_TYPES.EXPENSE && !t.is_titipan) {
         weeks[weekIndex].pengeluaran += t.nominal;
       }
     }
@@ -640,11 +664,16 @@ export function evaluateMathExpression(expr: string): number | null {
  * Calculate total entrusted money (titipan) remaining
  */
 export function hitungTotalTitipan(transaksiList: Transaksi[], tipeList: TipeTransaksi[]): number {
+  const uangTitipanMasukType = tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.UANG_TITIPAN_MASUK)?.id_tipe;
+  const uangTitipanKeluarType = tipeList.find((t) => t.label.toLowerCase() === TRANSACTION_TYPES.UANG_TITIPAN_KELUAR)?.id_tipe;
+
+
   return transaksiList.reduce((acc, t) => {
     if (!t.is_titipan) return acc;
-    const masterTipe = tipeList.find(tp => tp.id_tipe === t.jenis)?.master_tipe || 'pengeluaran';
-    if (masterTipe === "pemasukan") return acc + t.nominal;
-    if (masterTipe === "pengeluaran") return acc - t.nominal;
+    
+    if (t.jenis === uangTitipanMasukType) return acc + t.nominal;
+    if (t.jenis === uangTitipanKeluarType) return acc - t.nominal;
+    
     // Transfer doesn't affect total balance, only distribution
     return acc;
   }, 0);

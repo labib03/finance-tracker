@@ -94,7 +94,8 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
                 nominal_limit: budgetToEdit.nominal_limit,
             });
         }
-    }, [budgetToEdit, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [budgetToEdit?.id_anggaran, reset]);
 
     const watchedKategori = useWatch({ control, name: 'id_kategori' }) || '';
     const watchedBulan = useWatch({ control, name: 'bulan' }) || now.getMonth() + 1;

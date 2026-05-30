@@ -26,6 +26,8 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const recurringList = useFinanceStore((s) => s.recurringList);
     const tipeList = useFinanceStore((s) => s.tipeList);
+    const tabunganList = useFinanceStore((s) => s.tabunganList);
+    const getSaldoTabungan = useFinanceStore((s) => s.getSaldoTabungan);
     const removeSumberDana = useFinanceStore((s) => s.removeSumberDana);
 
     const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; id: string; name: string }>({
@@ -48,8 +50,8 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
     };
 
     const saldoAkun = useMemo(
-        () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList),
-        [sumberDanaList, transaksiList, tipeList]
+        () => hitungSaldoAkun(sumberDanaList, transaksiList, tipeList, tabunganList),
+        [sumberDanaList, transaksiList, tipeList, tabunganList]
     );
 
     const totalSaldo = useMemo(() => {
@@ -98,34 +100,48 @@ export default function SaldoCards({ onAddAccount, onEditAccount }: SaldoCardsPr
                                         <div className="w-10 h-10 rounded-xl flex items-center justify-center transition-colors shadow-sm bg-white border border-slate-100 text-slate-600 group-hover:text-slate-900">
                                             <Icon size={18} strokeWidth={2.5} />
                                         </div>
-                                        <span className="text-sm font-bold truncate text-slate-800 transition-colors">
-                                            {akun.nama_sumber}
-                                        </span>
+                                        <div className="flex flex-col min-w-0">
+                                            <span className="text-sm font-bold truncate text-slate-800 transition-colors">
+                                                {akun.nama_sumber}
+                                            </span>
+                                            {tabunganList.filter(t => !t.is_external && t.id_nama_dompet === akun.id_sumber_dana).length > 0 && (
+                                                <div className="mt-1 space-y-0.5">
+                                                    {tabunganList.filter(t => !t.is_external && t.id_nama_dompet === akun.id_sumber_dana).map(t => (
+                                                        <p key={t.id_tabungan} className="text-[10px] text-slate-500 truncate flex items-center gap-1">
+                                                            <span className="w-1 h-1 rounded-full bg-blue-400 shrink-0" />
+                                                            {t.nama_tujuan} ({formatRupiah(getSaldoTabungan(t.id_tabungan))})
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
 
-                                    <div className="flex items-center shrink-0 gap-4">
-                                        <div className="text-right">
-                                            <p className="text-base font-black display-number text-slate-900 transition-colors">
-                                                {formatRupiah(akun.saldo)}
-                                            </p>
-                                        </div>
-                                        <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => onEditAccount && onEditAccount(akun)}
-                                                className="h-8 w-8 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-slate-100 bg-white border border-transparent hover:border-blue-100 shadow-sm transition-all"
-                                            >
-                                                <Edit2 size={14} />
-                                            </Button>
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                onClick={() => handleDeleteSumberDana(akun.id_sumber_dana, akun.nama_sumber)}
-                                                className="h-8 w-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 bg-white border border-transparent hover:border-rose-100 shadow-sm transition-all"
-                                            >
-                                                <Trash2 size={14} />
-                                            </Button>
+                                    <div className="flex flex-col shrink-0 gap-2 items-end">
+                                        <div className="flex items-center gap-4">
+                                            <div className="text-right">
+                                                <p className="text-base font-black display-number text-slate-900 transition-colors">
+                                                    {formatRupiah(akun.saldo)}
+                                                </p>
+                                            </div>
+                                            <div className="flex items-center gap-1.5 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => onEditAccount && onEditAccount(akun)}
+                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-blue-600 hover:bg-slate-100 bg-white border border-transparent hover:border-blue-100 shadow-sm transition-all"
+                                                >
+                                                    <Edit2 size={14} />
+                                                </Button>
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    onClick={() => handleDeleteSumberDana(akun.id_sumber_dana, akun.nama_sumber)}
+                                                    className="h-8 w-8 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-slate-100 bg-white border border-transparent hover:border-rose-100 shadow-sm transition-all"
+                                                >
+                                                    <Trash2 size={14} />
+                                                </Button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

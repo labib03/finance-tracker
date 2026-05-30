@@ -65,7 +65,8 @@ export default function TitipanForm({ onClose, titipanToEdit, inline = false }: 
                 status: 'aktif',
             });
         }
-    }, [titipanToEdit, reset]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [titipanToEdit?.id_titipan, reset]);
 
     const watchedNama = useWatch({ control, name: 'nama_konteks' }) || '';
 
