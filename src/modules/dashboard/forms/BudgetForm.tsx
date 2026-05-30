@@ -5,7 +5,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { budgetSchema, type BudgetFormData } from '@/lib/schemas';
-import { PieChart, Send, Sparkles, CalendarDays, ReceiptText } from 'lucide-react';
+import { PieChart, Send, Sparkles, CalendarDays, ReceiptText, Loader2, CheckCircle2 } from "lucide-react";
 import { useEffect, useMemo, useState } from 'react';
 import type { Budget } from '@/lib/types';
 import NumericInput from '@/shared/forms/NumericInput';
@@ -255,9 +255,23 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
                         inline ? "bg-emerald-600 hover:bg-emerald-700" : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     )}
                 >
-                    <PieChart size={16} />
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan Batas Anggaran'}
-                </Button>
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <PieChart size={16} className="mr-2" />
+                      {isSubmitting ? "Menyimpan..." : "Simpan Batas Anggaran"}
+                  </>
+              )}
+          </Button>
             </div>
         </>
     );

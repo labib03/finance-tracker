@@ -7,7 +7,7 @@ import { useFinanceStore } from '@/lib/store';
 import { recurringSchema, type RecurringFormData } from '@/lib/schemas';
 import { getToday, cn, hitungTanggalBerikutnya, formatRupiah } from '@/lib/utils';
 import { getRootTipe, getRootLabel } from '@/lib/tipeUtils';
-import { CalendarClock, CalendarIcon, Sparkles, Save, Layers, Clock, Zap } from 'lucide-react';
+import { CalendarClock, CalendarIcon, Sparkles, Save, Layers, Clock, Zap, Loader2, CheckCircle2 } from "lucide-react";
 import { useState, useEffect, useMemo } from 'react';
 import type { RecurringTransaction } from '@/lib/types';
 import NumericInput from '@/shared/forms/NumericInput';
@@ -511,9 +511,23 @@ export default function RecurringForm({ onClose, recurringToEdit, inline = false
                         inline ? "bg-emerald-600 hover:bg-emerald-700" : "bg-primary hover:bg-primary/90 text-primary-foreground"
                     )}
                 >
-                    <CalendarClock size={16} />
-                    {isSubmitting ? 'Menyimpan...' : (recurringToEdit ? 'Simpan Perubahan' : 'Buat Jadwal Autodebet')}
-                </Button>
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <CalendarClock size={16} className="mr-2" />
+                      {isSubmitting ? "Menyimpan..." : (recurringToEdit ? "Simpan Perubahan" : "Buat Jadwal Autodebet")}
+                  </>
+              )}
+          </Button>
             </div>
         </>
     );

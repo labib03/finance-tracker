@@ -23,22 +23,7 @@ import {
     PopoverTrigger,
 } from '@/shared/ui/popover';
 import { Calendar } from '@/shared/ui/calendar';
-import { 
-    Target, 
-    PiggyBank, 
-    Car, 
-    Home, 
-    Plane, 
-    GraduationCap, 
-    Laptop, 
-    Smartphone,
-    HeartPulse,
-    CalendarIcon,
-    Save,
-    Sparkles,
-    Wallet,
-    Building
-} from "lucide-react";
+import { Target, PiggyBank, Car, Home, Plane, GraduationCap, Laptop, Smartphone, HeartPulse, CalendarIcon, Save, Sparkles, Wallet, Building, Loader2, CheckCircle2 } from "lucide-react";
 
 interface TabunganFormProps {
   onClose: () => void;
@@ -328,8 +313,22 @@ export default function TabunganForm({ onClose, dataToEdit, inline = false }: Ta
                   inline ? "bg-emerald-500 hover:bg-emerald-600 text-white" : "bg-primary hover:bg-primary/90 text-primary-foreground"
               )}
           >
-              <Save size={16} />
-              {isSubmitting ? 'Menyimpan...' : dataToEdit ? 'Simpan Perubahan' : 'Buat Sinking Fund'}
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <Save size={16} className="mr-2" />
+                      {isSubmitting ? "Menyimpan..." : dataToEdit ? "Simpan Perubahan" : "Buat Sinking Fund"}
+                  </>
+              )}
           </Button>
       </div>
     </>

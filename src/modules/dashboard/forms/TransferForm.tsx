@@ -7,7 +7,7 @@ import { transferSchema, type TransferFormData } from '@/lib/schemas';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
 import { useEffect, useState, useMemo } from 'react';
 import type { Transaksi, Titipan } from '@/lib/types';
-import { UserCircle2, ArrowLeftRight, CalendarIcon, Wallet, FileText, Save, ArrowRight, Sparkles, TrendingUp } from 'lucide-react';
+import { UserCircle2, ArrowLeftRight, CalendarIcon, Wallet, FileText, Save, ArrowRight, Sparkles, TrendingUp, Loader2, CheckCircle2 } from "lucide-react";
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
@@ -385,9 +385,23 @@ export default function TransferForm({ onClose, transferToEdit, inline = false }
                         "bg-blue-600 text-white hover:bg-blue-700"
                     )}
                 >
-                    <Save size={16} className="mr-2" />
-                    {isSubmitting ? 'Memproses...' : 'Transfer'}
-                </Button>
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <ArrowRightLeft size={16} className="mr-2" />
+                      {isSubmitting ? "Memproses..." : "Transfer Sekarang"}
+                  </>
+              )}
+          </Button>
             </div>
         </>
     );

@@ -10,7 +10,7 @@ import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
 import type { Transaksi, Titipan } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
 import { getRootTipe, getRootLabel, isExpense } from '@/lib/tipeUtils';
-import { Save, CalendarIcon, AlertCircle, CheckCircle2, UserCircle2, Wallet, Layers, FileText, ArrowDownRight, ArrowUpRight, TrendingUp } from 'lucide-react';
+import { Save, CalendarIcon, AlertCircle, CheckCircle2, UserCircle2, Wallet, Layers, FileText, ArrowDownRight, ArrowUpRight, TrendingUp, Loader2 } from "lucide-react";
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
@@ -548,9 +548,23 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                         activeRootLabel.includes(TRANSACTION_TYPES.INCOME) ? "bg-emerald-500 text-white hover:bg-emerald-600" : activeRootLabel.includes(TRANSACTION_TYPES.SAVINGS) ? "bg-blue-500 text-white hover:bg-blue-600" : "bg-primary text-primary-foreground hover:bg-primary/90"
                     )}
                 >
-                    <Save size={16} className="mr-2" />
-                    {isSubmitting ? 'Menyimpan...' : (transaksiToEdit ? 'Simpan' : 'Tambah')}
-                </Button>
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <Save size={16} className="mr-2" />
+                      {isSubmitting ? "Menyimpan..." : (transaksiToEdit ? "Simpan" : "Tambah")}
+                  </>
+              )}
+          </Button>
             </div>
         </>
     );

@@ -14,10 +14,7 @@ import { useState, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import FormPageLayout from '@/shared/layout/FormPageLayout';
 import { ResponsiveModal } from "@/shared/ui/responsive-modal";
-import { 
-    PiggyBank, ShieldAlert, Banknote, Target, Car, Home, Plane, 
-    GraduationCap, Laptop, Smartphone, HeartPulse, Sparkles, CheckCircle2
-} from 'lucide-react';
+import { PiggyBank, ShieldAlert, Banknote, Target, Car, Home, Plane, GraduationCap, Laptop, Smartphone, HeartPulse, Sparkles, CheckCircle2, Loader2 } from "lucide-react";
 
 type AksiType = 'alokasi_tabungan' | 'tarik_tabungan' | 'eksekusi_tabungan';
 
@@ -266,8 +263,23 @@ export default function TabunganAksiForm({ onClose, tabungan, defaultAksi = 'alo
                         config.buttonClass
                     )}
                 >
-                    {isSubmitting ? 'Memproses Transaksi...' : config.buttonText}
-                </Button>
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <Save size={16} className="mr-2" />
+                      {isSubmitting ? "Memproses..." : "Simpan Transaksi"}
+                  </>
+              )}
+          </Button>
             </div>
         </>
     );

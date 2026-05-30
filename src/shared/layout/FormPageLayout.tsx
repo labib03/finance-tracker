@@ -107,32 +107,6 @@ export default function FormPageLayout({
                     className="w-full flex flex-col gap-6"
                 >
                     {formPanel}
-
-                    <AnimatePresence>
-                        {showSuccessModal && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="border border-emerald-200 bg-emerald-50 rounded-[2rem] shadow-sm"
-                            >
-                                <div className="p-6 flex flex-col sm:flex-row items-center gap-4 justify-between">
-                                    <div className="flex items-center gap-4 w-full">
-                                        <div className="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-600 flex items-center justify-center shadow-xs shrink-0">
-                                            <CheckCircle2 size={24} strokeWidth={2.5} />
-                                        </div>
-                                        <div className="text-left flex-1">
-                                            <h4 className="text-sm font-black uppercase tracking-wider text-emerald-800">
-                                                Sukses Menyimpan!
-                                            </h4>
-                                            <p className="text-xs text-emerald-700/80 font-bold mt-0.5">
-                                                {successMessage}
-                                            </p>
-                                        </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </motion.div>
             </main>
 

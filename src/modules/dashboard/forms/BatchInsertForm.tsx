@@ -8,20 +8,7 @@ import { useFinanceStore } from '@/lib/store';
 import type { Transaksi } from '@/lib/types';
 import { getToday, cn, formatRupiah } from '@/lib/utils';
 import { getRootTipe, getRootLabel } from '@/lib/tipeUtils';
-import { 
-    Save, 
-    Plus, 
-    Trash2, 
-    CalendarIcon, 
-    AlertCircle, 
-    CheckCircle2, 
-    Wallet, 
-    Layers, 
-    ArrowDownRight, 
-    ArrowUpRight, 
-    ArrowLeft,
-    Layers3
-} from 'lucide-react';
+import { Save, Plus, Trash2, CalendarIcon, AlertCircle, CheckCircle2, Wallet, Layers, ArrowDownRight, ArrowUpRight, ArrowLeft, Layers3, Loader2 } from "lucide-react";
 import NumericInput from '@/shared/forms/NumericInput';
 import { Input } from '@/shared/ui/input';
 import { Button } from '@/shared/ui/button';
@@ -589,9 +576,23 @@ export default function BatchInsertForm() {
                                 : "bg-slate-200 text-slate-400 cursor-not-allowed border-none shadow-none"
                         )}
                     >
-                        <Save size={16} strokeWidth={2.5} className="mr-2" />
-                        {isSaving ? "Menyimpan Transaksi..." : `Simpan Semua (${summary.validRows} Transaksi)`}
-                    </Button>
+              {saveSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSaving ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <Save size={16} className="mr-2" />
+                      {isSaving ? "Menyimpan Transaksi..." : "Simpan Semua (" + summary.validRows + " Transaksi)"}
+                  </>
+              )}
+          </Button>
                 </div>
             </form>
         </div>

@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { titipanSchema, type TitipanFormData } from '@/lib/schemas';
 import type { Titipan } from '@/lib/types';
-import { Save, UserCircle2, ShieldCheck, Mail } from 'lucide-react';
+import { Save, UserCircle2, ShieldCheck, Mail, Loader2, CheckCircle2 } from "lucide-react";
 import { generateId, getToday, cn } from '@/lib/utils';
 import { Button } from '@/shared/ui/button';
 import { Input } from '@/shared/ui/input';
@@ -121,9 +121,23 @@ export default function TitipanForm({ onClose, titipanToEdit, inline = false }: 
                         inline ? "bg-amber-500 hover:bg-amber-600 text-white" : "bg-amber-500 hover:bg-amber-600 text-white"
                     )}
                 >
-                    <Save size={16} />
-                    {isSubmitting ? 'Menyimpan...' : 'Simpan Amplop'}
-                </Button>
+              {showSuccess ? (
+                  <>
+                      <CheckCircle2 size={16} className="animate-in zoom-in mr-2" />
+                      Berhasil Disimpan!
+                  </>
+              ) : isSubmitting ? (
+                  <>
+                      <Loader2 size={16} className="animate-spin mr-2" />
+                      Menyimpan...
+                  </>
+              ) : (
+                  <>
+                      <Save size={16} className="mr-2" />
+                      {isSubmitting ? "Menyimpan..." : "Simpan Amplop"}
+                  </>
+              )}
+          </Button>
             </div>
         </>
     );
