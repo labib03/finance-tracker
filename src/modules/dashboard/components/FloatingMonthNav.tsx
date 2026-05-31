@@ -121,20 +121,21 @@ export default function FloatingMonthNav() {
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-800" />
 
           {/* Go to Current Month */}
-          {!isCurrentMonth && (
-            <>
-              <button
-                onClick={goToCurrentMonth}
-                className="w-10 h-10 flex items-center justify-center rounded-full text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors active:scale-95"
-                title="Ke Periode Berjalan"
-              >
-                <CalendarDays size={18} strokeWidth={2} />
-              </button>
-              
-              {/* Divider */}
-              <div className="w-px h-4 bg-slate-200 dark:bg-slate-800" />
-            </>
-          )}
+          <button
+            onClick={goToCurrentMonth}
+            disabled={isCurrentMonth}
+            className={`w-10 h-10 flex items-center justify-center rounded-full transition-colors ${
+              isCurrentMonth 
+                ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-50'
+                : 'text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 active:scale-95'
+            }`}
+            title="Ke Periode Berjalan"
+          >
+            <CalendarDays size={18} strokeWidth={2} />
+          </button>
+          
+          {/* Divider */}
+          <div className="w-px h-4 bg-slate-200 dark:bg-slate-800" />
 
           {/* Close */}
           <button
