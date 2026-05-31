@@ -8,7 +8,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { transaksiSchema, type TransaksiFormData } from '@/lib/schemas';
 import type { Transaksi, Titipan } from '@/lib/types';
-import { getToday, cn, formatRupiah } from '@/lib/utils';
+import { isInCustomMonth, getTransactionCycleMonth, getToday, cn, formatRupiah } from '@/lib/utils';
 import { getRootTipe, getRootLabel, isExpense } from '@/lib/tipeUtils';
 import { Save, CalendarIcon, AlertCircle, CheckCircle2, UserCircle2, Wallet, Layers, FileText, ArrowDownRight, ArrowUpRight, TrendingUp, Loader2 } from "lucide-react";
 import NumericInput from '@/shared/forms/NumericInput';
@@ -46,9 +46,9 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
     const updateTransaksi = useFinanceStore((s) => s.updateTransaksi);
     const budgetList = useFinanceStore((s) => s.budgetList);
     const transaksiList = useFinanceStore((s) => s.transaksiList);
-    const activeMonth = useFinanceStore((s) => s.activeMonth);
     const getTitipanAktif = useFinanceStore((s) => s.getTitipanAktif);
     const tipeList = useFinanceStore((s) => s.tipeList);
+    const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
     const router = useRouter();
 
     const searchParams = useSearchParams();
@@ -148,10 +148,14 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
         const _isPengeluaran = isExpense(tipeList, watchedJenis);
         if (!_isPengeluaran || !watchedKategori) return null;
 
+        const transactionCycleMonth = getTransactionCycleMonth(watchedTanggal, cycleStartDay);
+        const cycleYear = parseInt(transactionCycleMonth.split('-')[0]);
+        const cycleMonth = parseInt(transactionCycleMonth.split('-')[1]);
+
         const budget = budgetList.find(b =>
             b.id_kategori === watchedKategori &&
-            b.bulan === parseInt(activeMonth.split('-')[1]) &&
-            b.tahun === parseInt(activeMonth.split('-')[0])
+            b.bulan === cycleMonth &&
+            b.tahun === cycleYear
         );
 
         if (!budget) return null;
@@ -161,6 +165,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
                 const isTipePengeluaran = isExpense(tipeList, t.jenis);
                 return t.id_kategori === watchedKategori &&
                 isTipePengeluaran &&
+                isInCustomMonth(t.tanggal, transactionCycleMonth, cycleStartDay) &&
                 (!transaksiToEdit || t.id !== transaksiToEdit.id);
             })
             .reduce((sum, t) => sum + t.nominal, 0);
@@ -179,7 +184,7 @@ function TransaksiFormInner({ onClose, transaksiToEdit, inline = false }: Transa
             kategoriName: kategoriList.find(k => k.id_kategori === watchedKategori)?.nama_kategori || '',
             isOver: newUsage > limit
         };
-    }, [watchedNominal, watchedKategori, watchedJenis, budgetList, transaksiList, activeMonth, transaksiToEdit, kategoriList]);
+    }, [watchedNominal, watchedKategori, watchedJenis, watchedTanggal, budgetList, transaksiList, cycleStartDay, transaksiToEdit, kategoriList, tipeList]);
 
     const onSubmit = async (data: TransaksiFormData) => {
         if (transaksiToEdit && transaksiToEdit.id) {

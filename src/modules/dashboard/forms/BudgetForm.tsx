@@ -65,7 +65,9 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
     const pengeluaranTipes = useMemo(() => tipeList.filter(t => getRootLabel(tipeList, t.id_tipe).toLowerCase().includes(TRANSACTION_TYPES.EXPENSE)).map(t => t.id_tipe), [tipeList]);
     const pengeluaranKategori = useMemo(() => kategoriList.filter((k) => pengeluaranTipes.includes(k.tipe)), [kategoriList, pengeluaranTipes]);
 
-    const now = new Date();
+    const activeMonth = useFinanceStore((s) => s.activeMonth);
+    const cycleMonth = parseInt(activeMonth.split('-')[1]);
+    const cycleYear = parseInt(activeMonth.split('-')[0]);
 
     const {
         register,
@@ -80,8 +82,8 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
         resolver: zodResolver(budgetSchema) as any,
         defaultValues: {
             id_kategori: budgetToEdit?.id_kategori || '',
-            bulan: budgetToEdit?.bulan || now.getMonth() + 1,
-            tahun: budgetToEdit?.tahun || now.getFullYear(),
+            bulan: budgetToEdit?.bulan || cycleMonth,
+            tahun: budgetToEdit?.tahun || cycleYear,
             nominal_limit: budgetToEdit?.nominal_limit || 0,
         },
     });
@@ -99,8 +101,8 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
     }, [budgetToEdit?.id_anggaran, reset]);
 
     const watchedKategori = useWatch({ control, name: 'id_kategori' }) || '';
-    const watchedBulan = useWatch({ control, name: 'bulan' }) || now.getMonth() + 1;
-    const watchedTahun = useWatch({ control, name: 'tahun' }) || now.getFullYear();
+    const watchedBulan = useWatch({ control, name: 'bulan' }) || cycleMonth;
+    const watchedTahun = useWatch({ control, name: 'tahun' }) || cycleYear;
     const watchedLimit = useWatch({ control, name: 'nominal_limit' }) || 0;
 
     const availableKategori = useMemo(() => {
@@ -216,11 +218,21 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
                                         <SelectValue placeholder="Bulan" />
                                     </SelectTrigger>
                                     <SelectContent className={inline ? "bg-white border-slate-200 text-slate-950" : "bg-white text-slate-950"}>
-                                        {NAMA_BULAN.map((b) => (
-                                            <SelectItem key={b.value} value={b.label} className="cursor-pointer">
-                                                {b.label}
-                                            </SelectItem>
-                                        ))}
+                                        {NAMA_BULAN.map((b) => {
+                                            const isFuture = Number(watchedTahun) === cycleYear && Number(b.value) > cycleMonth;
+                                            if (Number(watchedTahun) > cycleYear) return null; // block completely
+
+                                            return (
+                                                <SelectItem 
+                                                    key={b.value} 
+                                                    value={b.label} 
+                                                    className={cn("cursor-pointer", isFuture && "opacity-50 cursor-not-allowed")}
+                                                    disabled={isFuture}
+                                                >
+                                                    {b.label}
+                                                </SelectItem>
+                                            );
+                                        })}
                                     </SelectContent>
                                 </Select>
                             )}
@@ -240,7 +252,7 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
                             {...register('tahun')}
                             className={cn("h-12 rounded-xl font-medium", inline ? "bg-slate-50 border-slate-200 text-slate-950 focus:bg-white focus:ring-0" : "bg-white border-slate-200", errors.tahun ? 'border-destructive' : '')}
                             min={2020}
-                            max={2100}
+                            max={cycleYear}
                         />
                         {errors.tahun && (
                             <p className="text-xs font-semibold text-destructive mt-1">{errors.tahun.message}</p>

@@ -131,6 +131,33 @@ export function isInCustomMonth(
 }
 
 /**
+ * Get the cycle month (YYYY-MM) for a given transaction date
+ */
+export function getTransactionCycleMonth(dateStr: string, cycleStartDay: number = 25): string {
+  if (!dateStr) return getCurrentMonth(cycleStartDay);
+  try {
+    const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return getCurrentMonth(cycleStartDay);
+    
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    const day = date.getDate();
+
+    if (day >= cycleStartDay) {
+      month += 1;
+      if (month > 12) {
+        month = 1;
+        year += 1;
+      }
+    }
+
+    return `${year}-${String(month).padStart(2, "0")}`;
+  } catch {
+    return getCurrentMonth(cycleStartDay);
+  }
+}
+
+/**
  * Get today's date in YYYY-MM-DD format
  */
 export function getToday(): string {
