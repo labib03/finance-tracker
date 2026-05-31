@@ -4,7 +4,7 @@ import { TRANSACTION_TYPES } from '@/lib/constants';
 import React, { useState, useMemo } from 'react';
 import { format, parseISO, startOfWeek, endOfWeek, eachDayOfInterval, startOfMonth, endOfMonth, isSameMonth, isSameDay, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns';
 import { id as localeId } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, LayoutList } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar as CalendarIcon, LayoutList, PiggyBank } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { useFinanceStore } from '@/lib/store';
@@ -17,6 +17,33 @@ import { getRootLabel } from '@/lib/tipeUtils';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/shared/ui/select';
 
 type ViewMode = 'Month' | 'Week' | 'Day';
+
+const getTheme = (isIncome: boolean, isTransfer: boolean, isSavings: boolean) => {
+  if (isIncome) return {
+    iconBg: 'bg-[#E8F5E9] dark:bg-emerald-900/30',
+    iconColor: 'text-[#2E7D32] dark:text-emerald-400',
+    amountColor: 'text-[#2E7D32] dark:text-emerald-400',
+    prefix: '+'
+  };
+  if (isTransfer) return {
+    iconBg: 'bg-[#E3F2FD] dark:bg-sky-900/30',
+    iconColor: 'text-[#1565C0] dark:text-sky-400',
+    amountColor: 'text-[#1565C0] dark:text-sky-400',
+    prefix: ''
+  };
+  if (isSavings) return {
+    iconBg: 'bg-[#F3E5F5] dark:bg-indigo-900/30',
+    iconColor: 'text-[#6A1B9A] dark:text-indigo-400',
+    amountColor: 'text-[#6A1B9A] dark:text-indigo-400',
+    prefix: ''
+  };
+  return {
+    iconBg: 'bg-[#FFEBEE] dark:bg-rose-900/30',
+    iconColor: 'text-[#C62828] dark:text-rose-400',
+    amountColor: 'text-[#C62828] dark:text-rose-400',
+    prefix: '-'
+  };
+};
 
 export default function ExpenseCalendar() {
   const { transaksiList, kategoriList, tipeList } = useFinanceStore();
@@ -129,14 +156,14 @@ export default function ExpenseCalendar() {
               const data = dailyData[dateStr];
               const isToday = isSameDay(day, new Date());
               const isCurrentMonth = viewMode === 'Month' ? isSameMonth(day, currentDate) : true;
-              const hasData = !!data && (data.totalExpense > 0 || data.totalIncome > 0 || data.totalTransfer > 0);
+              const hasData = !!data && (data.totalExpense > 0 || data.totalIncome > 0 || data.totalTransfer > 0 || data.totalSavings > 0);
 
               return (
                 <div
                   key={day.toISOString() + idx}
                   onClick={() => hasData && setSelectedDayStr(dateStr)}
                   className={`
-                    min-h-[85px] sm:min-h-[110px] ${viewMode === 'Week' ? 'sm:min-h-[160px]' : ''} p-1 sm:p-2 border rounded-xl transition-all flex flex-col
+                    min-h-[85px] sm:min-h-[135px] ${viewMode === 'Week' ? 'sm:min-h-[180px]' : ''} p-1 sm:p-2 border rounded-xl transition-all flex flex-col
                     ${!isCurrentMonth ? 'bg-slate-50 dark:bg-slate-900/50 opacity-50' : 'bg-white dark:bg-slate-900'}
                     ${isToday ? 'border-indigo-500 shadow-sm ring-1 ring-indigo-500/20' : 'border-slate-100 dark:border-slate-800'}
                     ${hasData ? 'cursor-pointer hover:border-indigo-300 hover:shadow-md' : 'cursor-default'}
@@ -156,17 +183,22 @@ export default function ExpenseCalendar() {
                       {/* Desktop View: Show amount */}
                       <div className="hidden sm:flex flex-col gap-0.5">
                         {data.totalIncome > 0 && (
-                          <div className="text-[10px] xl:text-xs font-bold text-emerald-600 dark:text-emerald-400 truncate">
+                          <div className="text-[10px] xl:text-xs font-bold text-emerald-600 dark:text-emerald-400 truncate" title={`Pemasukan: ${formatRupiah(data.totalIncome)}`}>
                             + {formatRupiah(data.totalIncome)}
                           </div>
                         )}
                         {data.totalExpense > 0 && (
-                          <div className="text-[10px] xl:text-xs font-bold text-rose-600 dark:text-rose-400 truncate">
+                          <div className="text-[10px] xl:text-xs font-bold text-rose-600 dark:text-rose-400 truncate" title={`Pengeluaran: ${formatRupiah(data.totalExpense)}`}>
                             - {formatRupiah(data.totalExpense)}
                           </div>
                         )}
+                        {data.totalSavings > 0 && (
+                          <div className="text-[10px] xl:text-xs font-bold text-[#6A1B9A] dark:text-indigo-400 truncate flex items-center gap-0.5" title={`Tabungan: ${formatRupiah(data.totalSavings)}`}>
+                            <PiggyBank className="w-3 h-3 shrink-0" /> {formatRupiah(data.totalSavings)}
+                          </div>
+                        )}
                         {data.totalTransfer > 0 && (
-                          <div className="text-[10px] xl:text-xs font-bold text-sky-600 dark:text-sky-400 truncate">
+                          <div className="text-[10px] xl:text-xs font-bold text-sky-600 dark:text-sky-400 truncate" title={`Transfer: ${formatRupiah(data.totalTransfer)}`}>
                             ⇔ {formatRupiah(data.totalTransfer)}
                           </div>
                         )}
@@ -179,7 +211,7 @@ export default function ExpenseCalendar() {
                           const isTransfer = rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || cat.tipe.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
                           const isIncome = rootLabel.includes(TRANSACTION_TYPES.INCOME);
                           const isSavings = rootLabel.includes(TRANSACTION_TYPES.SAVINGS);
-                          const baseColor = isIncome ? 'emerald' : isTransfer ? 'sky' : isSavings ? 'blue' : 'rose';
+                          const baseColor = isIncome ? 'emerald' : isTransfer ? 'sky' : isSavings ? 'indigo' : 'rose';
                           
                           if (viewMode === 'Month') {
                             // Month: Compact Box with tiny icon
@@ -252,40 +284,47 @@ function DayViewDetail({ dateStr, data, tipeList }: { dateStr: string, data: any
     );
   }
 
+  const showIncome = data.totalIncome > 0;
+  const showExpense = data.totalExpense > 0;
+  const showTransfer = data.totalTransfer > 0;
+  const showSavings = data.totalSavings > 0;
+  
+  const blocks = [
+    ...(showIncome ? [{ title: 'Pemasukan', amount: data.totalIncome, color: 'text-[#2E7D32] dark:text-emerald-400', bg: 'bg-[#E8F5E9] dark:bg-emerald-950/40' }] : []),
+    ...(showExpense ? [{ title: 'Pengeluaran', amount: data.totalExpense, color: 'text-[#C62828] dark:text-rose-400', bg: 'bg-[#FFEBEE] dark:bg-rose-950/40' }] : []),
+    ...(showSavings ? [{ title: 'Tabungan', amount: data.totalSavings, color: 'text-[#6A1B9A] dark:text-indigo-400', bg: 'bg-[#F3E5F5] dark:bg-indigo-950/40' }] : []),
+    ...(showTransfer ? [{ title: 'Transfer', amount: data.totalTransfer, color: 'text-[#1565C0] dark:text-sky-400', bg: 'bg-[#E3F2FD] dark:bg-sky-950/40' }] : [])
+  ];
+
   return (
-    <div className="flex flex-col bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden">
+    <div className="flex flex-col bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 rounded-2xl overflow-hidden shadow-sm">
       {/* Date Header */}
-      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+      <div className="px-4 sm:px-6 py-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center bg-white dark:bg-slate-950">
         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{formattedDate}</h3>
         <Badge variant="outline" className="text-slate-500">{data.transactions.length} Transaksi</Badge>
       </div>
       
       {/* Summary Header */}
-      <div className="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-800/50 flex items-center justify-between border-b border-slate-100 dark:border-slate-800">
-        <div className="flex flex-col">
-          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Pemasukan</span>
-          <span className="text-lg sm:text-xl font-bold text-emerald-600 dark:text-emerald-400">
-            {formatRupiah(data.totalIncome || 0)}
-          </span>
+      {blocks.length > 0 && (
+        <div className="px-4 sm:px-6 py-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-800">
+          <div className={`grid gap-3 ${blocks.length === 1 ? 'grid-cols-1' : blocks.length === 2 ? 'grid-cols-2' : blocks.length === 3 ? 'grid-cols-3' : 'grid-cols-2 md:grid-cols-4'}`}>
+            {blocks.map((b) => (
+              <div 
+                key={b.title} 
+                className={`${b.bg} p-3 rounded-2xl flex flex-col justify-center`}
+              >
+                <span className="text-[10px] sm:text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-widest mb-1 truncate">{b.title}</span>
+                <span className={`text-sm sm:text-base font-black tracking-tight truncate ${b.color}`}>
+                  {formatRupiah(b.amount)}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
-        <div className="flex flex-col text-center">
-          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Transfer</span>
-          <span className="text-lg sm:text-xl font-bold text-sky-600 dark:text-sky-400">
-            {formatRupiah(data.totalTransfer || 0)}
-          </span>
-        </div>
-        <div className="h-8 w-px bg-slate-200 dark:bg-slate-700"></div>
-        <div className="flex flex-col text-right">
-          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider mb-1">Pengeluaran</span>
-          <span className="text-lg sm:text-xl font-bold text-rose-600 dark:text-rose-400">
-            {formatRupiah(data.totalExpense || 0)}
-          </span>
-        </div>
-      </div>
+      )}
 
       {/* List */}
-      <div className="p-4 sm:p-6 space-y-3">
+      <div className="p-4 sm:p-6 space-y-0">
         {data.transactions.map((tx: any) => {
           const cat = data.categories.find((c: any) => c.id_kategori === tx.id_kategori);
           const rootLabel = getRootLabel(tipeList, tx.jenis).toLowerCase();
@@ -293,32 +332,29 @@ function DayViewDetail({ dateStr, data, tipeList }: { dateStr: string, data: any
           const isTransfer = rootLabel.includes(TRANSACTION_TYPES.TRANSFER) || tx.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER;
           const isSavings = rootLabel.includes(TRANSACTION_TYPES.SAVINGS);
           
-          let colorClass = 'rose';
-          if (isIncome) colorClass = 'emerald';
-          if (isTransfer) colorClass = 'sky';
-          if (isSavings) colorClass = 'blue';
+          const theme = getTheme(isIncome, isTransfer, isSavings);
 
           return (
             <div 
               key={tx.id} 
-              className="flex items-center justify-between p-3 rounded-xl border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              className="flex items-center gap-4 py-3 border-b border-slate-100 dark:border-slate-800/50 last:border-0 group"
             >
-              <div className="flex items-center space-x-3">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center bg-${colorClass}-50 dark:bg-${colorClass}-950/30 text-${colorClass}-500`}>
-                  <CategoryIcon name={cat?.icon_name || (isTransfer ? 'ArrowRightLeft' : 'Circle')} className="w-5 h-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{tx.label}</p>
-                  <div className="flex items-center mt-0.5 space-x-2">
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">
-                      {cat?.nama_kategori || (isTransfer ? 'Transfer' : 'Kategori')}
-                    </Badge>
-                  </div>
-                </div>
+              <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${theme.iconBg} ${theme.iconColor}`}>
+                <CategoryIcon name={cat?.icon_name || (isTransfer ? 'ArrowRightLeft' : 'Circle')} className="w-5 h-5" strokeWidth={2} />
               </div>
-              <div className="text-right">
-                <p className={`text-sm font-bold text-${colorClass}-600 dark:text-${colorClass}-400`}>
-                  {isIncome ? '+' : isTransfer ? '⇔' : '-'} {formatRupiah(tx.nominal)}
+              
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-800 dark:text-slate-100 truncate">
+                  {tx.label}
+                </p>
+                <p className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider truncate mt-0.5">
+                  {cat?.nama_kategori || (isTransfer ? 'Transfer' : 'Kategori')}
+                </p>
+              </div>
+              
+              <div className="text-right shrink-0 pl-2">
+                <p className={`text-sm font-black tracking-tight ${theme.amountColor}`}>
+                  {theme.prefix} {formatRupiah(tx.nominal)}
                 </p>
               </div>
             </div>

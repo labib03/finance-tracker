@@ -8,6 +8,7 @@ export interface DailyTransactionSummary {
   totalExpense: number;
   totalIncome: number;
   totalTransfer: number;
+  totalSavings: number;
   categories: {
     id_kategori: string;
     nama_kategori: string;
@@ -46,6 +47,7 @@ export function aggregateTransactionsByDay(
         totalExpense: 0,
         totalIncome: 0,
         totalTransfer: 0,
+        totalSavings: 0,
         categories: [],
         transactions: [],
       };
@@ -57,14 +59,12 @@ export function aggregateTransactionsByDay(
       aggregated[dateStr].totalExpense += t.nominal;
     } else if (rootLabel.includes(TRANSACTION_TYPES.INCOME)) {
       aggregated[dateStr].totalIncome += t.nominal;
+    } else if (rootLabel.includes(TRANSACTION_TYPES.SAVINGS)) {
+      aggregated[dateStr].totalSavings += t.nominal;
     } else if (
       rootLabel.includes(TRANSACTION_TYPES.TRANSFER) ||
-      t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER ||
-      rootLabel.includes(TRANSACTION_TYPES.SAVINGS)
+      t.jenis.toLowerCase() === TRANSACTION_TYPES.TRANSFER
     ) {
-      // Since savings might just be transfer or separate
-      // If it's savings or transfer, let's just group them in totalTransfer for now or if we need we can expand.
-      // Keep transfer as is
       aggregated[dateStr].totalTransfer += t.nominal;
     }
 
