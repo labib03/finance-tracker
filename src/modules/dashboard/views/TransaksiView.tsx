@@ -21,24 +21,6 @@ function TransaksiViewInner() {
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-end gap-3">
-        <Button 
-          onClick={() => router.push('/transaksi/batch')} 
-          variant="ghost"
-          className="rounded-full px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 h-10 border-none shadow-none flex items-center justify-center font-bold"
-        >
-          <Layers3 size={16} className="mr-2" />
-          Input Massal
-        </Button>
-        <Button 
-          onClick={handleTambahTransaksi} 
-          variant="ghost"
-          className="rounded-full px-6 bg-blue-100 hover:bg-blue-200 text-blue-700 border-none shadow-none font-bold"
-        >
-          <Plus size={18} className="mr-2" />
-          Tambah Transaksi
-        </Button>
-      </div>
       <TransactionsTable 
         limit={50} 
         showDelete 
@@ -52,6 +34,26 @@ function TransaksiViewInner() {
           }
         }}
         title="Semua Transaksi" 
+        headerActions={
+          <>
+            <Button 
+              onClick={() => router.push('/transaksi/batch')} 
+              variant="ghost"
+              className="rounded-full px-4 sm:px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 h-9 sm:h-10 border-none shadow-none flex items-center justify-center font-bold text-xs sm:text-sm transition-all"
+            >
+              <Layers3 size={16} className="sm:mr-2" />
+              <span className="hidden sm:inline">Input Massal</span>
+            </Button>
+            <Button 
+              onClick={handleTambahTransaksi} 
+              variant="ghost"
+              className="rounded-full px-4 sm:px-6 bg-blue-100 hover:bg-blue-200 text-blue-700 h-9 sm:h-10 border-none shadow-none font-bold text-xs sm:text-sm transition-all"
+            >
+              <Plus size={18} className="sm:mr-2" />
+              <span className="hidden sm:inline">Tambah Transaksi</span>
+            </Button>
+          </>
+        }
       />
     </div>
   );

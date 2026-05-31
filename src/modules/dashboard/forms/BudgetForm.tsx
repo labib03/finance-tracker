@@ -5,7 +5,7 @@ import { useForm, Controller, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useFinanceStore } from '@/lib/store';
 import { budgetSchema, type BudgetFormData } from '@/lib/schemas';
-import { PieChart, Send, Sparkles, CalendarDays, ReceiptText, Loader2, CheckCircle2 } from "lucide-react";
+import { PieChart, Send, Sparkles, CalendarDays, ReceiptText, Loader2, CheckCircle2, History } from "lucide-react";
 import { useEffect, useMemo, useState } from 'react';
 import type { Budget } from '@/lib/types';
 import NumericInput from '@/shared/forms/NumericInput';
@@ -73,6 +73,7 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
         handleSubmit,
         reset,
         watch,
+        setValue,
         formState: { errors, isSubmitting, isDirty },
     } = useForm<BudgetFormData>({
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -117,6 +118,25 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
     const targetBulanName = useMemo(() => {
         return NAMA_BULAN.find(b => Number(b.value) === Number(watchedBulan))?.label || 'Bulan';
     }, [watchedBulan]);
+
+    const previousBudget = useMemo(() => {
+        if (!watchedKategori) return null;
+        
+        const categoryBudgets = budgetList.filter(b => b.id_kategori === watchedKategori);
+        
+        const pastBudgets = categoryBudgets.filter(b => {
+            if (b.tahun < watchedTahun) return true;
+            if (b.tahun === watchedTahun && b.bulan < watchedBulan) return true;
+            return false;
+        });
+
+        pastBudgets.sort((a, b) => {
+            if (a.tahun !== b.tahun) return b.tahun - a.tahun;
+            return b.bulan - a.bulan;
+        });
+
+        return pastBudgets.length > 0 ? pastBudgets[0] : null;
+    }, [watchedKategori, budgetList, watchedBulan, watchedTahun]);
 
     const onSubmit = async (data: BudgetFormData) => {
         if (budgetToEdit) {
@@ -244,6 +264,24 @@ export default function BudgetForm({ onClose, budgetToEdit, inline = false }: Bu
                         inline ? "bg-slate-50 border-slate-200 text-slate-900 focus:border-primary/50" : "bg-primary/5 border-primary/20 text-primary"
                     )}
                 />
+
+                {previousBudget && (
+                    <div className="flex justify-center mt-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setValue('nominal_limit', previousBudget.nominal_limit, { shouldDirty: true, shouldValidate: true });
+                            }}
+                            className={cn(
+                                "flex items-center gap-1.5 text-[11px] font-bold px-4 py-2 rounded-full transition-all active:scale-95",
+                                inline ? "text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200/60 shadow-sm" : "text-primary bg-primary/10 hover:bg-primary/20"
+                            )}
+                        >
+                            <History size={14} />
+                            Salin {NAMA_BULAN.find(b => Number(b.value) === previousBudget.bulan)?.label} {previousBudget.tahun}: {formatRupiah(previousBudget.nominal_limit)}
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* Action Row */}

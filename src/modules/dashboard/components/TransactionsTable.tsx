@@ -64,6 +64,7 @@ interface TransactionsTableProps {
     preselectedCategory?: string;
     hideHeader?: boolean;
     onTransactionClick?: (transaksi: Transaksi) => void;
+    headerActions?: React.ReactNode;
 }
 
 function TransactionsTableInner({
@@ -78,6 +79,7 @@ function TransactionsTableInner({
     preselectedCategory,
     hideHeader = false,
     onTransactionClick,
+    headerActions,
 }: TransactionsTableProps) {
     const transaksiList = useFinanceStore((s) => s.transaksiList);
     const kategoriList = useFinanceStore((s) => s.kategoriList);
@@ -299,6 +301,11 @@ function TransactionsTableInner({
                             <CardTitle className="text-sm font-black uppercase tracking-widest">{title}</CardTitle>
                             {description && <CardDescription className="text-xs font-medium uppercase tracking-widest mt-1 opacity-60">{description}</CardDescription>}
                         </div>
+                        {headerActions && (
+                            <div className="flex items-center gap-2">
+                                {headerActions}
+                            </div>
+                        )}
                     </div>
                 </CardHeader>
             )}
