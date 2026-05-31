@@ -85,57 +85,84 @@ export default function SummaryCards() {
         },
     ];
 
-    return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
-            {cards.map((card, idx) => {
-                const Icon = card.icon;
-                return (
-                    <div 
-                        key={card.label} 
-                        className={cn(
-                            "group relative overflow-hidden bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border border-border/40 shadow-scandi transition-all duration-500 hover:shadow-float hover:-translate-y-1",
-                            idx === 0 ? "sm:col-span-2 xl:col-span-1" : ""
-                        )}
-                    >
-                        {/* Soft Accent Background Blur */}
+    const renderCard = (card: typeof cards[0], highlight: boolean = false) => {
+        const Icon = card.icon;
+        return (
+            <div 
+                key={card.label} 
+                className={cn(
+                    "group relative overflow-hidden bg-white p-6 sm:p-8 rounded-[2rem] sm:rounded-[2.5rem] border shadow-scandi transition-all duration-500 hover:shadow-float hover:-translate-y-1",
+                    highlight ? "border-blue-500/30 ring-4 ring-blue-500/10" : "border-border/40"
+                )}
+            >
+                {/* Soft Accent Background Blur */}
+                <div className={cn(
+                    "absolute -right-8 -top-8 w-32 h-32 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20",
+                    card.iconColor.replace('text-', 'bg-')
+                )} />
+
+                <div className="relative z-10">
+                    <div className="flex items-center justify-between mb-8">
                         <div className={cn(
-                            "absolute -right-8 -top-8 w-32 h-32 rounded-full blur-3xl opacity-10 transition-opacity group-hover:opacity-20",
-                            card.iconColor.replace('text-', 'bg-')
-                        )} />
-
-                        <div className="relative z-10">
-                            <div className="flex items-center justify-between mb-8">
-                                <div className={cn(
-                                    "w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 duration-500",
-                                    card.iconBg
-                                )}>
-                                    <Icon size={20} strokeWidth={2.5} className={card.iconColor} />
-                                </div>
-                                {card.trend && (
-                                    <div className={cn(
-                                        "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-widest uppercase border",
-                                        card.trend === 'up' 
-                                            ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
-                                            : 'bg-orange-50 text-orange-600 border-orange-100'
-                                    )}>
-                                        {card.trend === 'up' ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
-                                        {card.subtitle}
-                                    </div>
-                                )}
-                            </div>
-
-                            <div className="space-y-1">
-                                <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">
-                                    {card.label}
-                                </p>
-                                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black text-foreground display-number tracking-widest truncate">
-                                    {formatRupiah(card.value)}
-                                </h3>
-                            </div>
+                            "w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs transition-transform group-hover:scale-110 duration-500",
+                            card.iconBg
+                        )}>
+                            <Icon size={20} strokeWidth={2.5} className={card.iconColor} />
                         </div>
+                        {card.trend && (
+                            <div className={cn(
+                                "flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-widest uppercase border",
+                                card.trend === 'up' 
+                                    ? 'bg-emerald-50 text-emerald-600 border-emerald-100' 
+                                    : 'bg-orange-50 text-orange-600 border-orange-100'
+                            )}>
+                                {card.trend === 'up' ? <ArrowUpRight size={14} strokeWidth={3} /> : <ArrowDownRight size={14} strokeWidth={3} />}
+                                {card.subtitle}
+                            </div>
+                        )}
                     </div>
-                );
-            })}
+
+                    <div className="space-y-1">
+                        <p className="text-xs font-black uppercase tracking-widest text-muted-foreground/80">
+                            {card.label}
+                        </p>
+                        <h3 
+                            className="text-xl sm:text-2xl lg:text-3xl font-black text-foreground display-number tracking-tight tabular-nums break-words"
+                            title={formatRupiah(card.value)}
+                        >
+                            {formatRupiah(card.value)}
+                        </h3>
+                    </div>
+                </div>
+            </div>
+        );
+    };
+
+    return (
+        <div className="flex flex-col gap-8">
+            {/* Section 1: Posisi Keuangan */}
+            <div className="space-y-4">
+                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-blue-500"></span>
+                    Posisi Keuangan
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                    {renderCard(cards[0], true)} {/* Total Saldo */}
+                    {renderCard(cards[3])}       {/* Uang Titipan */}
+                </div>
+            </div>
+
+            {/* Section 2: Arus Kas Bulan Ini */}
+            <div className="space-y-4">
+                <h2 className="text-sm font-bold text-muted-foreground uppercase tracking-widest px-2 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    Arus Kas Bulan Ini
+                </h2>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
+                    {renderCard(cards[1])} {/* Pemasukan */}
+                    {renderCard(cards[2])} {/* Pengeluaran */}
+                </div>
+            </div>
         </div>
     );
 }
