@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useFinanceStore } from '@/lib/store';
 import { cn } from '@/lib/utils';
 import Sidebar from '@/shared/layout/Sidebar';
@@ -18,16 +18,24 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
   const isInitialized = useFinanceStore((s) => s.isInitialized);
   const isSidebarCollapsed = useFinanceStore((s) => s.isSidebarCollapsed);
 
+  const [hideLoadingScreen, setHideLoadingScreen] = useState(false);
+  const isReady = !isLoading && isInitialized;
+
   useEffect(() => {
     initialize();
   }, [initialize]);
 
-  if (isLoading && !isInitialized) {
-    return <LoadingScreen />;
-  }
-
   return (
-    <div className="flex min-h-dvh w-full relative bg-background overflow-x-hidden">
+    <>
+      {!hideLoadingScreen && (
+        <LoadingScreen 
+          isReady={isReady} 
+          onComplete={() => setHideLoadingScreen(true)} 
+        />
+      )}
+      
+      {isReady && (
+        <div className="flex min-h-dvh w-full relative bg-background overflow-x-hidden">
       <LiquidBackground />
       <Toaster richColors position="top-right" />
 
@@ -54,5 +62,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
       {/* ======================== MODALS ======================== */}
       <ModalOrchestrator />
     </div>
+      )}
+    </>
   );
 }
