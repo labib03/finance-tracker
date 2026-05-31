@@ -3,9 +3,9 @@
 import { useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { motion, useScroll, useMotionValueEvent, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, ArrowUp, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowUp, X, CalendarDays } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
-import { getNamaBulan } from '@/lib/utils';
+import { getNamaBulan, getCurrentMonth } from '@/lib/utils';
 import { useFinanceStore } from '@/lib/store';
 
 export default function FloatingMonthNav() {
@@ -16,7 +16,14 @@ export default function FloatingMonthNav() {
   
   const activeMonth = useFinanceStore((s) => s.activeMonth);
   const setActiveMonth = useFinanceStore((s) => s.setActiveMonth);
+  const cycleStartDay = useFinanceStore((s) => s.cycleStartDay);
   const lastScrollY = useRef(0);
+
+  const isCurrentMonth = activeMonth === getCurrentMonth(cycleStartDay);
+
+  const goToCurrentMonth = () => {
+    setActiveMonth(getCurrentMonth(cycleStartDay));
+  };
 
   const navigateMonth = (direction: -1 | 1) => {
     const [year, month] = activeMonth.split('-').map(Number);
@@ -112,6 +119,22 @@ export default function FloatingMonthNav() {
 
           {/* Divider */}
           <div className="w-px h-4 bg-slate-200 dark:bg-slate-800" />
+
+          {/* Go to Current Month */}
+          {!isCurrentMonth && (
+            <>
+              <button
+                onClick={goToCurrentMonth}
+                className="w-10 h-10 flex items-center justify-center rounded-full text-indigo-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/30 transition-colors active:scale-95"
+                title="Ke Periode Berjalan"
+              >
+                <CalendarDays size={18} strokeWidth={2} />
+              </button>
+              
+              {/* Divider */}
+              <div className="w-px h-4 bg-slate-200 dark:bg-slate-800" />
+            </>
+          )}
 
           {/* Close */}
           <button
